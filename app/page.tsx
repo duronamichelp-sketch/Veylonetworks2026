@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    'https://oxjjkyfqtlzizdkylsqp.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    'sb_publishable_QoxM-Z0gAD2w75h0G1dN_Q_7CTVdECd'
 );
 /* =========================================================
    VEYLO NETWORKS 1.0
@@ -140,7 +142,7 @@ export default function Home() {
   const [signupName, setSignupName] = useState('');
 
   const [signupEmail, setSignupEmail] = useState('');
-
+  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   /* PEOPLE */
 
   const [peopleSearch, setPeopleSearch] = useState('');
@@ -578,6 +580,29 @@ export default function Home() {
     setSignupEmail('');
 
     setPage('profile');
+  }
+
+  async function loginAccount() {
+    const email = signupEmail.trim().toLowerCase();
+  
+    if (!email) {
+      alert('Enter your email.');
+      return;
+    }
+  
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+      },
+    });
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    alert('Check your email for your Veylo login link.');
   }
 
   function signOut() {
@@ -1367,24 +1392,54 @@ export default function Home() {
             work together through Veylo.
           </p>
 
-          <input
-            className="field"
-            placeholder="Full name"
-            value={signupName}
-            onChange={(event) => setSignupName(event.target.value)}
-          />
+          <div
+  style={{
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '8px',
+    marginBottom: '12px',
+  }}
+>
+  <button
+    type="button"
+    className={authMode === 'signup' ? 'primary' : 'field'}
+    onClick={() => setAuthMode('signup')}
+  >
+    Sign Up
+  </button>
 
-          <input
-            className="field"
-            type="email"
-            placeholder="Email address"
-            value={signupEmail}
-            onChange={(event) => setSignupEmail(event.target.value)}
-          />
+  <button
+    type="button"
+    className={authMode === 'login' ? 'primary' : 'field'}
+    onClick={() => setAuthMode('login')}
+  >
+    Log In
+  </button>
+</div>
 
-          <button className="primary full" onClick={createAccount}>
-            Create Veylo Account
-          </button>
+{authMode === 'signup' && (
+  <input
+    className="field"
+    placeholder="Full name"
+    value={signupName}
+    onChange={(event) => setSignupName(event.target.value)}
+  />
+)}
+
+<input
+  className="field"
+  type="email"
+  placeholder="Email address"
+  value={signupEmail}
+  onChange={(event) => setSignupEmail(event.target.value)}
+/>
+
+<button
+  className="primary full"
+  onClick={authMode === 'signup' ? createAccount : loginAccount}
+>
+  {authMode === 'signup' ? 'Create Veylo Account' : 'Log In'}
+</button>
 
           {members.length > 0 && (
             <div className="existingMembers">
