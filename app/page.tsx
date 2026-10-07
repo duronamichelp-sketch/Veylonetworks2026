@@ -2339,7 +2339,7 @@ export default function Home() {
               <section className="glass comingHero">
                 <span className="pill">VEYLO ROADMAP</span>
 
-                <h2>What's next for Veylo</h2>
+                <h2>What&apos;s next for Veylo</h2>
 
                 <p className="muted">
                   Veylo 1.0 establishes the core professional network, VBN and
