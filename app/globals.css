@@ -1580,3 +1580,30 @@ a {
     grid-column: auto;
   }
 }
+/* Veylo contact details */
+.contactEditor { margin: 16px 0; padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,.09); background: rgba(255,255,255,.025); }
+.contactEditor h3, .contactDetails h3 { margin: 0 0 10px; font-size: 15px; }
+.contactEditor .fieldLabel { display: block; margin-top: 12px; }
+.contactEditor p { line-height: 1.5; }
+.contactDetails { margin: 16px 0; padding: 14px; border-radius: 12px; background: rgba(255,255,255,.04); }
+.contactDetails p { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0; overflow-wrap: anywhere; }
+.contactDetails p span { min-width: 45px; color: #a0a8b1; }
+.contactDetails a { color: #64bfff; }
+.veyloMobileNav { display: none; }
+@media (max-width: 760px) {
+  .sidebar { display: none !important; }
+  .app { display: block !important; min-width: 0; }
+  .main { width: 100% !important; margin-left: 0 !important; min-width: 0; }
+  .content { padding-bottom: 108px !important; }
+  .veyloMobileNav {
+    position: fixed; inset: auto 0 0 0; display: flex; justify-content: space-around;
+    z-index: 9999; background: rgba(8,14,26,.97); border-top: 1px solid rgba(77,145,255,.24);
+    backdrop-filter: blur(18px); padding: 10px 5px calc(10px + env(safe-area-inset-bottom));
+  }
+  .mobileTab { flex: 1; min-width: 0; border: 0; background: transparent; color: #aab6ca;
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 5px 0;
+    font-size: 10px; cursor: pointer; }
+  .mobileTabIcon { font-size: 23px; line-height: 1; }
+  .mobileTab.active { color: #398cff; }
+  .twoColumnLayout, .profileGrid, .officeGrid, .peopleGrid, .newsGrid { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+}
