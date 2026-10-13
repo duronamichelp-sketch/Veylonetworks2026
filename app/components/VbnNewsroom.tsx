@@ -344,7 +344,7 @@ export default function VbnNewsroom({
         <div className="vbnLoading glass" role="status">
           <span className="vbnLoadingPulse" />
           <h2>Preparing your global briefing...</h2>
-          <p>Fetching today's business, startup, financial and world headlines.</p>
+          <p>Fetching today&apos;s business, startup, financial and world headlines.</p>
         </div>
       ) : articles.length === 0 ? (
         <div className="vbnLoading glass">
