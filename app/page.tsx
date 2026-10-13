@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://oxjjkyfqtlzizdkylsqp.supabase.co',
@@ -21,6 +22,17 @@ type Page =
   | 'profile'
   | 'memberProfile'
   | 'coming';
+
+type MobileIconName = 'network' | 'people' | 'messages' | 'offices' | 'vbn' | 'profile';
+
+const MOBILE_TABS: Array<{ id: Page; label: string; icon: MobileIconName }> = [
+  { id: 'network', label: 'Network', icon: 'network' },
+  { id: 'people', label: 'People', icon: 'people' },
+  { id: 'messages', label: 'Chats', icon: 'messages' },
+  { id: 'offices', label: 'Offices', icon: 'offices' },
+  { id: 'vbn', label: 'VBN', icon: 'vbn' },
+  { id: 'profile', label: 'Profile', icon: 'profile' },
+];
 
 type Project = {
   id: string;
@@ -99,14 +111,7 @@ type Office = {
   createdAt: string;
 };
 
-type NewsArticle = {
-  id: string;
-  title: string;
-  source: string;
-  summary: string;
-  url: string;
-  publishedAt: string;
-};
+type NewsArticle = VbnArticle;
 
 const STORAGE = {
   members: 'veylo_1_members',
@@ -124,6 +129,7 @@ export default function Home() {
   const [ready, setReady] = useState(false);
 
   const [page, setPage] = useState<Page>('network');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [members, setMembers] = useState<Member[]>([]);
 
@@ -142,7 +148,11 @@ export default function Home() {
   const [signupName, setSignupName] = useState('');
 
   const [signupEmail, setSignupEmail] = useState('');
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
+  const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
+  const [password, setPassword] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   /* PEOPLE */
 
   const [peopleSearch, setPeopleSearch] = useState('');
@@ -156,6 +166,7 @@ export default function Home() {
   const [selectedConversationId, setSelectedConversationId] = useState('');
 
   const [messageText, setMessageText] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [groupName, setGroupName] = useState('');
 
@@ -163,6 +174,8 @@ export default function Home() {
 
   /* PROFILE */
 
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaveMessage, setProfileSaveMessage] = useState('');
   const [profileDraft, setProfileDraft] = useState({
     fullName: '',
     headline: '',
@@ -209,14 +222,43 @@ export default function Home() {
   const [newsLoading, setNewsLoading] = useState(false);
 
   const [newsMessage, setNewsMessage] = useState('');
+  const [newsUpdatedAt, setNewsUpdatedAt] = useState('');
 
   /* =====================================================
      STORAGE
   ===================================================== */
 
   useEffect(() => {
+    // Password reset URLs establish an authenticated recovery session.
+    // A regular login does not send an email.
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (
+      params.get('recovery') === '1' ||
+      params.get('type') === 'recovery' ||
+      hashParams.get('type') === 'recovery'
+    ) {
+      setIsRecoveryMode(true);
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     async function loadVeyloData() {
       try {
+        // Resolve the actual Supabase account first; profile RLS requires it.
+        // Never use a member ID from local storage to authenticate.
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError) console.warn('Could not restore Veylo session:', authError.message);
+        setCurrentMemberId(user?.id || '');
+
         // Load real Veylo members from Supabase
         const { data: profiles, error } = await supabase
           .from('profiles')
@@ -241,15 +283,6 @@ export default function Home() {
           }));
 
           setMembers(realMembers);
-        }
-
-        // Find the currently signed-in Veylo user
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user) {
-          setCurrentMemberId(user.id);
         }
 
         // Keep these local for now
@@ -518,107 +551,107 @@ export default function Home() {
 
   async function createAccount() {
     const fullName = signupName.trim();
-
     const email = signupEmail.trim().toLowerCase();
 
-    if (!fullName || !email) {
-      alert('Enter your name and email.');
-
+    if (!fullName || !email || password.length < 8) {
+      alert('Please enter your name, email and a password of at least 8 characters.');
       return;
     }
 
-    const emailExists = members.some(
-      (member) => member.email.toLowerCase() === email
-    );
+    setAuthBusy(true);
+    try {
+      // The account is created in Supabase Auth; the existing database trigger
+      // creates the matching Veylo profile and permanent member code.
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      });
 
-    if (emailExists) {
-      alert('That email is already registered.');
+      if (error) throw error;
 
-      return;
+      setSignupName('');
+      setPassword('');
+      if (data.session) {
+        // If email confirmation is disabled, Supabase signs in immediately.
+        window.location.reload();
+        return;
+      }
+
+      setAuthMode('login');
+      alert('Account created. Check your email once to confirm your registration, then log in with your email and password.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Could not create your account: ' + message);
+    } finally {
+      setAuthBusy(false);
     }
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        data: {
-          full_name: fullName,
-        },
-      },
-    });
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    const number = getNextMemberNumber();
-
-    const member: Member = {
-      id: crypto.randomUUID(),
-
-      memberNumber: number,
-
-      memberCode: formatMemberCode(number),
-
-      email,
-
-      fullName,
-
-      headline: '',
-
-      bio: '',
-
-      location: '',
-
-      avatar: '',
-
-      projects: [],
-
-      createdAt: new Date().toISOString(),
-    };
-
-    setMembers((current) => [...current, member]);
-
-    setCurrentMemberId(member.id);
-
-    setSignupName('');
-    setSignupEmail('');
-
-    setPage('profile');
   }
 
   async function loginAccount() {
     const email = signupEmail.trim().toLowerCase();
-  
+    if (!email || !password) {
+      alert('Please enter your email address and password.');
+      return;
+    }
+
+    setAuthBusy(true);
+    try {
+      // Password sign-in never sends a magic link or any email.
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      if (!data.user) throw new Error('Unable to verify your account.');
+
+      setPassword('');
+      // Supabase persists the secure session; refresh to load member data.
+      window.location.reload();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Could not log in: ' + message);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function requestPasswordReset() {
+    const email = signupEmail.trim().toLowerCase();
     if (!email) {
-      alert('Enter your email.');
+      alert('Enter your account email first.');
       return;
     }
-  
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: false,
-      },
-    });
-  
-    if (error) {
-      alert(error.message);
-      return;
+
+    setResetBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/?recovery=1',
+      });
+      if (error) throw error;
+      alert('If the email is registered, a password reset link will be sent. Open it to choose a new password.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try later.';
+      alert('Could not send the reset email: ' + message);
+    } finally {
+      setResetBusy(false);
     }
-  
-    alert('Check your email for your Veylo login link.');
   }
 
-  function signOut() {
-    setCurrentMemberId('');
-    setSelectedConversationId('');
-    setSelectedOfficeId('');
-  }
-
-  function signIntoMember(memberId: string) {
-    setCurrentMemberId(memberId);
-    setPage('network');
+  async function signOut() {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setCurrentMemberId('');
+      setSelectedConversationId('');
+      setSelectedOfficeId('');
+      setConversations([]);
+      setOffices([]);
+      setPage('network');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Could not sign out: ' + message);
+    }
   }
 
   /* =====================================================
@@ -637,44 +670,62 @@ export default function Home() {
 
       location: currentMember.location,
     });
-  }, [currentMemberId]);
+  }, [currentMember]);
 
   async function saveProfile() {
-    if (!currentMember) return;
+    if (!currentMember || profileSaving) return;
 
-    const updatedProfile = {
-      full_name: profileDraft.fullName.trim(),
-      headline: profileDraft.headline.trim(),
-      bio: profileDraft.bio.trim(),
-      location: profileDraft.location.trim(),
-    };
+    setProfileSaving(true);
+    setProfileSaveMessage('');
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updatedProfile)
-      .eq('id', currentMember.id);
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== currentMember.id) {
+        throw new Error('Your login session has expired. Please sign in again.');
+      }
 
-    if (error) {
-      console.error('Could not save profile:', error);
-      alert('Profile could not be saved.');
-      return;
+      const updatedProfile = {
+        full_name: profileDraft.fullName.trim(),
+        headline: profileDraft.headline.trim(),
+        bio: profileDraft.bio.trim(),
+        location: profileDraft.location.trim(),
+      };
+
+      // A standard update can report no error even if RLS updates no rows.
+      // Return the saved row from Supabase so persistence can be confirmed.
+      const { data: savedProfile, error } = await supabase
+        .from('profiles')
+        .update(updatedProfile)
+        .eq('id', user.id)
+        .select('id, full_name, headline, bio, location')
+        .single();
+
+      if (error || !savedProfile) {
+        throw error || new Error('Your profile could not be saved.');
+      }
+
+      setMembers((current) =>
+        current.map((member) =>
+          member.id === user.id
+            ? {
+                ...member,
+                fullName: savedProfile.full_name || '',
+                headline: savedProfile.headline || '',
+                bio: savedProfile.bio || '',
+                location: savedProfile.location || '',
+              }
+            : member
+        )
+      );
+
+      setProfileSaveMessage('Profile saved to your account. Your bio will remain after refreshing.');
+    } catch (error) {
+      console.error('Could not save Veylo profile:', error);
+      const reason = error instanceof Error ? error.message : 'Please try again.';
+      setProfileSaveMessage('Could not save profile: ' + reason);
+    } finally {
+      setProfileSaving(false);
     }
-
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === currentMember.id
-          ? {
-              ...member,
-              fullName: updatedProfile.full_name,
-              headline: updatedProfile.headline,
-              bio: updatedProfile.bio,
-              location: updatedProfile.location,
-            }
-          : member
-      )
-    );
-
-    alert('Profile saved.');
   }
 
   async function changePasswordFromProfile() {
@@ -692,8 +743,8 @@ export default function Home() {
       // Never trust the local member selector for authentication.
       // Only change a password when the Supabase session belongs to this profile.
       const { data: { user }, error: sessionError } = await supabase.auth.getUser();
-      if (sessionError || !user || user.id !== currentMember?.id) {
-        alert('Your secure sign-in session is missing. Open a new recovery link for this account first.');
+      if (sessionError || !user || (!isRecoveryMode && user.id !== currentMember?.id)) {
+        alert('Your secure session is missing. Please open a valid reset link and try again.');
         return;
       }
 
@@ -710,6 +761,12 @@ export default function Home() {
       setConfirmAccountPassword('');
       setShowPasswordEditor(false);
       alert('Your Veylo password has been changed successfully.');
+
+      if (isRecoveryMode) {
+        setIsRecoveryMode(false);
+        window.history.replaceState({}, '', window.location.pathname);
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Could not change account password', error);
       alert('Something went wrong while saving your password. Please try again.');
@@ -1368,27 +1425,29 @@ export default function Home() {
   ===================================================== */
 
   async function loadNews() {
+    if (newsLoading) return;
     setNewsLoading(true);
     setNewsMessage('');
 
     try {
-      const response = await fetch('/api/vbn');
-
+      const response = await fetch('/api/vbn', { cache: 'no-store' });
       const data = await response.json();
 
-      setNews(data.articles || []);
-
-      if (!data.connected) {
-        setNewsMessage(
-          data.message || 'VBN news provider is not connected yet.'
-        );
+      if (!response.ok || !data.connected) {
+        throw new Error(data.message || 'Unable to load live business headlines.');
       }
-    } catch {
-      setNews([]);
-      setNewsMessage('The VBN news service is not connected yet.');
-    }
 
-    setNewsLoading(false);
+      setNews(Array.isArray(data.articles) ? data.articles : []);
+      setNewsUpdatedAt(typeof data.updatedAt === 'string' ? data.updatedAt : '');
+      setNewsMessage(typeof data.message === 'string' ? data.message : '');
+    } catch (error) {
+      console.error('VBN could not refresh:', error);
+      setNewsMessage(
+        'Unable to refresh the live headlines right now. Please try again shortly.'
+      );
+    } finally {
+      setNewsLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -1396,6 +1455,12 @@ export default function Home() {
       loadNews();
     }
   }, [page]);
+
+  useEffect(() => {
+    if (page !== 'messages' || !selectedConversationId || !messagesEndRef.current) return;
+    const panel = messagesEndRef.current;
+    panel.scrollTop = panel.scrollHeight;
+  }, [page, selectedConversationId, selectedConversation?.messages.length]);
 
   /* =====================================================
      LOADING
@@ -1419,6 +1484,63 @@ export default function Home() {
      ACCOUNT SCREEN
   ===================================================== */
 
+  if (isRecoveryMode) {
+    return (
+      <main className="authPage">
+        <section className="authCard">
+          <img
+            src="/Veylo_Networks_White_Transparent.png"
+            alt="Veylo Networks"
+            className="authLogo"
+          />
+          <span className="pill">ACCOUNT SECURITY</span>
+          <h1>Reset your password</h1>
+          <p className="muted">
+            Choose a new password to finish recovering your Veylo account.
+          </p>
+          <div className="stack">
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="New password (at least 8 characters)"
+              value={newAccountPassword}
+              onChange={(event) => setNewAccountPassword(event.target.value)}
+            />
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Confirm your new password"
+              value={confirmAccountPassword}
+              onChange={(event) => setConfirmAccountPassword(event.target.value)}
+            />
+            <button
+              className="primary full"
+              type="button"
+              disabled={passwordSaving}
+              onClick={changePasswordFromProfile}
+            >
+              {passwordSaving ? 'Saving password...' : 'Save New Password'}
+            </button>
+            <button
+              className="secondary full"
+              type="button"
+              onClick={() => {
+                setIsRecoveryMode(false);
+                setNewAccountPassword('');
+                setConfirmAccountPassword('');
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+            >
+              Back to Veylo
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (!currentMember) {
     return (
       <main className="authPage">
@@ -1428,88 +1550,109 @@ export default function Home() {
             alt="Veylo Networks"
             className="authLogo"
           />
-
           <span className="pill">VEYLO 1.0</span>
-
-          <h1>Join Veylo Networks</h1>
-
+          <h1>{authMode === 'signup' ? 'Join Veylo Networks' : 'Welcome back'}</h1>
           <p className="muted">
-            Connect with business people, build your professional profile and
-            work together through Veylo.
+            {authMode === 'signup'
+              ? 'Create your professional Veylo account.'
+              : 'Log in with your email and password. No email link required.'}
           </p>
-
           <div
-  style={{
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '8px',
-    marginBottom: '12px',
-  }}
->
-  <button
-    type="button"
-    className={authMode === 'signup' ? 'primary' : 'field'}
-    onClick={() => setAuthMode('signup')}
-  >
-    Sign Up
-  </button>
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '8px',
+              marginBottom: '12px',
+            }}
+          >
+            <button
+              type="button"
+              className={authMode === 'signup' ? 'primary' : 'field'}
+              onClick={() => setAuthMode('signup')}
+              disabled={authBusy}
+            >
+              Sign Up
+            </button>
+            <button
+              type="button"
+              className={authMode === 'login' ? 'primary' : 'field'}
+              onClick={() => setAuthMode('login')}
+              disabled={authBusy}
+            >
+              Log In
+            </button>
+          </div>
 
-  <button
-    type="button"
-    className={authMode === 'login' ? 'primary' : 'field'}
-    onClick={() => setAuthMode('login')}
-  >
-    Log In
-  </button>
-</div>
+          <form
+            className="stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (authMode === 'signup') {
+                createAccount();
+              } else {
+                loginAccount();
+              }
+            }}
+          >
+            {authMode === 'signup' && (
+              <input
+                className="field"
+                type="text"
+                autoComplete="name"
+                placeholder="Full name"
+                value={signupName}
+                onChange={(event) => setSignupName(event.target.value)}
+                required
+              />
+            )}
+            <input
+              className="field"
+              type="email"
+              autoComplete="email"
+              placeholder="Email address"
+              value={signupEmail}
+              onChange={(event) => setSignupEmail(event.target.value)}
+              required
+            />
+            <input
+              className="field"
+              type="password"
+              autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
+              placeholder={authMode === 'signup' ? 'Create password (8+ characters)' : 'Password'}
+              minLength={authMode === 'signup' ? 8 : undefined}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+            <button
+              className="primary full"
+              type="submit"
+              disabled={authBusy}
+            >
+              {authBusy
+                ? 'Please wait...'
+                : authMode === 'signup'
+                  ? 'Create Veylo Account'
+                  : 'Log In'}
+            </button>
+          </form>
 
-{authMode === 'signup' && (
-  <input
-    className="field"
-    placeholder="Full name"
-    value={signupName}
-    onChange={(event) => setSignupName(event.target.value)}
-  />
-)}
-
-<input
-  className="field"
-  type="email"
-  placeholder="Email address"
-  value={signupEmail}
-  onChange={(event) => setSignupEmail(event.target.value)}
-/>
-
-<button
-  className="primary full"
-  onClick={authMode === 'signup' ? createAccount : loginAccount}
->
-  {authMode === 'signup' ? 'Create Veylo Account' : 'Log In'}
-</button>
-
-          {members.length > 0 && (
-            <div className="existingMembers">
-              <span className="small muted">
-                Existing profiles on this device
-              </span>
-
-              {members.map((member) => (
-                <button
-                  key={member.id}
-                  className="memberLogin"
-                  onClick={() => signIntoMember(member.id)}
-                >
-                  <Avatar member={member} />
-
-                  <div>
-                    <strong>{member.fullName}</strong>
-
-                    <small>{member.memberCode}</small>
-                  </div>
-                </button>
-              ))}
-            </div>
+          {authMode === 'login' && (
+            <button
+              type="button"
+              className="vbnForgotPassword"
+              disabled={resetBusy || authBusy}
+              onClick={requestPasswordReset}
+            >
+              {resetBusy ? 'Sending reset link...' : 'Forgot password?'}
+            </button>
           )}
+
+          <p className="muted small" style={{ marginTop: '12px' }}>
+            {authMode === 'signup'
+              ? 'Email verification is required once when registering.'
+              : 'Your password is kept securely in Supabase Authentication.'}
+          </p>
         </section>
       </main>
     );
@@ -1601,16 +1744,72 @@ export default function Home() {
 
       <section className="main">
         <header className="topbar">
-          <div>
+          <div className="desktopTopbarInfo">
             <span className="eyebrow">VEYLO NETWORKS</span>
-
             <h1>{pageTitle(page)}</h1>
           </div>
 
-          <button className="avatarButton" onClick={() => setPage('profile')}>
+          <div className="mobileTopbarBrand">
+            <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" />
+            <div>
+              <span>VEYLO NETWORKS</span>
+              <strong>{pageTitle(page)}</strong>
+            </div>
+          </div>
+          <button
+            className="mobileMoreButton"
+            type="button"
+            aria-label="More Veylo options"
+            aria-controls="veylo-mobile-menu"
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((open) => !open)}
+          >
+            <span aria-hidden="true">•••</span>
+          </button>
+
+          <button className="avatarButton desktopAvatarButton" onClick={() => setPage('profile')} aria-label="My Profile">
             <Avatar member={currentMember} />
           </button>
         </header>
+
+        {mobileMenuOpen && (
+          <>
+            <button
+              type="button"
+              className="mobileMenuBackdrop"
+              aria-label="Close more options"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="mobileMoreMenu" id="veylo-mobile-menu">
+              <div className="mobileMenuMember">
+                <Avatar member={currentMember} />
+                <div>
+                  <strong>{currentMember.fullName}</strong>
+                  <small>{currentMember.memberCode}</small>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setPage('coming');
+                }}
+              >
+                Coming Soon
+              </button>
+              <button
+                type="button"
+                className="mobileMenuSignOut"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut();
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </>
+        )}
 
         <div className="content">
           {/* NETWORK */}
@@ -1821,8 +2020,8 @@ export default function Home() {
           {/* MESSAGES */}
 
           {page === 'messages' && (
-            <div className="twoColumnLayout">
-              <aside className="glass panel">
+            <div className="twoColumnLayout mobileConversationLayout" data-mobile-view={selectedConversation ? 'detail' : 'list'}>
+              <aside className="glass panel mobileConversationList">
                 <h3>Messages</h3>
 
                 <div className="stack">
@@ -1838,6 +2037,14 @@ export default function Home() {
                   </button>
                 </div>
 
+                {visibleConversations.length === 0 && (
+                  <div className="mobileListEmpty">
+                    <p>No conversations yet. Find a Veylo member and start a chat.</p>
+                    <button type="button" className="secondary" onClick={() => setPage('people')}>
+                      Find people
+                    </button>
+                  </div>
+                )}
                 <div className="list">
                   {visibleConversations.map((conversation) => {
                     const displayName = getConversationName(
@@ -1872,6 +2079,15 @@ export default function Home() {
               </aside>
 
               <section className="glass chatPanel">
+                {selectedConversation && (
+                  <button
+                    type="button"
+                    className="mobileDetailBack"
+                    onClick={() => setSelectedConversationId('')}
+                  >
+                    <span aria-hidden="true">←</span> All conversations
+                  </button>
+                )}
                 {!selectedConversation ? (
                   <EmptyState
                     title="No conversation selected."
@@ -1917,7 +2133,7 @@ export default function Home() {
                       )}
                     </div>
 
-                    <div className="messageArea">
+                    <div className="messageArea" ref={messagesEndRef}>
                       {selectedConversation.messages.length === 0 ? (
                         <div className="emptyConversation">
                           No messages yet.
@@ -1977,8 +2193,8 @@ export default function Home() {
           {/* OFFICES */}
 
           {page === 'offices' && (
-            <div className="twoColumnLayout">
-              <aside className="glass panel">
+            <div className="twoColumnLayout mobileOfficeLayout" data-mobile-view={selectedOffice ? 'detail' : 'list'}>
+              <aside className="glass panel mobileOfficeList">
                 <h3>Internal Offices</h3>
 
                 <div className="stack">
@@ -2003,6 +2219,9 @@ export default function Home() {
                   </button>
                 </div>
 
+                {visibleOffices.length === 0 && (
+                  <p className="mobileListEmpty">Create your first office to manage projects and collaborate with colleagues.</p>
+                )}
                 <div className="list">
                   {visibleOffices.map((office) => (
                     <button
@@ -2023,6 +2242,15 @@ export default function Home() {
               </aside>
 
               <section className="officeMain">
+                {selectedOffice && (
+                  <button
+                    type="button"
+                    className="mobileDetailBack"
+                    onClick={() => setSelectedOfficeId('')}
+                  >
+                    <span aria-hidden="true">←</span> All offices
+                  </button>
+                )}
                 {!selectedOffice ? (
                   <EmptyState
                     title="No office selected."
@@ -2184,61 +2412,15 @@ export default function Home() {
             </div>
           )}
 
-          {/* VBN */}
-
+          {/* VBN - business news newsroom */}
           {page === 'vbn' && (
-            <>
-              <div className="sectionTop">
-                <div>
-                  <span className="eyebrow">VEYLO BUSINESS NEWS</span>
-
-                  <h2>VBN</h2>
-
-                  <p className="muted">
-                    Business, startup, technology and economic news.
-                  </p>
-                </div>
-
-                <button className="secondary" onClick={loadNews}>
-                  Refresh
-                </button>
-              </div>
-
-              {newsLoading ? (
-                <EmptyState title="Loading VBN..." text="" />
-              ) : news.length === 0 ? (
-                <EmptyState
-                  title="VBN is ready."
-                  text={
-                    newsMessage ||
-                    'Connect the live business news provider to begin publishing headlines.'
-                  }
-                />
-              ) : (
-                <div className="newsGrid">
-                  {news.map((article) => (
-                    <article className="glass newsCard" key={article.id}>
-                      <span className="newsSource">{article.source}</span>
-
-                      <h3>{article.title}</h3>
-
-                      <p className="muted">{article.summary}</p>
-
-                      <span className="newsDate">{article.publishedAt}</span>
-
-                      <a
-                        href={article.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="newsLink"
-                      >
-                        Read full story →
-                      </a>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </>
+            <VbnNewsroom
+              articles={news}
+              loading={newsLoading}
+              message={newsMessage}
+              updatedAt={newsUpdatedAt}
+              onRefresh={loadNews}
+            />
           )}
 
           {/* PERSONAL PROFILE */}
@@ -2332,9 +2514,14 @@ export default function Home() {
                     />
                   </FieldLabel>
 
-                  <button className="primary" onClick={saveProfile}>
-                    Save Profile
+                  <button className="primary" type="button" onClick={saveProfile} disabled={profileSaving}>
+                    {profileSaving ? 'Saving your profile...' : 'Save Profile'}
                   </button>
+                  {profileSaveMessage && (
+                    <p className="profileSaveNotice" role="status" aria-live="polite">
+                      {profileSaveMessage}
+                    </p>
+                  )}
 
                   <section
                     style={{
@@ -2549,6 +2736,34 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <nav className="mobileBottomNav" aria-label="Veylo mobile navigation">
+        {MOBILE_TABS.map((tab) => {
+          const selected = page === tab.id || (page === 'memberProfile' && tab.id === 'people');
+          return (
+            <button
+              type="button"
+              key={tab.id}
+              className={selected ? 'mobileBottomTab active' : 'mobileBottomTab'}
+              aria-label={tab.label}
+              aria-current={selected ? 'page' : undefined}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (tab.id === 'messages' && page === 'messages' && selectedConversationId) {
+                  setSelectedConversationId('');
+                } else if (tab.id === 'offices' && page === 'offices' && selectedOfficeId) {
+                  setSelectedOfficeId('');
+                } else {
+                  setPage(tab.id);
+                }
+              }}
+            >
+              <MobileNavIcon name={tab.icon} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </main>
   );
 }
@@ -2556,6 +2771,58 @@ export default function Home() {
 /* =========================================================
    COMPONENTS
 ========================================================= */
+
+function MobileNavIcon({ name }: { name: MobileIconName }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="23"
+      height="23"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {name === 'network' && (
+        <>
+          <path d="m3 10 9-7 9 7" />
+          <path d="M5 9v12h14V9M9 21v-8h6v8" />
+        </>
+      )}
+      {name === 'people' && (
+        <>
+          <circle cx="9" cy="8" r="3" />
+          <path d="M3.5 20v-2.5a5.5 5.5 0 0 1 11 0V20M16 5.5a3 3 0 0 1 0 5.8M17 14a4 4 0 0 1 3.5 4V20" />
+        </>
+      )}
+      {name === 'messages' && (
+        <>
+          <path d="M4 5h16v12H8l-4 4V5Z" />
+          <path d="M8 9h8M8 13h5" />
+        </>
+      )}
+      {name === 'offices' && (
+        <>
+          <path d="M5 21V5l7-3 7 3v16M2 21h20M9 21v-5h6v5M9 7h.01M15 7h.01M9 11h.01M15 11h.01" />
+        </>
+      )}
+      {name === 'vbn' && (
+        <>
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h5v5H7zM15 8h3M15 11h3M7 16h11" />
+        </>
+      )}
+      {name === 'profile' && (
+        <>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </>
+      )}
+    </svg>
+  );
+}
 
 function NavButton({
   active,
