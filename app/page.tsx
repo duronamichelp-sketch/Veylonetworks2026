@@ -567,6 +567,198 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    knownConversationIdsRef.current = new Set(conversations.map((chat) => chat.id));
+  }, [conversations]);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId) return;
+    const memberId = currentMemberId;
+
+    // Database changes are filtered by existing Supabase RLS policies:
+    // Only members of a conversation can receive its messages.
+    const channel = supabase.channel('veylo:inbox:' + memberId)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+      }, (payload) => {
+        const row = payload.new as {
+          id: string;
+          conversation_id: string;
+          sender_id: string;
+          content: string;
+          created_at: string;
+        };
+        if (!row.id || !row.conversation_id) return;
+
+        if (!knownConversationIdsRef.current.has(row.conversation_id)) {
+          void refreshInbox(memberId);
+          return;
+        }
+
+        setConversations((current) => current.map((chat) => {
+          if (chat.id !== row.conversation_id) return chat;
+
+          const received: ChatMessage = {
+            id: row.id,
+            senderId: row.sender_id,
+            content: row.content,
+            createdAt: row.created_at,
+          };
+
+          const exists = chat.messages.some((message) => message.id === row.id);
+          const messages = exists
+            ? chat.messages.map((message) =>
+                message.id === row.id ? received : message
+              )
+            : [...chat.messages, received];
+
+          return {
+            ...chat,
+            messages: messages.sort(
+              (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)
+            ),
+          };
+        }));
+      })
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'conversation_members',
+        filter: 'user_id=eq.' + memberId,
+      }, () => {
+        void refreshInbox(memberId);
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'conversation_reads',
+        filter: 'user_id=eq.' + memberId,
+      }, (payload) => {
+        const row = payload.new as {
+          conversation_id?: string;
+          last_read_at?: string;
+        };
+        if (!row.conversation_id || !row.last_read_at) return;
+        setReadReceipts((current) => {
+          const previous = Date.parse(current[row.conversation_id!] || '') || 0;
+          if (Date.parse(row.last_read_at!) < previous) return current;
+          return { ...current, [row.conversation_id!]: row.last_read_at! };
+        });
+      })
+      .subscribe((status) => {
+        // Catch up with events missed while offline or changing network.
+        if (status === 'SUBSCRIBED') void refreshInbox(memberId);
+      });
+
+    const refreshOnReturn = () => {
+      if (document.visibilityState !== 'visible') return;
+      void refreshInbox(memberId);
+    };
+    window.addEventListener('focus', refreshOnReturn);
+    document.addEventListener('visibilitychange', refreshOnReturn);
+
+    return () => {
+      window.removeEventListener('focus', refreshOnReturn);
+      document.removeEventListener('visibilitychange', refreshOnReturn);
+      void supabase.removeChannel(channel);
+    };
+  }, [ready, currentMemberId]);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId || !selectedConversationId || page !== 'messages') return;
+    if (document.visibilityState !== 'visible') return;
+
+    // The reading progress is saved in Supabase, so other devices agree.
+    void markConversationRead(selectedConversationId);
+  }, [ready, currentMemberId, selectedConversationId, selectedConversation?.messages.length, page]);
+
+  useEffect(() => {
+    const markVisibleConversation = () => {
+      if (document.visibilityState === 'visible' && page === 'messages' && selectedConversationId) {
+        void markConversationRead(selectedConversationId);
+      }
+    };
+    window.addEventListener('focus', markVisibleConversation);
+    document.addEventListener('visibilitychange', markVisibleConversation);
+    return () => {
+      window.removeEventListener('focus', markVisibleConversation);
+      document.removeEventListener('visibilitychange', markVisibleConversation);
+    };
+  }, [page, selectedConversationId]);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId || !selectedConversationId || page !== 'messages') {
+      return;
+    }
+
+    const conversationId = selectedConversationId;
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const subscribe = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || cancelled) return;
+      await supabase.realtime.setAuth(session.access_token);
+      if (cancelled) return;
+
+      channel = supabase.channel('veylo:typing:' + conversationId, {
+        config: { private: true, broadcast: { self: false } },
+      });
+
+      channel.on('broadcast', { event: 'typing' }, ({ payload }) => {
+        const memberId = payload?.memberId;
+        if (typeof memberId !== 'string' || memberId === currentMemberId) return;
+
+        if (typingTimeoutsRef.current[memberId]) {
+          clearTimeout(typingTimeoutsRef.current[memberId]);
+          delete typingTimeoutsRef.current[memberId];
+        }
+
+        if (payload?.isTyping === true) {
+          setTypingUsers((current) => ({ ...current, [memberId]: true }));
+          typingTimeoutsRef.current[memberId] = setTimeout(() => {
+            setTypingUsers((current) => {
+              const next = { ...current };
+              delete next[memberId];
+              return next;
+            });
+            delete typingTimeoutsRef.current[memberId];
+          }, 3200);
+        } else {
+          setTypingUsers((current) => {
+            const next = { ...current };
+            delete next[memberId];
+            return next;
+          });
+        }
+      }).subscribe();
+      typingChannelRef.current = channel;
+    };
+
+    void subscribe();
+
+    return () => {
+      cancelled = true;
+      if (typingStopRef.current) clearTimeout(typingStopRef.current);
+      typingStopRef.current = null;
+      isTypingRef.current = false;
+      lastTypingSentRef.current = 0;
+      if (channel) void supabase.removeChannel(channel);
+      if (typingChannelRef.current === channel) typingChannelRef.current = null;
+      Object.values(typingTimeoutsRef.current).forEach(clearTimeout);
+      typingTimeoutsRef.current = {};
+      setTypingUsers({});
+    };
+  }, [ready, currentMemberId, selectedConversationId, page]);
+
+  useEffect(() => {
+    return () => {
+      if (audioContextRef.current) void audioContextRef.current.close();
+    };
+  }, []);
+
+  useEffect(() => {
     if (!ready) return;
 
     localStorage.setItem(STORAGE.currentMember, currentMemberId);
@@ -614,6 +806,24 @@ export default function Home() {
       ) || null,
     [conversations, selectedConversationId]
   );
+  
+  const unreadCount = useMemo(() =>
+    conversations.reduce((total, chat) => {
+      const readTime = Date.parse(readReceipts[chat.id] || '') || 0;
+      return total + chat.messages.filter((message) =>
+        message.senderId !== currentMemberId &&
+        Date.parse(message.createdAt) > readTime
+      ).length;
+    }, 0),
+    [conversations, readReceipts, currentMemberId]
+  );
+
+  const activeTypingNames = useMemo(() => {
+    if (!selectedConversation) return [];
+    return Object.keys(typingUsers)
+      .filter((id) => typingUsers[id] && selectedConversation.members.includes(id))
+      .map((id) => members.find((member) => member.id === id)?.fullName || 'Someone');
+  }, [typingUsers, selectedConversation, members]);
 
   const selectedOffice = useMemo(
     () => offices.find((office) => office.id === selectedOfficeId) || null,
