@@ -170,6 +170,11 @@ export default function Home() {
     location: '',
   });
 
+  const [showPasswordEditor, setShowPasswordEditor] = useState(false);
+  const [newAccountPassword, setNewAccountPassword] = useState('');
+  const [confirmAccountPassword, setConfirmAccountPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+
   const [projectDraft, setProjectDraft] = useState({
     title: '',
     role: '',
@@ -670,6 +675,47 @@ export default function Home() {
     );
 
     alert('Profile saved.');
+  }
+
+  async function changePasswordFromProfile() {
+    if (newAccountPassword.length < 8) {
+      alert('Your new password must be at least 8 characters long.');
+      return;
+    }
+    if (newAccountPassword !== confirmAccountPassword) {
+      alert('The two new passwords do not match.');
+      return;
+    }
+
+    setPasswordSaving(true);
+    try {
+      // Never trust the local member selector for authentication.
+      // Only change a password when the Supabase session belongs to this profile.
+      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+      if (sessionError || !user || user.id !== currentMember?.id) {
+        alert('Your secure sign-in session is missing. Open a new recovery link for this account first.');
+        return;
+      }
+
+      // Supabase Auth handles password hashing and secure persistence.
+      const { error } = await supabase.auth.updateUser({
+        password: newAccountPassword,
+      });
+      if (error) {
+        alert('Could not change password: ' + error.message);
+        return;
+      }
+
+      setNewAccountPassword('');
+      setConfirmAccountPassword('');
+      setShowPasswordEditor(false);
+      alert('Your Veylo password has been changed successfully.');
+    } catch (error) {
+      console.error('Could not change account password', error);
+      alert('Something went wrong while saving your password. Please try again.');
+    } finally {
+      setPasswordSaving(false);
+    }
   }
 
   function uploadProfilePicture(file?: File) {
@@ -2289,6 +2335,72 @@ export default function Home() {
                   <button className="primary" onClick={saveProfile}>
                     Save Profile
                   </button>
+
+                  <section
+                    style={{
+                      borderTop: '1px solid rgba(255,255,255,0.1)',
+                      marginTop: '22px',
+                      paddingTop: '20px',
+                    }}
+                  >
+                    <h3 style={{ margin: '0 0 8px' }}>Account Security</h3>
+                    <p className="muted small">
+                      Change your Veylo login password. Your profile and projects will be kept.
+                    </p>
+                    {showPasswordEditor ? (
+                      <div className="stack" style={{ marginTop: '14px' }}>
+                        <FieldLabel label="New password">
+                          <input
+                            className="field"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="At least 8 characters"
+                            value={newAccountPassword}
+                            onChange={(event) => setNewAccountPassword(event.target.value)}
+                          />
+                        </FieldLabel>
+                        <FieldLabel label="Confirm new password">
+                          <input
+                            className="field"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="Type the new password again"
+                            value={confirmAccountPassword}
+                            onChange={(event) => setConfirmAccountPassword(event.target.value)}
+                          />
+                        </FieldLabel>
+                        <button
+                          className="primary"
+                          type="button"
+                          disabled={passwordSaving}
+                          onClick={changePasswordFromProfile}
+                        >
+                          {passwordSaving ? 'Saving password...' : 'Save New Password'}
+                        </button>
+                        <button
+                          type="button"
+                          className="field"
+                          disabled={passwordSaving}
+                          onClick={() => {
+                            setShowPasswordEditor(false);
+                            setNewAccountPassword('');
+                            setConfirmAccountPassword('');
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="primary"
+                        type="button"
+                        style={{ marginTop: '10px' }}
+                        onClick={() => setShowPasswordEditor(true)}
+                      >
+                        Change Password
+                      </button>
+                    )}
+                  </section>
                 </div>
               </section>
 
