@@ -245,7 +245,7 @@ export default function VbnNewsroom({
 
   const featured = new Set([lead?.id, ...secondary.map(article => article.id)]);
   const latest = filtered.filter(article => !featured.has(article.id)).slice(0, 7);
-  const placed = new Set([...featured, ...latest.map(article => article.id)]);
+  const placed = new Set([lead?.id, ...secondary.map(article => article.id), ...latest.map(article => article.id)]);
   const deskPool = filtered.filter(article => !placed.has(article.id));
 
   const sections = DESKS.map(desk => ({
@@ -256,7 +256,7 @@ export default function VbnNewsroom({
   const remaining = deskPool.filter(article => !sectionIds.has(article.id));
   const showAllSections = activeTopic === 'All' && !term;
   const lowerStories = showAllSections ? remaining : deskPool;
-  const visibleLower = moreVisible ? lowerStories.slice(0, 75) : lowerStories.slice(0, 14);
+  const visibleLower = moreVisible ? lowerStories : lowerStories.slice(0, 14);
 
   return (
     <section className="vbnNewsroom" aria-label="Veylo Business News">
@@ -330,7 +330,7 @@ export default function VbnNewsroom({
           </div>
 
           <div className="vbnIssueLine">
-            <span>{filtered.length} story{filtered.length === 1 ? '' : 'ies'} available</span>
+            <span>{filtered.length} {filtered.length === 1 ? 'story' : 'stories'} available</span>
             <span>
               {updatedAt
                 ? 'Latest feed update · ' + articleDate(updatedAt)
