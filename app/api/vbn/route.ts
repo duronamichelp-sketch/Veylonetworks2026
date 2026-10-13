@@ -158,7 +158,7 @@ function decodeEntities(raw: string): string {
 }
 
 function xmlValue(xml: string, name: string): string {
-  const pattern = new RegExp('<' + name + '(?:\s[^>]*)?>([\s\S]*?)<\/' + name + '>', 'i');
+  const pattern = new RegExp('<' + name + '(?:\\s[^>]*)?>([\\s\\S]*?)<\\/' + name + '>', 'i');
   const match = pattern.exec(xml);
   if (!match) return '';
   return match[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, '$1').trim();
