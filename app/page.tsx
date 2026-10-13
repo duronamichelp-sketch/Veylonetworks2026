@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
+import ExpandableText from './components/ExpandableText';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://oxjjkyfqtlzizdkylsqp.supabase.co',
@@ -40,6 +41,7 @@ type Project = {
   role: string;
   year: string;
   description: string;
+  website?: string;
 };
 
 type FollowRelationship = {
@@ -74,6 +76,7 @@ type ChatMessage = {
   senderId: string;
   content: string;
   createdAt: string;
+  sending?: boolean;
 };
 
 type Conversation = {
@@ -147,6 +150,17 @@ export default function Home() {
   const [posts, setPosts] = useState<NetworkPost[]>([]);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [readReceipts, setReadReceipts] = useState<Record<string, string>>({});
+  const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const knownConversationIdsRef = useRef<Set<string>>(new Set());
+  const sendInFlightRef = useRef(false);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingTimeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const typingStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingSentRef = useRef(0);
+  const isTypingRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const [offices, setOffices] = useState<Office[]>([]);
 
@@ -202,7 +216,11 @@ export default function Home() {
     role: '',
     year: '',
     description: '',
+    website: '',
   });
+  const [projectLinkEdits, setProjectLinkEdits] = useState<Record<string, string>>({});
+  const [projectLinkSavingId, setProjectLinkSavingId] = useState('');
+  const [projectLinkNotice, setProjectLinkNotice] = useState('');
 
   /* OFFICES */
 
@@ -232,6 +250,162 @@ export default function Home() {
 
   const [newsMessage, setNewsMessage] = useState('');
   const [newsUpdatedAt, setNewsUpdatedAt] = useState('');
+
+  async function refreshInbox(
+    memberId: string,
+    loadedProfiles: Array<{ id: string; full_name: string }> = []
+  ) {
+    const { data: mine, error: membershipError } = await supabase
+      .from('conversation_members')
+      .select('conversation_id')
+      .eq('user_id', memberId);
+    if (membershipError) {
+      console.error('Could not refresh Veylo inbox memberships:', membershipError);
+      return;
+    }
+
+    const conversationIds = (mine || []).map((row) => row.conversation_id);
+    if (!conversationIds.length) {
+      setConversations([]);
+      setReadReceipts({});
+      return;
+    }
+
+    const [
+      { data: chats, error: chatsError },
+      { data: chatMembers, error: membersError },
+      { data: messageRows, error: messagesError },
+      { data: readRows, error: readsError },
+    ] = await Promise.all([
+      supabase.from('conversations').select('*').in('id', conversationIds),
+      supabase.from('conversation_members').select('*').in('conversation_id', conversationIds),
+      supabase.from('messages').select('*').in('conversation_id', conversationIds)
+        .order('created_at', { ascending: true }),
+      supabase.from('conversation_reads').select('conversation_id, last_read_at')
+        .eq('user_id', memberId),
+    ]);
+
+    if (chatsError || membersError || messagesError || readsError) {
+      console.error('Could not refresh Veylo inbox:', chatsError, membersError, messagesError, readsError);
+      return;
+    }
+
+    const loaded: Conversation[] = (chats || []).map((chat) => {
+      const ids: string[] = (chatMembers || [])
+        .filter((row) => row.conversation_id === chat.id)
+        .map((row) => row.user_id);
+      const partner = loadedProfiles.find(
+        (member) => ids.includes(member.id) && member.id !== memberId
+      );
+      const messages: ChatMessage[] = (messageRows || [])
+        .filter((row) => row.conversation_id === chat.id)
+        .map((row) => ({
+          id: row.id,
+          senderId: row.sender_id,
+          content: row.content,
+          createdAt: row.created_at,
+        }));
+
+      return {
+        id: chat.id,
+        name: chat.type === 'group' ? chat.name || 'Group' : partner?.full_name || 'Direct Message',
+        type: chat.type === 'group' ? 'group' : 'direct',
+        members: ids,
+        messages,
+        createdAt: chat.created_at,
+      };
+    });
+
+    setConversations((current) => loaded.map((chat) => {
+      const oldChat = current.find((item) => item.id === chat.id);
+      const awaiting = (oldChat?.messages || []).filter(
+        (message) => message.sending && !chat.messages.some((saved) => saved.id === message.id)
+      );
+      return {
+        ...chat,
+        name: chat.type === 'direct'
+          ? oldChat?.name || chat.name
+          : chat.name,
+        messages: [...chat.messages, ...awaiting]
+          .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)),
+      };
+    }));
+
+    setReadReceipts((current) => {
+      const next = { ...current };
+      for (const row of readRows || []) {
+        const previousTime = Date.parse(next[row.conversation_id] || '') || 0;
+        const serverTime = Date.parse(row.last_read_at) || 0;
+        if (serverTime >= previousTime) next[row.conversation_id] = row.last_read_at;
+      }
+      return next;
+    });
+  }
+
+  async function markConversationRead(conversationId: string) {
+    const { data, error } = await supabase.rpc('mark_conversation_read', {
+      p_conversation_id: conversationId,
+    });
+
+    if (error) {
+      console.error('Could not mark conversation as read:', error);
+      return;
+    }
+    if (typeof data === 'string') {
+      setReadReceipts((current) => {
+        const previous = Date.parse(current[conversationId] || '') || 0;
+        if (Date.parse(data) < previous) return current;
+        return { ...current, [conversationId]: data };
+      });
+    }
+  }
+
+  function playSentMessagePop() {
+    // Only create audio after an actual send interaction; mobile browsers may
+    // otherwise block audio until a user gesture.
+    try {
+      const AudioContextConstructor = window.AudioContext;
+      if (!AudioContextConstructor) return;
+      const context = audioContextRef.current || new AudioContextConstructor();
+      audioContextRef.current = context;
+      if (context.state === 'suspended') void context.resume();
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      const start = context.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(620, start);
+      osc.frequency.exponentialRampToValueAtTime(350, start + 0.105);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.09, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.115);
+      osc.connect(gain);
+      gain.connect(context.destination);
+      osc.start(start);
+      osc.stop(start + 0.12);
+    } catch (error) {
+      console.warn('Sound unavailable in this browser:', error);
+    }
+  }
+
+  function broadcastTyping(isTyping: boolean) {
+    const channel = typingChannelRef.current;
+    if (!channel || !currentMemberId) return;
+
+    if (isTyping) {
+      const now = Date.now();
+      if (isTypingRef.current && now - lastTypingSentRef.current < 900) return;
+      lastTypingSentRef.current = now;
+    } else if (!isTypingRef.current) {
+      return;
+    }
+
+    isTypingRef.current = isTyping;
+    void channel.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { memberId: currentMemberId, isTyping },
+    });
+  }
 
   /* =====================================================
      STORAGE
@@ -317,91 +491,10 @@ export default function Home() {
         }
 
         if (user) {
-          const { data: memberRows, error: memberError } = await supabase
-            .from('conversation_members')
-            .select('conversation_id')
-            .eq('user_id', user.id);
-
-          if (memberError) {
-            console.error(
-              'Could not load conversation memberships:',
-              memberError
-            );
-          } else if (memberRows) {
-            const conversationIds = memberRows.map(
-              (row) => row.conversation_id
-            );
-
-            if (conversationIds.length > 0) {
-              const { data: conversationRows, error: conversationError } =
-                await supabase
-                  .from('conversations')
-                  .select('*')
-                  .in('id', conversationIds);
-
-              const { data: allMemberRows, error: allMemberError } =
-                await supabase
-                  .from('conversation_members')
-                  .select('*')
-                  .in('conversation_id', conversationIds);
-
-              const { data: messageRows, error: messageError } = await supabase
-                .from('messages')
-                .select('*')
-                .in('conversation_id', conversationIds)
-                .order('created_at', { ascending: true });
-
-              if (conversationError || allMemberError || messageError) {
-                console.error(
-                  'Could not load Veylo conversations:',
-                  conversationError,
-                  allMemberError,
-                  messageError
-                );
-              } else {
-                const loadedConversations: Conversation[] = (
-                  conversationRows || []
-                ).map((conversation) => {
-                  const memberIds = (allMemberRows || [])
-                    .filter((row) => row.conversation_id === conversation.id)
-                    .map((row) => row.user_id);
-
-                  const otherMember = profiles?.find(
-                    (profile) =>
-                      memberIds.includes(profile.id) && profile.id !== user.id
-                  );
-
-                  const loadedMessages: ChatMessage[] = (messageRows || [])
-                    .filter(
-                      (message) => message.conversation_id === conversation.id
-                    )
-                    .map((message) => ({
-                      id: message.id,
-                      senderId: message.sender_id,
-                      content: message.content,
-                      createdAt: message.created_at,
-                    }));
-
-                  return {
-                    id: conversation.id,
-                    name:
-                      conversation.type === 'group'
-                        ? conversation.name || 'Group'
-                        : otherMember?.full_name || 'Conversation',
-
-                    type: conversation.type === 'group' ? 'group' : 'direct',
-                    members: memberIds,
-                    messages: loadedMessages,
-                    createdAt: conversation.created_at,
-                  };
-                });
-
-                setConversations(loadedConversations);
-              }
-            } else {
-              setConversations([]);
-            }
-          }
+          await refreshInbox(user.id, (profiles || []).map((profile) => ({
+            id: profile.id,
+            full_name: profile.full_name,
+          })));
         }
 
         if (user) {
