@@ -143,7 +143,11 @@ export default function Home() {
   const [signupName, setSignupName] = useState('');
 
   const [signupEmail, setSignupEmail] = useState('');
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
+  const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
+  const [password, setPassword] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   /* PEOPLE */
 
   const [peopleSearch, setPeopleSearch] = useState('');
@@ -221,8 +225,36 @@ export default function Home() {
   ===================================================== */
 
   useEffect(() => {
+    // Password reset URLs establish an authenticated recovery session.
+    // A regular login does not send an email.
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (
+      params.get('recovery') === '1' ||
+      params.get('type') === 'recovery' ||
+      hashParams.get('type') === 'recovery'
+    ) {
+      setIsRecoveryMode(true);
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     async function loadVeyloData() {
       try {
+        // Resolve the actual Supabase account first; profile RLS requires it.
+        // Never use a member ID from local storage to authenticate.
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError) console.warn('Could not restore Veylo session:', authError.message);
+        setCurrentMemberId(user?.id || '');
+
         // Load real Veylo members from Supabase
         const { data: profiles, error } = await supabase
           .from('profiles')
@@ -247,15 +279,6 @@ export default function Home() {
           }));
 
           setMembers(realMembers);
-        }
-
-        // Find the currently signed-in Veylo user
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user) {
-          setCurrentMemberId(user.id);
         }
 
         // Keep these local for now
@@ -524,107 +547,107 @@ export default function Home() {
 
   async function createAccount() {
     const fullName = signupName.trim();
-
     const email = signupEmail.trim().toLowerCase();
 
-    if (!fullName || !email) {
-      alert('Enter your name and email.');
-
+    if (!fullName || !email || password.length < 8) {
+      alert('Please enter your name, email and a password of at least 8 characters.');
       return;
     }
 
-    const emailExists = members.some(
-      (member) => member.email.toLowerCase() === email
-    );
+    setAuthBusy(true);
+    try {
+      // The account is created in Supabase Auth; the existing database trigger
+      // creates the matching Veylo profile and permanent member code.
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      });
 
-    if (emailExists) {
-      alert('That email is already registered.');
+      if (error) throw error;
 
-      return;
+      setSignupName('');
+      setPassword('');
+      if (data.session) {
+        // If email confirmation is disabled, Supabase signs in immediately.
+        window.location.reload();
+        return;
+      }
+
+      setAuthMode('login');
+      alert('Account created. Check your email once to confirm your registration, then log in with your email and password.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Could not create your account: ' + message);
+    } finally {
+      setAuthBusy(false);
     }
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        data: {
-          full_name: fullName,
-        },
-      },
-    });
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    const number = getNextMemberNumber();
-
-    const member: Member = {
-      id: crypto.randomUUID(),
-
-      memberNumber: number,
-
-      memberCode: formatMemberCode(number),
-
-      email,
-
-      fullName,
-
-      headline: '',
-
-      bio: '',
-
-      location: '',
-
-      avatar: '',
-
-      projects: [],
-
-      createdAt: new Date().toISOString(),
-    };
-
-    setMembers((current) => [...current, member]);
-
-    setCurrentMemberId(member.id);
-
-    setSignupName('');
-    setSignupEmail('');
-
-    setPage('profile');
   }
 
   async function loginAccount() {
     const email = signupEmail.trim().toLowerCase();
-  
+    if (!email || !password) {
+      alert('Please enter your email address and password.');
+      return;
+    }
+
+    setAuthBusy(true);
+    try {
+      // Password sign-in never sends a magic link or any email.
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      if (!data.user) throw new Error('Unable to verify your account.');
+
+      setPassword('');
+      // Supabase persists the secure session; refresh to load member data.
+      window.location.reload();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Could not log in: ' + message);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function requestPasswordReset() {
+    const email = signupEmail.trim().toLowerCase();
     if (!email) {
-      alert('Enter your email.');
+      alert('Enter your account email first.');
       return;
     }
-  
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: false,
-      },
-    });
-  
-    if (error) {
-      alert(error.message);
-      return;
+
+    setResetBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/?recovery=1',
+      });
+      if (error) throw error;
+      alert('If the email is registered, a password reset link will be sent. Open it to choose a new password.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try later.';
+      alert('Could not send the reset email: ' + message);
+    } finally {
+      setResetBusy(false);
     }
-  
-    alert('Check your email for your Veylo login link.');
   }
 
-  function signOut() {
-    setCurrentMemberId('');
-    setSelectedConversationId('');
-    setSelectedOfficeId('');
-  }
-
-  function signIntoMember(memberId: string) {
-    setCurrentMemberId(memberId);
-    setPage('network');
+  async function signOut() {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setCurrentMemberId('');
+      setSelectedConversationId('');
+      setSelectedOfficeId('');
+      setConversations([]);
+      setOffices([]);
+      setPage('network');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Could not sign out: ' + message);
+    }
   }
 
   /* =====================================================
@@ -698,8 +721,8 @@ export default function Home() {
       // Never trust the local member selector for authentication.
       // Only change a password when the Supabase session belongs to this profile.
       const { data: { user }, error: sessionError } = await supabase.auth.getUser();
-      if (sessionError || !user || user.id !== currentMember?.id) {
-        alert('Your secure sign-in session is missing. Open a new recovery link for this account first.');
+      if (sessionError || !user || (!isRecoveryMode && user.id !== currentMember?.id)) {
+        alert('Your secure session is missing. Please open a valid reset link and try again.');
         return;
       }
 
@@ -716,6 +739,12 @@ export default function Home() {
       setConfirmAccountPassword('');
       setShowPasswordEditor(false);
       alert('Your Veylo password has been changed successfully.');
+
+      if (isRecoveryMode) {
+        setIsRecoveryMode(false);
+        window.history.replaceState({}, '', window.location.pathname);
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Could not change account password', error);
       alert('Something went wrong while saving your password. Please try again.');
@@ -1427,6 +1456,63 @@ export default function Home() {
      ACCOUNT SCREEN
   ===================================================== */
 
+  if (isRecoveryMode) {
+    return (
+      <main className="authPage">
+        <section className="authCard">
+          <img
+            src="/Veylo_Networks_White_Transparent.png"
+            alt="Veylo Networks"
+            className="authLogo"
+          />
+          <span className="pill">ACCOUNT SECURITY</span>
+          <h1>Reset your password</h1>
+          <p className="muted">
+            Choose a new password to finish recovering your Veylo account.
+          </p>
+          <div className="stack">
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="New password (at least 8 characters)"
+              value={newAccountPassword}
+              onChange={(event) => setNewAccountPassword(event.target.value)}
+            />
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Confirm your new password"
+              value={confirmAccountPassword}
+              onChange={(event) => setConfirmAccountPassword(event.target.value)}
+            />
+            <button
+              className="primary full"
+              type="button"
+              disabled={passwordSaving}
+              onClick={changePasswordFromProfile}
+            >
+              {passwordSaving ? 'Saving password...' : 'Save New Password'}
+            </button>
+            <button
+              className="secondary full"
+              type="button"
+              onClick={() => {
+                setIsRecoveryMode(false);
+                setNewAccountPassword('');
+                setConfirmAccountPassword('');
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+            >
+              Back to Veylo
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (!currentMember) {
     return (
       <main className="authPage">
@@ -1436,88 +1522,109 @@ export default function Home() {
             alt="Veylo Networks"
             className="authLogo"
           />
-
           <span className="pill">VEYLO 1.0</span>
-
-          <h1>Join Veylo Networks</h1>
-
+          <h1>{authMode === 'signup' ? 'Join Veylo Networks' : 'Welcome back'}</h1>
           <p className="muted">
-            Connect with business people, build your professional profile and
-            work together through Veylo.
+            {authMode === 'signup'
+              ? 'Create your professional Veylo account.'
+              : 'Log in with your email and password. No email link required.'}
           </p>
-
           <div
-  style={{
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '8px',
-    marginBottom: '12px',
-  }}
->
-  <button
-    type="button"
-    className={authMode === 'signup' ? 'primary' : 'field'}
-    onClick={() => setAuthMode('signup')}
-  >
-    Sign Up
-  </button>
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '8px',
+              marginBottom: '12px',
+            }}
+          >
+            <button
+              type="button"
+              className={authMode === 'signup' ? 'primary' : 'field'}
+              onClick={() => setAuthMode('signup')}
+              disabled={authBusy}
+            >
+              Sign Up
+            </button>
+            <button
+              type="button"
+              className={authMode === 'login' ? 'primary' : 'field'}
+              onClick={() => setAuthMode('login')}
+              disabled={authBusy}
+            >
+              Log In
+            </button>
+          </div>
 
-  <button
-    type="button"
-    className={authMode === 'login' ? 'primary' : 'field'}
-    onClick={() => setAuthMode('login')}
-  >
-    Log In
-  </button>
-</div>
+          <form
+            className="stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (authMode === 'signup') {
+                createAccount();
+              } else {
+                loginAccount();
+              }
+            }}
+          >
+            {authMode === 'signup' && (
+              <input
+                className="field"
+                type="text"
+                autoComplete="name"
+                placeholder="Full name"
+                value={signupName}
+                onChange={(event) => setSignupName(event.target.value)}
+                required
+              />
+            )}
+            <input
+              className="field"
+              type="email"
+              autoComplete="email"
+              placeholder="Email address"
+              value={signupEmail}
+              onChange={(event) => setSignupEmail(event.target.value)}
+              required
+            />
+            <input
+              className="field"
+              type="password"
+              autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
+              placeholder={authMode === 'signup' ? 'Create password (8+ characters)' : 'Password'}
+              minLength={authMode === 'signup' ? 8 : undefined}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+            <button
+              className="primary full"
+              type="submit"
+              disabled={authBusy}
+            >
+              {authBusy
+                ? 'Please wait...'
+                : authMode === 'signup'
+                  ? 'Create Veylo Account'
+                  : 'Log In'}
+            </button>
+          </form>
 
-{authMode === 'signup' && (
-  <input
-    className="field"
-    placeholder="Full name"
-    value={signupName}
-    onChange={(event) => setSignupName(event.target.value)}
-  />
-)}
-
-<input
-  className="field"
-  type="email"
-  placeholder="Email address"
-  value={signupEmail}
-  onChange={(event) => setSignupEmail(event.target.value)}
-/>
-
-<button
-  className="primary full"
-  onClick={authMode === 'signup' ? createAccount : loginAccount}
->
-  {authMode === 'signup' ? 'Create Veylo Account' : 'Log In'}
-</button>
-
-          {members.length > 0 && (
-            <div className="existingMembers">
-              <span className="small muted">
-                Existing profiles on this device
-              </span>
-
-              {members.map((member) => (
-                <button
-                  key={member.id}
-                  className="memberLogin"
-                  onClick={() => signIntoMember(member.id)}
-                >
-                  <Avatar member={member} />
-
-                  <div>
-                    <strong>{member.fullName}</strong>
-
-                    <small>{member.memberCode}</small>
-                  </div>
-                </button>
-              ))}
-            </div>
+          {authMode === 'login' && (
+            <button
+              type="button"
+              className="vbnForgotPassword"
+              disabled={resetBusy || authBusy}
+              onClick={requestPasswordReset}
+            >
+              {resetBusy ? 'Sending reset link...' : 'Forgot password?'}
+            </button>
           )}
+
+          <p className="muted small" style={{ marginTop: '12px' }}>
+            {authMode === 'signup'
+              ? 'Email verification is required once when registering.'
+              : 'Your password is kept securely in Supabase Authentication.'}
+          </p>
         </section>
       </main>
     );
