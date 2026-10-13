@@ -6,6 +6,7 @@ on:
       - feature/vbn-free-business-news
       - feature/veylo-branding-avatars-follows-mobile-fixes
       - feature/realtime-inbox-project-links-profile-bios
+      - fix/veylo-iphone-home-logo
 
 permissions:
   contents: read
