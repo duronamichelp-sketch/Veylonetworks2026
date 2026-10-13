@@ -31,9 +31,14 @@ export const metadata: Metadata = {
     images: ["/opengraph-image"],
   },
   icons: {
-    icon: [{ url: "/icon", type: "image/png", sizes: "192x192" }],
-    shortcut: "/icon",
-    apple: "/icon",
+    icon: [{ url: "/icon?v=veylo-logo-20261013", type: "image/png", sizes: "192x192" }],
+    shortcut: "/icon?v=veylo-logo-20261013",
+    apple: [{ url: "/apple-icon?v=veylo-logo-20261013", type: "image/png", sizes: "180x180" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Veylo Networks",
+    statusBarStyle: "black-translucent",
   },
 };
 
