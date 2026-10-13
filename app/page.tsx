@@ -106,6 +106,7 @@ type NewsArticle = {
   summary: string;
   url: string;
   publishedAt: string;
+  category?: 'Business' | 'Economy' | 'Technology' | 'Startups';
 };
 
 const STORAGE = {
@@ -209,6 +210,11 @@ export default function Home() {
   const [newsLoading, setNewsLoading] = useState(false);
 
   const [newsMessage, setNewsMessage] = useState('');
+  const [newsCategory, setNewsCategory] = useState('All');
+  const [newsUpdatedAt, setNewsUpdatedAt] = useState('');
+  const visibleNews = newsCategory === 'All'
+    ? news
+    : news.filter((article) => article.category === newsCategory);
 
   /* =====================================================
      STORAGE
@@ -1368,27 +1374,29 @@ export default function Home() {
   ===================================================== */
 
   async function loadNews() {
+    if (newsLoading) return;
     setNewsLoading(true);
     setNewsMessage('');
 
     try {
-      const response = await fetch('/api/vbn');
-
+      const response = await fetch('/api/vbn', { cache: 'no-store' });
       const data = await response.json();
 
-      setNews(data.articles || []);
-
-      if (!data.connected) {
-        setNewsMessage(
-          data.message || 'VBN news provider is not connected yet.'
-        );
+      if (!response.ok || !data.connected) {
+        throw new Error(data.message || 'Unable to load live business headlines.');
       }
-    } catch {
-      setNews([]);
-      setNewsMessage('The VBN news service is not connected yet.');
-    }
 
-    setNewsLoading(false);
+      setNews(Array.isArray(data.articles) ? data.articles : []);
+      setNewsUpdatedAt(typeof data.updatedAt === 'string' ? data.updatedAt : '');
+      setNewsMessage(typeof data.message === 'string' ? data.message : '');
+    } catch (error) {
+      console.error('VBN could not refresh:', error);
+      setNewsMessage(
+        'Unable to refresh the live headlines right now. Please try again shortly.'
+      );
+    } finally {
+      setNewsLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -2192,51 +2200,101 @@ export default function Home() {
                 <div>
                   <span className="eyebrow">VEYLO BUSINESS NEWS</span>
 
-                  <h2>VBN</h2>
+                  <h2>VBN — Latest Headlines</h2>
 
                   <p className="muted">
-                    Business, startup, technology and economic news.
+                    Business, startups, technology and economic headlines from around the world.
                   </p>
                 </div>
 
-                <button className="secondary" onClick={loadNews}>
-                  Refresh
+                <button
+                  className="secondary"
+                  type="button"
+                  onClick={loadNews}
+                  disabled={newsLoading}
+                >
+                  {newsLoading ? 'Refreshing...' : 'Refresh news'}
                 </button>
               </div>
 
-              {newsLoading ? (
-                <EmptyState title="Loading VBN..." text="" />
+              {newsMessage && (
+                <p className="vbnStatus" role="status">{newsMessage}</p>
+              )}
+
+              {newsLoading && news.length === 0 ? (
+                <EmptyState title="Loading live business news..." text="Fetching the latest headlines." />
               ) : news.length === 0 ? (
                 <EmptyState
-                  title="VBN is ready."
-                  text={
-                    newsMessage ||
-                    'Connect the live business news provider to begin publishing headlines.'
-                  }
+                  title="Headlines temporarily unavailable"
+                  text="VBN could not reach its free news sources. Select Refresh news to try again."
                 />
               ) : (
-                <div className="newsGrid">
-                  {news.map((article) => (
-                    <article className="glass newsCard" key={article.id}>
-                      <span className="newsSource">{article.source}</span>
-
-                      <h3>{article.title}</h3>
-
-                      <p className="muted">{article.summary}</p>
-
-                      <span className="newsDate">{article.publishedAt}</span>
-
-                      <a
-                        href={article.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="newsLink"
+                <>
+                  <div className="vbnFilters" role="group" aria-label="Filter news by topic">
+                    {['All', 'Business', 'Economy', 'Technology', 'Startups'].map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        className={category === newsCategory ? 'vbnFilter active' : 'vbnFilter'}
+                        aria-pressed={category === newsCategory}
+                        onClick={() => setNewsCategory(category)}
                       >
-                        Read full story →
-                      </a>
-                    </article>
-                  ))}
-                </div>
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="muted small vbnUpdated">
+                    Showing {visibleNews.length} article{visibleNews.length === 1 ? '' : 's'}
+                    {newsUpdatedAt && ' · Refreshed ' + new Date(newsUpdatedAt).toLocaleString(
+                      'en-IE',
+                      { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }
+                    ) + ' UTC'}
+                  </p>
+
+                  {visibleNews.length === 0 ? (
+                    <EmptyState
+                      title={'No ' + newsCategory.toLowerCase() + ' headlines at the moment'}
+                      text="Try another topic or select All to see every recent story."
+                    />
+                  ) : (
+                    <div className="newsGrid">
+                      {visibleNews.map((article) => (
+                        <article className="glass newsCard" key={article.id}>
+                          <div className="vbnCardTags">
+                            <span className="newsSource">{article.source}</span>
+                            {article.category && <span className="vbnCategory">{article.category}</span>}
+                          </div>
+
+                          <h3>{article.title}</h3>
+
+                          {article.summary && <p className="muted">{article.summary}</p>}
+
+                          <time className="newsDate" dateTime={article.publishedAt}>
+                            {new Date(article.publishedAt).toLocaleString(
+                              'en-IE',
+                              { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }
+                            )} UTC
+                          </time>
+
+                          <a
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="newsLink"
+                          >
+                            Read full story at source →
+                          </a>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="muted small vbnAttribution">
+                    Headlines and links discovered using the GDELT Project and Hacker News.
+                    Original reporting belongs to its respective publisher. News updates every few minutes.
+                  </p>
+                </>
               )}
             </>
           )}
