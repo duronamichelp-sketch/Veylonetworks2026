@@ -1683,3 +1683,689 @@ a {
 }
 .vbnForgotPassword:hover { text-decoration: underline; }
 .vbnForgotPassword:disabled { opacity: .6; cursor: wait; }
+
+
+/* ==========================================================
+   VBN 1.0 - EDITORIAL NEWSROOM DESIGN
+   Styled as a professional news publication while retaining
+   the existing dark Veylo identity.
+========================================================== */
+
+.vbnNewsroom {
+  width: 100%;
+  max-width: 1460px;
+  margin: 0 auto;
+  color: #f0f5fc;
+}
+
+.vbnNewsroomHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 8px 0 27px;
+  border-bottom: 1px solid rgba(224,235,247,.16);
+}
+
+.vbnNewsroomBrand {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-width: 0;
+}
+
+.vbnMastheadMark {
+  flex: none;
+  letter-spacing: -.085em;
+  font-size: 59px;
+  line-height: 1;
+  font-weight: 900;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #fff;
+  text-shadow: 0 0 34px rgba(10,121,255,.13);
+}
+
+.vbnMarkPeriod { color: #149dff; }
+
+.vbnKicker,
+.vbnSectionLabel {
+  display: block;
+  color: #5cadf3;
+  font-size: 10px;
+  font-weight: 780;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.vbnNewsroomBrand h1 {
+  margin: 6px 0 7px;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: -.026em;
+  font-weight: 700;
+  font-size: clamp(22px,2.3vw,31px);
+  line-height: 1.15;
+  color: #fafcff;
+}
+
+.vbnNewsroomBrand p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8999ad;
+  max-width: 540px;
+}
+
+.vbnNewsroomActions {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-bottom: 2px;
+  flex-wrap: wrap;
+}
+
+.vbnNewsroomActions button { white-space: nowrap; }
+
+.vbnLiveStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b2c9db;
+  font-size: 10px;
+  letter-spacing: .09em;
+  font-weight: 750;
+}
+
+.vbnStoryDot {
+  display: inline-block;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1eacff;
+  box-shadow: 0 0 0 4px rgba(33,152,255,.1);
+}
+
+.vbnHeadlineStrip {
+  display: flex;
+  align-items: stretch;
+  margin: 19px 0 23px;
+  min-width: 0;
+  border: 1px solid rgba(179,197,220,.14);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(23,36,53,.68);
+}
+
+.vbnStripTag {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 13px 17px;
+  color: #fff;
+  background: #106bd7;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .09em;
+  white-space: nowrap;
+}
+
+.vbnStripScroll {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(105,158,222,.3) transparent;
+  min-width: 0;
+}
+
+.vbnStripHeadline {
+  display: inline-block;
+  flex: none;
+  max-width: 360px;
+  padding: 0 21px;
+  color: #d6e1ed;
+  font-size: 12px;
+  font-weight: 620;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 45px;
+  border-right: 1px solid rgba(194,214,234,.13);
+  text-decoration: none;
+}
+
+.vbnStripHeadline:hover { color: #5ec5ff; }
+
+.vbnBrowseBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 13px;
+  margin: 0 0 12px;
+}
+
+.vbnBrowseBar .vbnFilters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+}
+
+.vbnBrowseBar .vbnFilter {
+  padding: 10px 11px;
+  color: #a8b7c8;
+  font-size: 11px;
+  border-radius: 7px;
+  background: rgba(255,255,255,.025);
+}
+
+.vbnBrowseBar .vbnFilter.active {
+  background: #087eea;
+  color: #fff;
+  border-color: #087eea;
+}
+
+.vbnTopicCount {
+  display: inline-block;
+  margin-left: 8px;
+  opacity: .68;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.vbnSearchLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 185px;
+  height: 39px;
+  padding: 0 11px;
+  border: 1px solid rgba(201,220,240,.14);
+  border-radius: 8px;
+  background: rgba(255,255,255,.035);
+}
+
+.vbnSearchLabel:focus-within {
+  border-color: #168dfc;
+}
+
+.vbnSearchIcon { color: #93afcc; font-size: 22px; line-height: 1; }
+
+.vbnSearchLabel input {
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  color: #e8f4ff;
+  background: transparent;
+  border: 0;
+  font-size: 11px;
+  outline: none;
+}
+
+.vbnSearchLabel input::placeholder { color: #8795a7; }
+
+.vbnIssueLine {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 19px;
+  font-size: 10px;
+  color: #758ca4;
+}
+
+.vbnTopNewsLayout {
+  display: grid;
+  grid-template-columns: minmax(0,1.76fr) minmax(260px,.83fr);
+  align-items: stretch;
+  gap: 17px;
+}
+
+.vbnTopMain {
+  min-width: 0;
+}
+
+.vbnLeadStory {
+  min-height: 395px;
+  position: relative;
+  display: flex;
+  isolation: isolate;
+  align-items: flex-end;
+  padding: 29px;
+  border-radius: 17px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 83% 20%, rgba(17,115,218,.24), transparent 50%),
+    linear-gradient(140deg,#17273b,#07111c 70%);
+}
+
+.vbnLeadStory::after {
+  content: 'VBN';
+  z-index: -1;
+  position: absolute;
+  right: -11px;
+  top: 7px;
+  font-family: Arial,Helvetica,sans-serif;
+  font-size: clamp(120px,17vw,290px);
+  font-weight: 900;
+  color: rgba(100,174,255,.045);
+  letter-spacing: -.1em;
+  pointer-events: none;
+}
+
+.vbnLeadPhoto {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vbnLeadOverlay {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg,rgba(8,17,29,.96) 0%,rgba(9,18,31,.85) 50%,rgba(9,20,35,.46) 100%);
+}
+
+.vbnLeadStory:not(.hasPhoto) .vbnLeadOverlay { background: transparent; }
+
+.vbnLeadContent {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.vbnLeadEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 17px;
+  color: #92cafb;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.vbnLeadDivider { color: #506a87; }
+
+.vbnLeadStory h2 {
+  max-width: 720px;
+  margin: 0 0 16px;
+  color: #fff;
+  font-family: Georgia,'Times New Roman',serif;
+  font-size: clamp(28px,3.3vw,44px);
+  letter-spacing: -.037em;
+  font-weight: 720;
+  line-height: 1.18;
+}
+
+.vbnNewsroom a { text-decoration: none; }
+.vbnNewsroom a:hover { color: #70c7ff; }
+.vbnLeadStory h2 a { color: inherit; }
+
+.vbnLeadExcerpt {
+  max-width: 590px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #b9c8d9;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vbnPublisherMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #889bb2;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.vbnPublisher { font-weight: 770; color: #9cbfdd; }
+
+.vbnReadStory {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 11px 14px;
+  border: 1px solid rgba(94,176,248,.5);
+  border-radius: 8px;
+  color: #bde6ff;
+  background: rgba(11,113,228,.13);
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.vbnSpotlightGrid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 13px;
+  margin-top: 14px;
+}
+
+.vbnSpotlight {
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 205px;
+  border-radius: 13px;
+  background: rgba(18,28,40,.8);
+}
+
+.vbnSpotlightMedia {
+  display: block;
+  height: 120px;
+  overflow: hidden;
+}
+
+.vbnSpotlightMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .2s ease;
+}
+
+.vbnSpotlightMedia:hover img { transform: scale(1.035); }
+
+.vbnSpotlightBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 17px 17px 18px;
+  gap: 11px;
+}
+
+.vbnSpotlightBody h3 {
+  margin: 0;
+  font-family: Georgia,'Times New Roman',serif;
+  font-size: clamp(17px,1.6vw,21px);
+  font-weight: 700;
+  line-height: 1.33;
+}
+
+.vbnSpotlightBody h3 a { color: #e9f1fd; }
+
+.vbnSpotlightBody .vbnPublisherMeta { margin-top: auto; }
+
+.vbnLatestPanel {
+  min-width: 0;
+  align-self: stretch;
+  padding: 23px 20px;
+  border-radius: 16px;
+  background: rgba(15,23,34,.75);
+}
+
+.vbnAsideHeading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 19px;
+  border-bottom: 1px solid rgba(226,239,255,.12);
+}
+
+.vbnAsideHeading h3 {
+  margin: 0;
+  font-family: Georgia,'Times New Roman',serif;
+  color: #f3f7ff;
+  font-size: 21px;
+}
+
+.vbnLatestItem {
+  display: grid;
+  grid-template-columns: 26px minmax(0,1fr);
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(223,232,245,.095);
+}
+
+.vbnLatestItem:last-child { border-bottom: none; padding-bottom: 0; }
+
+.vbnLatestNumber {
+  font-size: 13px;
+  color: #147bda;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.vbnLatestItem h4 {
+  margin: 0 0 9px;
+  line-height: 1.4;
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.vbnLatestItem h4 a { color: #e2ebf7; }
+.vbnLatestItem .vbnPublisherMeta { font-size: 10px; }
+
+.vbnDeskSection {
+  margin-top: 38px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(225,236,248,.18);
+}
+
+.vbnDeskHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 21px;
+}
+
+.vbnDeskHeading h2 {
+  margin: 5px 0 0;
+  font-size: clamp(24px,2.4vw,32px);
+  font-family: Georgia,'Times New Roman',serif;
+  letter-spacing: -.035em;
+  color: #f9fbff;
+}
+
+.vbnViewAll {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  color: #72bcf7;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+  padding: 8px 0;
+}
+
+.vbnViewAll:hover { color: #c7e7ff; }
+
+.vbnDeskStories {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 0 25px;
+}
+
+.vbnStoryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 19px 0;
+  border-top: 1px solid rgba(219,235,250,.11);
+}
+
+.vbnStoryRowCopy { min-width: 0; flex: 1; }
+
+.vbnStoryRow h3 {
+  margin: 8px 0 11px;
+  font-family: Georgia,'Times New Roman',serif;
+  font-size: clamp(16px,1.45vw,20px);
+  letter-spacing: -.01em;
+  line-height: 1.32;
+}
+
+.vbnStoryRow h3 a { color: #eaf1f9; }
+
+.vbnStoryRowCopy > p {
+  color: #8c9caf;
+  font-size: 11px;
+  line-height: 1.55;
+  margin: 0 0 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vbnStoryThumbnail {
+  display: block;
+  width: 92px;
+  height: 80px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #182536;
+}
+
+.vbnStoryThumbnail img { display: block; width:100%;height:100%;object-fit:cover; }
+
+.vbnMoreGrid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 15px;
+}
+
+.vbnMoreCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 177px;
+  gap: 9px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(14,23,35,.7);
+}
+
+.vbnMoreCard h3 {
+  margin: 0 0 4px;
+  font-family: Georgia,'Times New Roman',serif;
+  font-size: 18px;
+  line-height: 1.32;
+}
+
+.vbnMoreCard h3 a { color: #e8f0fb; }
+
+.vbnMoreCard > p {
+  color: #8799ad;
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vbnMoreCard .vbnPublisherMeta { margin-top: auto; }
+
+.vbnLoadMore {
+  display: block;
+  margin: 22px auto 0;
+}
+
+.vbnLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: 70px 25px;
+  margin-top: 20px;
+  min-height: 230px;
+}
+
+.vbnLoading h2 {
+  margin: 0;
+  color: #dceaf7;
+  font-family: Georgia,'Times New Roman',serif;
+  font-size: 25px;
+}
+
+.vbnLoading p { margin: 0; color: #8c9dad; line-height: 1.55; font-size: 13px; }
+
+.vbnLoadingPulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #219ffe;
+  box-shadow: 0 0 0 9px rgba(47,150,255,.08);
+}
+
+.vbnNewsroomFooter {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  border-top: 1px solid rgba(255,255,255,.11);
+  padding: 28px 0 18px;
+  margin-top: 39px;
+}
+
+.vbnNewsroomFooter .vbnMastheadMark { font-size: 33px; }
+.vbnNewsroomFooter strong { font-size: 11px; color: #bccbdc; }
+.vbnNewsroomFooter p {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #8293a8;
+  line-height: 1.6;
+  max-width: 770px;
+}
+
+@media (max-width: 1200px) {
+  .vbnTopNewsLayout {
+    grid-template-columns: minmax(0,1.55fr) minmax(238px,.9fr);
+  }
+  .vbnNewsroomBrand { gap: 14px; }
+  .vbnMastheadMark { font-size: 52px; }
+}
+
+@media (max-width: 980px) {
+  .vbnTopNewsLayout { grid-template-columns: minmax(0,1fr); }
+  .vbnLatestList { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 20px; }
+  .vbnLatestItem { grid-template-columns: 22px minmax(0,1fr); }
+  .vbnMoreGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width: 680px) {
+  .vbnNewsroomHeader { gap: 15px; padding-bottom: 19px; }
+  .vbnNewsroomBrand { align-items: flex-start; gap: 12px; }
+  .vbnMastheadMark { font-size: 40px; }
+  .vbnNewsroomBrand h1 { font-size: 22px; }
+  .vbnNewsroomBrand p { font-size: 11px; }
+  .vbnNewsroomActions { width: 100%; justify-content: space-between; }
+  .vbnHeadlineStrip { margin: 15px 0 21px; }
+  .vbnStripTag { padding: 12px; font-size: 9px; }
+  .vbnStripHeadline { max-width: 245px; padding: 0 13px; }
+  .vbnBrowseBar .vbnFilters { width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 7px; }
+  .vbnSearchLabel { width: 100%; }
+  .vbnIssueLine { flex-direction: column; gap: 4px; }
+  .vbnLeadStory { min-height: 330px; padding: 22px; }
+  .vbnLeadStory h2 { font-size: clamp(25px,7vw,35px); }
+  .vbnSpotlightGrid { grid-template-columns: minmax(0,1fr); }
+  .vbnLatestList { grid-template-columns: minmax(0,1fr); }
+  .vbnLatestPanel { padding: 18px; }
+  .vbnDeskSection { margin-top: 28px; }
+  .vbnDeskStories { grid-template-columns: minmax(0,1fr); }
+  .vbnMoreGrid { grid-template-columns: minmax(0,1fr); }
+  .vbnNewsroomFooter { gap: 12px; }
+  .vbnNewsroomFooter .vbnMastheadMark { font-size: 26px; }
+}
