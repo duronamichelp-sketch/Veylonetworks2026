@@ -1666,3 +1666,20 @@ a {
   }
   .vbnFilter { flex: 0 0 auto; }
 }
+
+/* Login support for Veylo email/password authentication */
+.vbnForgotPassword {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  color: #64bfff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vbnForgotPassword:hover { text-decoration: underline; }
+.vbnForgotPassword:disabled { opacity: .6; cursor: wait; }
