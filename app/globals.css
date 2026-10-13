@@ -1607,3 +1607,8 @@ a {
   .mobileTab.active { color: #398cff; }
   .twoColumnLayout, .profileGrid, .officeGrid, .peopleGrid, .newsGrid { min-width: 0; grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Accessible secondary actions on the login and password reset screens */
+.authSecondaryButton { border: 0; background: transparent; color: #64bfff; cursor: pointer; font: inherit; text-align: center; padding: 12px; }
+.authSecondaryButton:hover { text-decoration: underline; }
+.authSecondaryButton:disabled { opacity: .6; cursor: wait; }
