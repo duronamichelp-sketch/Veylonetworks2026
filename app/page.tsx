@@ -1456,6 +1456,12 @@ export default function Home() {
     }
   }, [page]);
 
+  useEffect(() => {
+    if (page !== 'messages' || !selectedConversationId || !messagesEndRef.current) return;
+    const panel = messagesEndRef.current;
+    panel.scrollTop = panel.scrollHeight;
+  }, [page, selectedConversationId, selectedConversation?.messages.length]);
+
   /* =====================================================
      LOADING
   ===================================================== */
@@ -2014,8 +2020,8 @@ export default function Home() {
           {/* MESSAGES */}
 
           {page === 'messages' && (
-            <div className="twoColumnLayout">
-              <aside className="glass panel">
+            <div className="twoColumnLayout mobileConversationLayout" data-mobile-view={selectedConversation ? 'detail' : 'list'}>
+              <aside className="glass panel mobileConversationList">
                 <h3>Messages</h3>
 
                 <div className="stack">
@@ -2031,6 +2037,14 @@ export default function Home() {
                   </button>
                 </div>
 
+                {visibleConversations.length === 0 && (
+                  <div className="mobileListEmpty">
+                    <p>No conversations yet. Find a Veylo member and start a chat.</p>
+                    <button type="button" className="secondary" onClick={() => setPage('people')}>
+                      Find people
+                    </button>
+                  </div>
+                )}
                 <div className="list">
                   {visibleConversations.map((conversation) => {
                     const displayName = getConversationName(
@@ -2065,6 +2079,15 @@ export default function Home() {
               </aside>
 
               <section className="glass chatPanel">
+                {selectedConversation && (
+                  <button
+                    type="button"
+                    className="mobileDetailBack"
+                    onClick={() => setSelectedConversationId('')}
+                  >
+                    <span aria-hidden="true">←</span> All conversations
+                  </button>
+                )}
                 {!selectedConversation ? (
                   <EmptyState
                     title="No conversation selected."
@@ -2110,7 +2133,7 @@ export default function Home() {
                       )}
                     </div>
 
-                    <div className="messageArea">
+                    <div className="messageArea" ref={messagesEndRef}>
                       {selectedConversation.messages.length === 0 ? (
                         <div className="emptyConversation">
                           No messages yet.
@@ -2170,8 +2193,8 @@ export default function Home() {
           {/* OFFICES */}
 
           {page === 'offices' && (
-            <div className="twoColumnLayout">
-              <aside className="glass panel">
+            <div className="twoColumnLayout mobileOfficeLayout" data-mobile-view={selectedOffice ? 'detail' : 'list'}>
+              <aside className="glass panel mobileOfficeList">
                 <h3>Internal Offices</h3>
 
                 <div className="stack">
@@ -2196,6 +2219,9 @@ export default function Home() {
                   </button>
                 </div>
 
+                {visibleOffices.length === 0 && (
+                  <p className="mobileListEmpty">Create your first office to manage projects and collaborate with colleagues.</p>
+                )}
                 <div className="list">
                   {visibleOffices.map((office) => (
                     <button
@@ -2216,6 +2242,15 @@ export default function Home() {
               </aside>
 
               <section className="officeMain">
+                {selectedOffice && (
+                  <button
+                    type="button"
+                    className="mobileDetailBack"
+                    onClick={() => setSelectedOfficeId('')}
+                  >
+                    <span aria-hidden="true">←</span> All offices
+                  </button>
+                )}
                 {!selectedOffice ? (
                   <EmptyState
                     title="No office selected."
