@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
+import ExpandableText from './components/ExpandableText';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://oxjjkyfqtlzizdkylsqp.supabase.co',
@@ -40,6 +41,7 @@ type Project = {
   role: string;
   year: string;
   description: string;
+  website?: string;
 };
 
 type FollowRelationship = {
@@ -74,6 +76,7 @@ type ChatMessage = {
   senderId: string;
   content: string;
   createdAt: string;
+  sending?: boolean;
 };
 
 type Conversation = {
@@ -147,6 +150,17 @@ export default function Home() {
   const [posts, setPosts] = useState<NetworkPost[]>([]);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [readReceipts, setReadReceipts] = useState<Record<string, string>>({});
+  const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const knownConversationIdsRef = useRef<Set<string>>(new Set());
+  const sendInFlightRef = useRef(false);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingTimeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const typingStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingSentRef = useRef(0);
+  const isTypingRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const [offices, setOffices] = useState<Office[]>([]);
 
@@ -202,7 +216,11 @@ export default function Home() {
     role: '',
     year: '',
     description: '',
+    website: '',
   });
+  const [projectLinkEdits, setProjectLinkEdits] = useState<Record<string, string>>({});
+  const [projectLinkSavingId, setProjectLinkSavingId] = useState('');
+  const [projectLinkNotice, setProjectLinkNotice] = useState('');
 
   /* OFFICES */
 
@@ -232,6 +250,162 @@ export default function Home() {
 
   const [newsMessage, setNewsMessage] = useState('');
   const [newsUpdatedAt, setNewsUpdatedAt] = useState('');
+
+  async function refreshInbox(
+    memberId: string,
+    loadedProfiles: Array<{ id: string; full_name: string }> = []
+  ) {
+    const { data: mine, error: membershipError } = await supabase
+      .from('conversation_members')
+      .select('conversation_id')
+      .eq('user_id', memberId);
+    if (membershipError) {
+      console.error('Could not refresh Veylo inbox memberships:', membershipError);
+      return;
+    }
+
+    const conversationIds = (mine || []).map((row) => row.conversation_id);
+    if (!conversationIds.length) {
+      setConversations([]);
+      setReadReceipts({});
+      return;
+    }
+
+    const [
+      { data: chats, error: chatsError },
+      { data: chatMembers, error: membersError },
+      { data: messageRows, error: messagesError },
+      { data: readRows, error: readsError },
+    ] = await Promise.all([
+      supabase.from('conversations').select('*').in('id', conversationIds),
+      supabase.from('conversation_members').select('*').in('conversation_id', conversationIds),
+      supabase.from('messages').select('*').in('conversation_id', conversationIds)
+        .order('created_at', { ascending: true }),
+      supabase.from('conversation_reads').select('conversation_id, last_read_at')
+        .eq('user_id', memberId),
+    ]);
+
+    if (chatsError || membersError || messagesError || readsError) {
+      console.error('Could not refresh Veylo inbox:', chatsError, membersError, messagesError, readsError);
+      return;
+    }
+
+    const loaded: Conversation[] = (chats || []).map((chat) => {
+      const ids: string[] = (chatMembers || [])
+        .filter((row) => row.conversation_id === chat.id)
+        .map((row) => row.user_id);
+      const partner = loadedProfiles.find(
+        (member) => ids.includes(member.id) && member.id !== memberId
+      );
+      const messages: ChatMessage[] = (messageRows || [])
+        .filter((row) => row.conversation_id === chat.id)
+        .map((row) => ({
+          id: row.id,
+          senderId: row.sender_id,
+          content: row.content,
+          createdAt: row.created_at,
+        }));
+
+      return {
+        id: chat.id,
+        name: chat.type === 'group' ? chat.name || 'Group' : partner?.full_name || 'Direct Message',
+        type: chat.type === 'group' ? 'group' : 'direct',
+        members: ids,
+        messages,
+        createdAt: chat.created_at,
+      };
+    });
+
+    setConversations((current) => loaded.map((chat) => {
+      const oldChat = current.find((item) => item.id === chat.id);
+      const awaiting = (oldChat?.messages || []).filter(
+        (message) => message.sending && !chat.messages.some((saved) => saved.id === message.id)
+      );
+      return {
+        ...chat,
+        name: chat.type === 'direct'
+          ? oldChat?.name || chat.name
+          : chat.name,
+        messages: [...chat.messages, ...awaiting]
+          .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)),
+      };
+    }));
+
+    setReadReceipts((current) => {
+      const next = { ...current };
+      for (const row of readRows || []) {
+        const previousTime = Date.parse(next[row.conversation_id] || '') || 0;
+        const serverTime = Date.parse(row.last_read_at) || 0;
+        if (serverTime >= previousTime) next[row.conversation_id] = row.last_read_at;
+      }
+      return next;
+    });
+  }
+
+  async function markConversationRead(conversationId: string) {
+    const { data, error } = await supabase.rpc('mark_conversation_read', {
+      p_conversation_id: conversationId,
+    });
+
+    if (error) {
+      console.error('Could not mark conversation as read:', error);
+      return;
+    }
+    if (typeof data === 'string') {
+      setReadReceipts((current) => {
+        const previous = Date.parse(current[conversationId] || '') || 0;
+        if (Date.parse(data) < previous) return current;
+        return { ...current, [conversationId]: data };
+      });
+    }
+  }
+
+  function playSentMessagePop() {
+    // Only create audio after an actual send interaction; mobile browsers may
+    // otherwise block audio until a user gesture.
+    try {
+      const AudioContextConstructor = window.AudioContext;
+      if (!AudioContextConstructor) return;
+      const context = audioContextRef.current || new AudioContextConstructor();
+      audioContextRef.current = context;
+      if (context.state === 'suspended') void context.resume();
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      const start = context.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(620, start);
+      osc.frequency.exponentialRampToValueAtTime(350, start + 0.105);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.09, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.115);
+      osc.connect(gain);
+      gain.connect(context.destination);
+      osc.start(start);
+      osc.stop(start + 0.12);
+    } catch (error) {
+      console.warn('Sound unavailable in this browser:', error);
+    }
+  }
+
+  function broadcastTyping(isTyping: boolean) {
+    const channel = typingChannelRef.current;
+    if (!channel || !currentMemberId) return;
+
+    if (isTyping) {
+      const now = Date.now();
+      if (isTypingRef.current && now - lastTypingSentRef.current < 900) return;
+      lastTypingSentRef.current = now;
+    } else if (!isTypingRef.current) {
+      return;
+    }
+
+    isTypingRef.current = isTyping;
+    void channel.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { memberId: currentMemberId, isTyping },
+    });
+  }
 
   /* =====================================================
      STORAGE
@@ -317,91 +491,10 @@ export default function Home() {
         }
 
         if (user) {
-          const { data: memberRows, error: memberError } = await supabase
-            .from('conversation_members')
-            .select('conversation_id')
-            .eq('user_id', user.id);
-
-          if (memberError) {
-            console.error(
-              'Could not load conversation memberships:',
-              memberError
-            );
-          } else if (memberRows) {
-            const conversationIds = memberRows.map(
-              (row) => row.conversation_id
-            );
-
-            if (conversationIds.length > 0) {
-              const { data: conversationRows, error: conversationError } =
-                await supabase
-                  .from('conversations')
-                  .select('*')
-                  .in('id', conversationIds);
-
-              const { data: allMemberRows, error: allMemberError } =
-                await supabase
-                  .from('conversation_members')
-                  .select('*')
-                  .in('conversation_id', conversationIds);
-
-              const { data: messageRows, error: messageError } = await supabase
-                .from('messages')
-                .select('*')
-                .in('conversation_id', conversationIds)
-                .order('created_at', { ascending: true });
-
-              if (conversationError || allMemberError || messageError) {
-                console.error(
-                  'Could not load Veylo conversations:',
-                  conversationError,
-                  allMemberError,
-                  messageError
-                );
-              } else {
-                const loadedConversations: Conversation[] = (
-                  conversationRows || []
-                ).map((conversation) => {
-                  const memberIds = (allMemberRows || [])
-                    .filter((row) => row.conversation_id === conversation.id)
-                    .map((row) => row.user_id);
-
-                  const otherMember = profiles?.find(
-                    (profile) =>
-                      memberIds.includes(profile.id) && profile.id !== user.id
-                  );
-
-                  const loadedMessages: ChatMessage[] = (messageRows || [])
-                    .filter(
-                      (message) => message.conversation_id === conversation.id
-                    )
-                    .map((message) => ({
-                      id: message.id,
-                      senderId: message.sender_id,
-                      content: message.content,
-                      createdAt: message.created_at,
-                    }));
-
-                  return {
-                    id: conversation.id,
-                    name:
-                      conversation.type === 'group'
-                        ? conversation.name || 'Group'
-                        : otherMember?.full_name || 'Conversation',
-
-                    type: conversation.type === 'group' ? 'group' : 'direct',
-                    members: memberIds,
-                    messages: loadedMessages,
-                    createdAt: conversation.created_at,
-                  };
-                });
-
-                setConversations(loadedConversations);
-              }
-            } else {
-              setConversations([]);
-            }
-          }
+          await refreshInbox(user.id, (profiles || []).map((profile) => ({
+            id: profile.id,
+            full_name: profile.full_name,
+          })));
         }
 
         if (user) {
@@ -474,6 +567,198 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    knownConversationIdsRef.current = new Set(conversations.map((chat) => chat.id));
+  }, [conversations]);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId) return;
+    const memberId = currentMemberId;
+
+    // Database changes are filtered by existing Supabase RLS policies:
+    // Only members of a conversation can receive its messages.
+    const channel = supabase.channel('veylo:inbox:' + memberId)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+      }, (payload) => {
+        const row = payload.new as {
+          id: string;
+          conversation_id: string;
+          sender_id: string;
+          content: string;
+          created_at: string;
+        };
+        if (!row.id || !row.conversation_id) return;
+
+        if (!knownConversationIdsRef.current.has(row.conversation_id)) {
+          void refreshInbox(memberId);
+          return;
+        }
+
+        setConversations((current) => current.map((chat) => {
+          if (chat.id !== row.conversation_id) return chat;
+
+          const received: ChatMessage = {
+            id: row.id,
+            senderId: row.sender_id,
+            content: row.content,
+            createdAt: row.created_at,
+          };
+
+          const exists = chat.messages.some((message) => message.id === row.id);
+          const messages = exists
+            ? chat.messages.map((message) =>
+                message.id === row.id ? received : message
+              )
+            : [...chat.messages, received];
+
+          return {
+            ...chat,
+            messages: messages.sort(
+              (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)
+            ),
+          };
+        }));
+      })
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'conversation_members',
+        filter: 'user_id=eq.' + memberId,
+      }, () => {
+        void refreshInbox(memberId);
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'conversation_reads',
+        filter: 'user_id=eq.' + memberId,
+      }, (payload) => {
+        const row = payload.new as {
+          conversation_id?: string;
+          last_read_at?: string;
+        };
+        if (!row.conversation_id || !row.last_read_at) return;
+        setReadReceipts((current) => {
+          const previous = Date.parse(current[row.conversation_id!] || '') || 0;
+          if (Date.parse(row.last_read_at!) < previous) return current;
+          return { ...current, [row.conversation_id!]: row.last_read_at! };
+        });
+      })
+      .subscribe((status) => {
+        // Catch up with events missed while offline or changing network.
+        if (status === 'SUBSCRIBED') void refreshInbox(memberId);
+      });
+
+    const refreshOnReturn = () => {
+      if (document.visibilityState !== 'visible') return;
+      void refreshInbox(memberId);
+    };
+    window.addEventListener('focus', refreshOnReturn);
+    document.addEventListener('visibilitychange', refreshOnReturn);
+
+    return () => {
+      window.removeEventListener('focus', refreshOnReturn);
+      document.removeEventListener('visibilitychange', refreshOnReturn);
+      void supabase.removeChannel(channel);
+    };
+  }, [ready, currentMemberId]);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId || !selectedConversationId || page !== 'messages') return;
+    if (document.visibilityState !== 'visible') return;
+
+    // The reading progress is saved in Supabase, so other devices agree.
+    void markConversationRead(selectedConversationId);
+  }, [ready, currentMemberId, selectedConversationId, conversations, page]);
+
+  useEffect(() => {
+    const markVisibleConversation = () => {
+      if (document.visibilityState === 'visible' && page === 'messages' && selectedConversationId) {
+        void markConversationRead(selectedConversationId);
+      }
+    };
+    window.addEventListener('focus', markVisibleConversation);
+    document.addEventListener('visibilitychange', markVisibleConversation);
+    return () => {
+      window.removeEventListener('focus', markVisibleConversation);
+      document.removeEventListener('visibilitychange', markVisibleConversation);
+    };
+  }, [page, selectedConversationId]);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId || !selectedConversationId || page !== 'messages') {
+      return;
+    }
+
+    const conversationId = selectedConversationId;
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const subscribe = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || cancelled) return;
+      await supabase.realtime.setAuth(session.access_token);
+      if (cancelled) return;
+
+      channel = supabase.channel('veylo:typing:' + conversationId, {
+        config: { private: true, broadcast: { self: false } },
+      });
+
+      channel.on('broadcast', { event: 'typing' }, ({ payload }) => {
+        const memberId = payload?.memberId;
+        if (typeof memberId !== 'string' || memberId === currentMemberId) return;
+
+        if (typingTimeoutsRef.current[memberId]) {
+          clearTimeout(typingTimeoutsRef.current[memberId]);
+          delete typingTimeoutsRef.current[memberId];
+        }
+
+        if (payload?.isTyping === true) {
+          setTypingUsers((current) => ({ ...current, [memberId]: true }));
+          typingTimeoutsRef.current[memberId] = setTimeout(() => {
+            setTypingUsers((current) => {
+              const next = { ...current };
+              delete next[memberId];
+              return next;
+            });
+            delete typingTimeoutsRef.current[memberId];
+          }, 3200);
+        } else {
+          setTypingUsers((current) => {
+            const next = { ...current };
+            delete next[memberId];
+            return next;
+          });
+        }
+      }).subscribe();
+      typingChannelRef.current = channel;
+    };
+
+    void subscribe();
+
+    return () => {
+      cancelled = true;
+      if (typingStopRef.current) clearTimeout(typingStopRef.current);
+      typingStopRef.current = null;
+      isTypingRef.current = false;
+      lastTypingSentRef.current = 0;
+      if (channel) void supabase.removeChannel(channel);
+      if (typingChannelRef.current === channel) typingChannelRef.current = null;
+      Object.values(typingTimeoutsRef.current).forEach(clearTimeout);
+      typingTimeoutsRef.current = {};
+      setTypingUsers({});
+    };
+  }, [ready, currentMemberId, selectedConversationId, page]);
+
+  useEffect(() => {
+    return () => {
+      if (audioContextRef.current) void audioContextRef.current.close();
+    };
+  }, []);
+
+  useEffect(() => {
     if (!ready) return;
 
     localStorage.setItem(STORAGE.currentMember, currentMemberId);
@@ -521,6 +806,24 @@ export default function Home() {
       ) || null,
     [conversations, selectedConversationId]
   );
+  
+  const unreadCount = useMemo(() =>
+    conversations.reduce((total, chat) => {
+      const readTime = Date.parse(readReceipts[chat.id] || '') || 0;
+      return total + chat.messages.filter((message) =>
+        message.senderId !== currentMemberId &&
+        Date.parse(message.createdAt) > readTime
+      ).length;
+    }, 0),
+    [conversations, readReceipts, currentMemberId]
+  );
+
+  const activeTypingNames = useMemo(() => {
+    if (!selectedConversation) return [];
+    return Object.keys(typingUsers)
+      .filter((id) => typingUsers[id] && selectedConversation.members.includes(id))
+      .map((id) => members.find((member) => member.id === id)?.fullName || 'Someone');
+  }, [typingUsers, selectedConversation, members]);
 
   const selectedOffice = useMemo(
     () => offices.find((office) => office.id === selectedOfficeId) || null,
@@ -965,8 +1268,51 @@ export default function Home() {
     }
   }
 
+  function normaliseProjectWebsite(value: string): string | null {
+    const input = value.trim();
+    if (!input) return '';
+    if (input.length > 500) return null;
+    try {
+      // Make business website links useful even when entered without https://.
+      const candidate = /^https?:\/\//i.test(input) ? input : 'https://' + input;
+      const url = new URL(candidate);
+      return (url.protocol === 'https:' || url.protocol === 'http:') &&
+        url.hostname.includes('.') ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function persistProjects(projects: Project[]): Promise<Project[]> {
+    if (!currentMember) throw new Error('Please sign in first.');
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user || user.id !== currentMember.id) {
+      throw new Error('Your login session has expired.');
+    }
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ projects })
+      .eq('id', user.id)
+      .select('projects')
+      .single();
+
+    if (error || !data) throw error || new Error('Project changes were not saved.');
+    const saved: Project[] = Array.isArray(data.projects) ? data.projects : projects;
+
+    setMembers((current) => current.map((member) =>
+      member.id === user.id ? { ...member, projects: saved } : member
+    ));
+    return saved;
+  }
+
   async function addProject() {
     if (!currentMember || !projectDraft.title.trim()) return;
+
+    const website = normaliseProjectWebsite(projectDraft.website);
+    if (website === null) {
+      setProjectLinkNotice('Enter a valid business website link, such as example.com.');
+      return;
+    }
 
     const project: Project = {
       id: crypto.randomUUID(),
@@ -974,53 +1320,51 @@ export default function Home() {
       role: projectDraft.role.trim(),
       year: projectDraft.year.trim(),
       description: projectDraft.description.trim(),
+      website,
     };
 
-    const updatedProjects = [...currentMember.projects, project];
+    try {
+      await persistProjects([...currentMember.projects, project]);
+      setProjectDraft({ title: '', role: '', year: '', description: '', website: '' });
+      setProjectLinkNotice('Project saved to your Veylo profile.');
+    } catch (error) {
+      console.error('Could not add Veylo project:', error);
+      setProjectLinkNotice('Project not saved: ' + (error instanceof Error ? error.message : 'Try again.'));
+    }
+  }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ projects: updatedProjects })
-      .eq('id', currentMember.id);
+  async function saveProjectWebsite(projectId: string) {
+    if (!currentMember || projectLinkSavingId) return;
+    const project = currentMember.projects.find((item) => item.id === projectId);
+    if (!project) return;
 
-    if (error) {
-      console.error('Could not save project:', error);
-      alert('Project could not be saved.');
+    const website = normaliseProjectWebsite(projectLinkEdits[project.id] ?? project.website ?? '');
+    if (website === null) {
+      setProjectLinkNotice('Enter a valid business website, such as example.com.');
       return;
     }
 
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === currentMember.id
-          ? { ...member, projects: updatedProjects }
-          : member
-      )
-    );
-
-    setProjectDraft({
-      title: '',
-      role: '',
-      year: '',
-      description: '',
-    });
+    setProjectLinkSavingId(projectId);
+    try {
+      await persistProjects(currentMember.projects.map((item) =>
+        item.id === projectId ? { ...item, website } : item
+      ));
+      setProjectLinkNotice('Website saved for ' + project.title + '.');
+    } catch (error) {
+      setProjectLinkNotice('Website not saved: ' + (error instanceof Error ? error.message : 'Try again.'));
+    } finally {
+      setProjectLinkSavingId('');
+    }
   }
 
-  function removeProject(projectId: string) {
+  async function removeProject(projectId: string) {
     if (!currentMember) return;
-
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === currentMember.id
-          ? {
-              ...member,
-
-              projects: member.projects.filter(
-                (project) => project.id !== projectId
-              ),
-            }
-          : member
-      )
-    );
+    try {
+      await persistProjects(currentMember.projects.filter((project) => project.id !== projectId));
+      setProjectLinkNotice('Project removed from your profile.');
+    } catch (error) {
+      alert('Project was not removed: ' + (error instanceof Error ? error.message : 'Please try again.'));
+    }
   }
 
   function openMemberProfile(member: Member) {
@@ -1323,46 +1667,69 @@ export default function Home() {
   }
 
   async function sendMessage() {
-    if (!currentMember || !selectedConversation || !messageText.trim()) {
-      return;
-    }
+    if (!currentMember || !selectedConversation) return;
+    const content = messageText.trim();
+    if (!content) return;
 
+    const conversationId = selectedConversation.id;
     const messageId = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
-
-    const { error } = await supabase.from('messages').insert({
-      id: messageId,
-      conversation_id: selectedConversation.id,
-      sender_id: currentMember.id,
-      content: messageText.trim(),
-      created_at: createdAt,
-    });
-
-    if (error) {
-      console.error('Could not send message:', error);
-      alert('Message could not be sent.');
-      return;
-    }
-
-    const message: ChatMessage = {
+    const optimistic: ChatMessage = {
       id: messageId,
       senderId: currentMember.id,
-      content: messageText.trim(),
-      createdAt,
+      content,
+      createdAt: new Date().toISOString(),
+      sending: true,
     };
 
-    setConversations((current) =>
-      current.map((conversation) =>
-        conversation.id === selectedConversation.id
-          ? {
-              ...conversation,
-              messages: [...conversation.messages, message],
-            }
-          : conversation
-      )
-    );
-
+    // Render immediately; the sender can keep typing while Supabase persists.
+    setConversations((current) => current.map((chat) =>
+      chat.id === conversationId
+        ? { ...chat, messages: [...chat.messages, optimistic] }
+        : chat
+    ));
     setMessageText('');
+    if (typingStopRef.current) clearTimeout(typingStopRef.current);
+    typingStopRef.current = null;
+    broadcastTyping(false);
+    playSentMessagePop();
+
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          id: messageId,
+          conversation_id: conversationId,
+          sender_id: currentMember.id,
+          content,
+        })
+        .select('id, created_at')
+        .single();
+      if (error || !data) throw error || new Error('The message was not saved.');
+
+      // Realtime might have delivered the same ID already: never duplicate it.
+      setConversations((current) => current.map((chat) =>
+        chat.id !== conversationId
+          ? chat
+          : {
+              ...chat,
+              messages: chat.messages.map((message) =>
+                message.id === messageId
+                  ? { ...message, createdAt: data.created_at, sending: false }
+                  : message
+              ).sort((one, two) => Date.parse(one.createdAt) - Date.parse(two.createdAt)),
+            }
+      ));
+    } catch (error) {
+      console.error('Could not send Veylo message:', error);
+      setConversations((current) => current.map((chat) =>
+        chat.id !== conversationId ? chat : {
+          ...chat,
+          messages: chat.messages.filter((message) => message.id !== messageId),
+        }
+      ));
+      setMessageText((draft) => draft.trim() ? draft : content);
+      alert('Message was not sent. Your text is still in the message box. Please try again.');
+    }
   }
 
   /* =====================================================
@@ -1858,7 +2225,12 @@ export default function Home() {
               active={page === 'messages'}
               onClick={() => setPage('messages')}
             >
-              Messages
+              <span>Messages</span>
+              {unreadCount > 0 && (
+                <span className="veyloUnreadBadge desktopUnreadBadge" aria-label={unreadCount + ' unread messages'}>
+                  {unreadCount >= 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavButton>
 
             <NavButton
@@ -2100,9 +2472,12 @@ export default function Home() {
                         <span><strong>{getFollowingCount(member.id)}</strong> following</span>
                       </p>
 
-                      <p className="personBio muted">
-                        {member.bio || 'No bio added yet.'}
-                      </p>
+                      <ExpandableText
+                        className="personBio muted"
+                        text={member.bio}
+                        maxCharacters={145}
+                        emptyText="No bio added yet."
+                      />
 
                       <div className="cardActions">
                         <button
@@ -2163,9 +2538,15 @@ export default function Home() {
                     <MemberCode code={viewedMember.memberCode} />
                   </div>
 
-                  <p className="muted profileBio">
-                    {viewedMember.bio || 'No bio added yet.'}
-                  </p>
+                  <div className="veyloProfileAbout">
+                    <span className="eyebrow">ABOUT</span>
+                    <ExpandableText
+                      className="muted profileBio"
+                      text={viewedMember.bio}
+                      maxCharacters={240}
+                      emptyText="No bio added yet."
+                    />
+                  </div>
 
                   <div className="memberFollowCounts">
                     <span><strong>{getFollowerCount(viewedMember.id)}</strong> followers</span>
@@ -2210,7 +2591,22 @@ export default function Home() {
                       {project.year ? ` • ${project.year}` : ''}
                     </span>
 
-                    <p className="muted">{project.description}</p>
+                    <ExpandableText
+                      className="muted"
+                      text={project.description}
+                      maxCharacters={210}
+                      emptyText="No project description added."
+                    />
+                    {project.website && normaliseProjectWebsite(project.website) && (
+                      <a
+                        className="veyloProjectLink"
+                        href={normaliseProjectWebsite(project.website) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Visit business website ↗
+                      </a>
+                    )}
                   </article>
                 ))
               )}
@@ -2253,6 +2649,13 @@ export default function Home() {
                       members
                     );
 
+                    const readTime = Date.parse(readReceipts[conversation.id] || '') || 0;
+                    const unread = conversation.messages.filter((message) =>
+                      message.senderId !== currentMember.id &&
+                      Date.parse(message.createdAt) > readTime
+                    ).length;
+                    const lastMessage = conversation.messages[conversation.messages.length - 1];
+
                     return (
                       <button
                         key={conversation.id}
@@ -2261,17 +2664,21 @@ export default function Home() {
                             ? 'listButton active'
                             : 'listButton'
                         }
-                        onClick={() =>
-                          setSelectedConversationId(conversation.id)
-                        }
+                        onClick={() => setSelectedConversationId(conversation.id)}
                       >
-                        <strong>{displayName}</strong>
-
-                        <span>
-                          {conversation.type === 'group'
-                            ? `${conversation.members.length} members`
-                            : 'Direct message'}
+                        <strong className="veyloChatListTitle">{displayName}</strong>
+                        <span className="veyloChatPreview">
+                          {lastMessage
+                            ? (lastMessage.senderId === currentMember.id ? 'You: ' : '') + lastMessage.content
+                            : conversation.type === 'group'
+                              ? `${conversation.members.length} members`
+                              : 'Start a conversation'}
                         </span>
+                        {unread > 0 && (
+                          <span className="veyloUnreadBadge chatUnreadBadge" aria-label={unread + ' unread messages'}>
+                            {unread >= 99 ? '99+' : unread}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -2360,10 +2767,28 @@ export default function Home() {
                                   </small>
                                 )}
 
-                              {message.content}
+                              <span>{message.content}</span>
+                              {message.sending && (
+                                <span className="veyloSendingState" aria-label="Sending message">
+                                  Sending…
+                                </span>
+                              )}
                             </div>
                           );
                         })
+                      )}
+                      {activeTypingNames.length > 0 && (
+                        <div className="veyloTypingRow" role="status" aria-live="polite">
+                          <span className="veyloTypingKeyboard" aria-hidden="true">⌨</span>
+                          <span className="veyloTypingBubble" aria-hidden="true">
+                            <i /><i /><i />
+                          </span>
+                          <span className="veyloTypingLabel">
+                            {activeTypingNames.slice(0, 2).join(' and ')}
+                            {activeTypingNames.length > 2 ? ' and others' : ''}
+                            {' '}typing…
+                          </span>
+                        </div>
                       )}
                     </div>
 
@@ -2372,10 +2797,29 @@ export default function Home() {
                         className="field"
                         placeholder="Write a message..."
                         value={messageText}
-                        onChange={(event) => setMessageText(event.target.value)}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setMessageText(value);
+                          if (typingStopRef.current) clearTimeout(typingStopRef.current);
+                          if (value.trim()) {
+                            broadcastTyping(true);
+                            typingStopRef.current = setTimeout(() => {
+                              broadcastTyping(false);
+                              typingStopRef.current = null;
+                            }, 1700);
+                          } else {
+                            broadcastTyping(false);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (typingStopRef.current) clearTimeout(typingStopRef.current);
+                          typingStopRef.current = null;
+                          broadcastTyping(false);
+                        }}
                         onKeyDown={(event) => {
                           if (event.key === 'Enter') {
-                            sendMessage();
+                            event.preventDefault();
+                            void sendMessage();
                           }
                         }}
                       />
@@ -2854,6 +3298,20 @@ export default function Home() {
                     }
                   />
 
+                  <input
+                    className="field projectWebsiteField"
+                    type="text"
+                    inputMode="url"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    placeholder="Business website (optional), e.g. veylonetworks.com"
+                    aria-label="Website for this project"
+                    value={projectDraft.website}
+                    onChange={(event) =>
+                      setProjectDraft((current) => ({ ...current, website: event.target.value }))
+                    }
+                  />
+
                   <textarea
                     className="field projectDescription"
                     placeholder="What did you work on?"
@@ -2872,24 +3330,65 @@ export default function Home() {
                   </button>
                 </div>
 
+                {projectLinkNotice && (
+                  <p className="profileSaveNotice" role="status">{projectLinkNotice}</p>
+                )}
                 <div className="projectList">
                   {currentMember.projects.map((project) => (
-                    <article className="projectRow" key={project.id}>
-                      <div>
+                    <article className="projectRow veyloProjectEditor" key={project.id}>
+                      <div className="veyloProjectContent">
                         <strong>{project.title}</strong>
-
                         <span className="muted small">
                           {project.role}
-
                           {project.year ? ` • ${project.year}` : ''}
                         </span>
-
-                        <p className="muted">{project.description}</p>
+                        <ExpandableText
+                          className="muted"
+                          text={project.description}
+                          maxCharacters={195}
+                          emptyText="No project description added."
+                        />
+                        {project.website && normaliseProjectWebsite(project.website) && (
+                          <a
+                            className="veyloProjectLink"
+                            href={normaliseProjectWebsite(project.website) || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Visit business website ↗
+                          </a>
+                        )}
+                        <div className="veyloWebsiteEditor">
+                          <input
+                            className="field"
+                            type="text"
+                            inputMode="url"
+                            autoCapitalize="off"
+                            autoCorrect="off"
+                            aria-label={'Website for ' + project.title}
+                            placeholder="Business website link"
+                            value={projectLinkEdits[project.id] ?? project.website ?? ''}
+                            onChange={(event) =>
+                              setProjectLinkEdits((current) => ({
+                                ...current,
+                                [project.id]: event.target.value,
+                              }))
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="secondary"
+                            disabled={projectLinkSavingId === project.id}
+                            onClick={() => void saveProjectWebsite(project.id)}
+                          >
+                            {projectLinkSavingId === project.id ? 'Saving…' : 'Save link'}
+                          </button>
+                        </div>
                       </div>
-
                       <button
                         className="removeButton"
-                        onClick={() => removeProject(project.id)}
+                        type="button"
+                        onClick={() => void removeProject(project.id)}
                       >
                         Remove
                       </button>
@@ -2973,6 +3472,14 @@ export default function Home() {
               }}
             >
               <MobileNavIcon name={tab.icon} />
+              {tab.id === 'messages' && unreadCount > 0 && (
+                <span
+                  className="veyloUnreadBadge mobileUnreadBadge"
+                  aria-label={unreadCount + ' unread messages'}
+                >
+                  {unreadCount >= 99 ? '99+' : unreadCount}
+                </span>
+              )}
               <span>{tab.label}</span>
             </button>
           );
