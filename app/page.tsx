@@ -2516,6 +2516,65 @@ export default function Home() {
                   <button className="primary" onClick={saveProfile}>
                     Save Profile
                   </button>
+
+                  <section className="contactEditor">
+                    <h3>Account Security</h3>
+                    <p className="muted small">
+                      Your login password is private. Updating it does not
+                      change your public contact information.
+                    </p>
+                    {showPasswordEditor ? (
+                      <div className="stack">
+                        <FieldLabel label="New password">
+                          <input
+                            className="field"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="At least 8 characters"
+                            value={newPassword}
+                            onChange={(event) => setNewPassword(event.target.value)}
+                          />
+                        </FieldLabel>
+                        <FieldLabel label="Confirm new password">
+                          <input
+                            className="field"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="Repeat your new password"
+                            value={confirmNewPassword}
+                            onChange={(event) => setConfirmNewPassword(event.target.value)}
+                          />
+                        </FieldLabel>
+                        <button
+                          className="primary"
+                          type="button"
+                          disabled={isChangingPassword}
+                          onClick={changeAccountPassword}
+                        >
+                          {isChangingPassword ? 'Saving password...' : 'Save New Password'}
+                        </button>
+                        <button
+                          className="authSecondaryButton"
+                          type="button"
+                          onClick={() => {
+                            setShowPasswordEditor(false);
+                            setNewPassword('');
+                            setConfirmNewPassword('');
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="primary"
+                        type="button"
+                        onClick={() => setShowPasswordEditor(true)}
+                      >
+                        Change Password
+                      </button>
+                    )}
+                  </section>
                 </div>
               </section>
 
