@@ -42,6 +42,11 @@ type Project = {
   description: string;
 };
 
+type FollowRelationship = {
+  followerId: string;
+  followedId: string;
+};
+
 type Member = {
   id: string;
   memberNumber: number;
@@ -132,6 +137,8 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [members, setMembers] = useState<Member[]>([]);
+  const [follows, setFollows] = useState<FollowRelationship[]>([]);
+  const [followBusyId, setFollowBusyId] = useState('');
 
   const [currentMemberId, setCurrentMemberId] = useState('');
 
@@ -174,6 +181,8 @@ export default function Home() {
 
   /* PROFILE */
 
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarSaveMessage, setAvatarSaveMessage] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaveMessage, setProfileSaveMessage] = useState('');
   const [profileDraft, setProfileDraft] = useState({
@@ -283,6 +292,21 @@ export default function Home() {
           }));
 
           setMembers(realMembers);
+        }
+
+        if (user) {
+          const { data: followRows, error: followError } = await supabase
+            .from('follows')
+            .select('follower_id, followed_id');
+
+          if (followError) {
+            console.error('Could not load Veylo follows:', followError);
+          } else {
+            setFollows((followRows || []).map((row) => ({
+              followerId: row.follower_id,
+              followedId: row.followed_id,
+            })));
+          }
         }
 
         // Keep these local for now
@@ -474,6 +498,21 @@ export default function Home() {
     () => members.find((member) => member.id === viewedMemberId) || null,
     [members, viewedMemberId]
   );
+
+  const followingMemberIds = useMemo(
+    () => new Set(
+      follows
+        .filter((relationship) => relationship.followerId === currentMemberId)
+        .map((relationship) => relationship.followedId)
+    ),
+    [follows, currentMemberId]
+  );
+
+  const getFollowerCount = (memberId: string) =>
+    follows.filter((relationship) => relationship.followedId === memberId).length;
+
+  const getFollowingCount = (memberId: string) =>
+    follows.filter((relationship) => relationship.followerId === memberId).length;
 
   const selectedConversation = useMemo(
     () =>
@@ -775,29 +814,155 @@ export default function Home() {
     }
   }
 
-  function uploadProfilePicture(file?: File) {
-    if (!file || !currentMember) {
+  async function uploadProfilePicture(file?: File) {
+    if (!file || !currentMember || avatarUploading) return;
+
+    const formats: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    };
+
+    if (!formats[file.type] || file.size === 0 || file.size > 5 * 1024 * 1024) {
+      setAvatarSaveMessage('Use a JPG, PNG or WebP photo of up to 5 MB.');
       return;
     }
 
-    const reader = new FileReader();
+    const currentAvatar = currentMember.avatar;
+    let uploadedPath: string | null = null;
+    setAvatarUploading(true);
+    setAvatarSaveMessage('');
 
-    reader.onload = () => {
-      const image = String(reader.result || '');
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== currentMember.id) {
+        throw new Error('Sign in to your account before updating your picture.');
+      }
 
-      setMembers((current) =>
-        current.map((member) =>
-          member.id === currentMember.id
-            ? {
-                ...member,
-                avatar: image,
-              }
-            : member
-        )
+      // Each picture has a unique path inside the signed-in user's own folder.
+      const filePath = `${user.id}/${crypto.randomUUID()}.${formats[file.type]}`;
+      const { error: uploadError } = await supabase.storage
+        .from('veylo-avatars')
+        .upload(filePath, file, {
+          contentType: file.type,
+          cacheControl: '3600',
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
+      uploadedPath = filePath;
+
+      const { data: publicData } = supabase.storage
+        .from('veylo-avatars')
+        .getPublicUrl(filePath);
+
+      const { data: savedProfile, error: saveError } = await supabase
+        .from('profiles')
+        .update({ avatar: publicData.publicUrl })
+        .eq('id', user.id)
+        .select('avatar')
+        .single();
+
+      if (saveError || !savedProfile) {
+        throw saveError || new Error('Supabase did not save your profile picture.');
+      }
+
+      setMembers((current) => current.map((member) =>
+        member.id === user.id
+          ? { ...member, avatar: savedProfile.avatar }
+          : member
+      ));
+      setAvatarSaveMessage('Photo saved to your Veylo profile and available on your other devices.');
+
+      // Remove the replaced photo from this member's storage folder only.
+      if (currentAvatar && currentAvatar !== savedProfile.avatar) {
+        try {
+          const oldUrl = new URL(currentAvatar);
+          const prefix = '/storage/v1/object/public/veylo-avatars/' + user.id + '/';
+          if (oldUrl.pathname.startsWith(prefix)) {
+            const oldPath = decodeURIComponent(oldUrl.pathname.split('/storage/v1/object/public/veylo-avatars/')[1]);
+            const { error: cleanupError } = await supabase.storage
+              .from('veylo-avatars')
+              .remove([oldPath]);
+            if (cleanupError) console.warn('Old avatar cleanup failed:', cleanupError);
+          }
+        } catch {
+          // Older local-only pictures do not have a storage URL to remove.
+        }
+      }
+    } catch (error) {
+      console.error('Could not save Veylo profile picture:', error);
+      setAvatarSaveMessage(
+        'Picture not saved: ' +
+        (error instanceof Error ? error.message : 'Please try again.')
       );
-    };
+      if (uploadedPath) {
+        await supabase.storage.from('veylo-avatars').remove([uploadedPath]);
+      }
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
-    reader.readAsDataURL(file);
+  async function toggleFollow(member: Member) {
+    if (!currentMember || member.id === currentMember.id || followBusyId) return;
+
+    setFollowBusyId(member.id);
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== currentMember.id) {
+        throw new Error('Please sign in again to follow other members.');
+      }
+
+      const alreadyFollowing = follows.some(
+        (relationship) =>
+          relationship.followerId === user.id && relationship.followedId === member.id
+      );
+
+      if (alreadyFollowing) {
+        const { data, error } = await supabase
+          .from('follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('followed_id', member.id)
+          .select('follower_id');
+
+        if (error || !data || data.length !== 1) {
+          throw error || new Error('Could not unfollow this member.');
+        }
+
+        setFollows((current) => current.filter(
+          (relationship) =>
+            !(relationship.followerId === user.id && relationship.followedId === member.id)
+        ));
+      } else {
+        const { data, error } = await supabase
+          .from('follows')
+          .insert({ follower_id: user.id, followed_id: member.id })
+          .select('follower_id, followed_id')
+          .single();
+
+        if (error || !data) {
+          throw error || new Error('Could not follow this member.');
+        }
+
+        setFollows((current) => {
+          if (current.some(
+            (relationship) =>
+              relationship.followerId === data.follower_id &&
+              relationship.followedId === data.followed_id
+          )) return current;
+          return [...current, {
+            followerId: data.follower_id,
+            followedId: data.followed_id,
+          }];
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert('Follow could not be updated: ' + message);
+    } finally {
+      setFollowBusyId('');
+    }
   }
 
   async function addProject() {
