@@ -23,3 +23,26 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+
+      - name: Check mobile icon endpoints render actual images
+        run: |
+          npm run start -- -p 3100 > /tmp/veylo-next.log 2>&1 &
+          for attempt in $(seq 1 25); do
+            if curl -fsS http://127.0.0.1:3100/manifest.webmanifest -o /tmp/veylo-manifest.json; then
+              break
+            fi
+            sleep 2
+          done
+          python -m json.tool /tmp/veylo-manifest.json > /dev/null
+          for name in icon apple-icon large-icon; do
+            curl --fail --silent --show-error --retry 4 --retry-delay 2 --retry-all-errors "http://127.0.0.1:3100/$name" -o "/tmp/veylo-$name.png"
+          done
+          python - <<'PY'
+          import struct
+          for name, size in [('icon', 192), ('apple-icon', 180), ('large-icon', 512)]:
+              content = open('/tmp/veylo-' + name + '.png', 'rb').read()
+              assert content[:8] == b'\x89PNG\r\n\x1a\n', name + ' did not return PNG'
+              dims = struct.unpack('>II', content[16:24])
+              assert dims == (size, size), (name, dims)
+              print(name, dims, 'bytes:', len(content))
+          PY
