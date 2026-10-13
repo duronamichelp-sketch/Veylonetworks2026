@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://oxjjkyfqtlzizdkylsqp.supabase.co',
@@ -99,15 +100,7 @@ type Office = {
   createdAt: string;
 };
 
-type NewsArticle = {
-  id: string;
-  title: string;
-  source: string;
-  summary: string;
-  url: string;
-  publishedAt: string;
-  category?: 'Business' | 'Economy' | 'Technology' | 'Startups';
-};
+type NewsArticle = VbnArticle;
 
 const STORAGE = {
   members: 'veylo_1_members',
@@ -214,11 +207,7 @@ export default function Home() {
   const [newsLoading, setNewsLoading] = useState(false);
 
   const [newsMessage, setNewsMessage] = useState('');
-  const [newsCategory, setNewsCategory] = useState('All');
   const [newsUpdatedAt, setNewsUpdatedAt] = useState('');
-  const visibleNews = newsCategory === 'All'
-    ? news
-    : news.filter((article) => article.category === newsCategory);
 
   /* =====================================================
      STORAGE
@@ -2299,111 +2288,15 @@ export default function Home() {
             </div>
           )}
 
-          {/* VBN */}
-
+          {/* VBN - business news newsroom */}
           {page === 'vbn' && (
-            <>
-              <div className="sectionTop">
-                <div>
-                  <span className="eyebrow">VEYLO BUSINESS NEWS</span>
-
-                  <h2>VBN — Latest Headlines</h2>
-
-                  <p className="muted">
-                    Business, startups, technology and economic headlines from around the world.
-                  </p>
-                </div>
-
-                <button
-                  className="secondary"
-                  type="button"
-                  onClick={loadNews}
-                  disabled={newsLoading}
-                >
-                  {newsLoading ? 'Refreshing...' : 'Refresh news'}
-                </button>
-              </div>
-
-              {newsMessage && (
-                <p className="vbnStatus" role="status">{newsMessage}</p>
-              )}
-
-              {newsLoading && news.length === 0 ? (
-                <EmptyState title="Loading live business news..." text="Fetching the latest headlines." />
-              ) : news.length === 0 ? (
-                <EmptyState
-                  title="Headlines temporarily unavailable"
-                  text="VBN could not reach its free news sources. Select Refresh news to try again."
-                />
-              ) : (
-                <>
-                  <div className="vbnFilters" role="group" aria-label="Filter news by topic">
-                    {['All', 'Business', 'Economy', 'Technology', 'Startups'].map((category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        className={category === newsCategory ? 'vbnFilter active' : 'vbnFilter'}
-                        aria-pressed={category === newsCategory}
-                        onClick={() => setNewsCategory(category)}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-
-                  <p className="muted small vbnUpdated">
-                    Showing {visibleNews.length} article{visibleNews.length === 1 ? '' : 's'}
-                    {newsUpdatedAt && ' · Refreshed ' + new Date(newsUpdatedAt).toLocaleString(
-                      'en-IE',
-                      { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }
-                    ) + ' UTC'}
-                  </p>
-
-                  {visibleNews.length === 0 ? (
-                    <EmptyState
-                      title={'No ' + newsCategory.toLowerCase() + ' headlines at the moment'}
-                      text="Try another topic or select All to see every recent story."
-                    />
-                  ) : (
-                    <div className="newsGrid">
-                      {visibleNews.map((article) => (
-                        <article className="glass newsCard" key={article.id}>
-                          <div className="vbnCardTags">
-                            <span className="newsSource">{article.source}</span>
-                            {article.category && <span className="vbnCategory">{article.category}</span>}
-                          </div>
-
-                          <h3>{article.title}</h3>
-
-                          {article.summary && <p className="muted">{article.summary}</p>}
-
-                          <time className="newsDate" dateTime={article.publishedAt}>
-                            {new Date(article.publishedAt).toLocaleString(
-                              'en-IE',
-                              { timeZone: 'UTC', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }
-                            )} UTC
-                          </time>
-
-                          <a
-                            href={article.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="newsLink"
-                          >
-                            Read full story at source →
-                          </a>
-                        </article>
-                      ))}
-                    </div>
-                  )}
-
-                  <p className="muted small vbnAttribution">
-                    Headlines and links discovered using the GDELT Project and Hacker News.
-                    Original reporting belongs to its respective publisher. News updates every few minutes.
-                  </p>
-                </>
-              )}
-            </>
+            <VbnNewsroom
+              articles={news}
+              loading={newsLoading}
+              message={newsMessage}
+              updatedAt={newsUpdatedAt}
+              onRefresh={loadNews}
+            />
           )}
 
           {/* PERSONAL PROFILE */}
