@@ -5,6 +5,7 @@ on:
     branches:
       - feature/vbn-free-business-news
       - feature/veylo-branding-avatars-follows-mobile-fixes
+      - feature/realtime-inbox-project-links-profile-bios
 
 permissions:
   contents: read
