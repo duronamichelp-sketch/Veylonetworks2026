@@ -35,6 +35,8 @@ type Member = {
   memberNumber: number;
   memberCode: string;
   email: string;
+  contactEmail: string;
+  contactPhone: string;
   fullName: string;
   headline: string;
   bio: string;
@@ -143,6 +145,13 @@ export default function Home() {
 
   const [signupEmail, setSignupEmail] = useState('');
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
+  const [password, setPassword] = useState('');
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [showPasswordEditor, setShowPasswordEditor] = useState(false);
   /* PEOPLE */
 
   const [peopleSearch, setPeopleSearch] = useState('');
@@ -168,7 +177,10 @@ export default function Home() {
     headline: '',
     bio: '',
     location: '',
+    contactEmail: '',
+    contactPhone: '',
   });
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const [projectDraft, setProjectDraft] = useState({
     title: '',
@@ -210,6 +222,27 @@ export default function Home() {
   ===================================================== */
 
   useEffect(() => {
+    // A recovery link authenticates the user, then the app must set a password.
+    const query = new URLSearchParams(window.location.search);
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (
+      query.get('recovery') === '1' ||
+      query.get('type') === 'recovery' ||
+      hash.get('type') === 'recovery'
+    ) {
+      setIsRecoveryMode(true);
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     async function loadVeyloData() {
       try {
         // Load real Veylo members from Supabase
@@ -226,6 +259,8 @@ export default function Home() {
             memberNumber: profile.member_number,
             memberCode: profile.member_code,
             email: profile.email || '',
+            contactEmail: profile.contact_email || '',
+            contactPhone: profile.contact_phone || '',
             fullName: profile.full_name || '',
             headline: profile.headline || '',
             bio: profile.bio || '',
@@ -513,32 +548,17 @@ export default function Home() {
 
   async function createAccount() {
     const fullName = signupName.trim();
-
     const email = signupEmail.trim().toLowerCase();
 
-    if (!fullName || !email) {
-      alert('Enter your name and email.');
-
+    if (!fullName || !email || password.length < 8) {
+      alert('Enter your name, email and a password of at least 8 characters.');
       return;
     }
 
-    const emailExists = members.some(
-      (member) => member.email.toLowerCase() === email
-    );
-
-    if (emailExists) {
-      alert('That email is already registered.');
-
-      return;
-    }
-    const { error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signUp({
       email,
-      options: {
-        shouldCreateUser: true,
-        data: {
-          full_name: fullName,
-        },
-      },
+      password,
+      options: { data: { full_name: fullName } },
     });
 
     if (error) {
@@ -546,73 +566,112 @@ export default function Home() {
       return;
     }
 
-    const number = getNextMemberNumber();
-
-    const member: Member = {
-      id: crypto.randomUUID(),
-
-      memberNumber: number,
-
-      memberCode: formatMemberCode(number),
-
-      email,
-
-      fullName,
-
-      headline: '',
-
-      bio: '',
-
-      location: '',
-
-      avatar: '',
-
-      projects: [],
-
-      createdAt: new Date().toISOString(),
-    };
-
-    setMembers((current) => [...current, member]);
-
-    setCurrentMemberId(member.id);
-
     setSignupName('');
     setSignupEmail('');
+    setPassword('');
 
-    setPage('profile');
+    if (data.session) {
+      window.location.reload();
+    } else {
+      setAuthMode('login');
+      alert('Check your email to confirm your Veylo account once. After confirmation, log in directly with your email and password.');
+    }
   }
 
   async function loginAccount() {
     const email = signupEmail.trim().toLowerCase();
-  
-    if (!email) {
-      alert('Enter your email.');
+
+    if (!email || !password) {
+      alert('Enter your email and password.');
       return;
     }
-  
-    const { error } = await supabase.auth.signInWithOtp({
+
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        shouldCreateUser: false,
-      },
+      password,
     });
-  
+
     if (error) {
       alert(error.message);
       return;
     }
-  
-    alert('Check your email for your Veylo login link.');
+
+    if (data.user) {
+      setPassword('');
+      // Supabase persists the session. Reload to hydrate profiles, chats and offices.
+      window.location.reload();
+    }
   }
 
-  function signOut() {
+  async function requestPasswordReset() {
+    const email = signupEmail.trim().toLowerCase();
+    if (!email) {
+      alert('Enter your account email address first.');
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      // The redirect site must be on Supabase Authentication's allowed URL list.
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/?recovery=1`,
+      });
+      if (error) throw error;
+      alert('If that email is registered, a reset link will be emailed to you. Open it to choose a new password.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again later.';
+      alert(`Could not request a reset email: ${message}`);
+    } finally {
+      setIsSendingReset(false);
+    }
+  }
+
+  async function changeAccountPassword() {
+    if (newPassword.length < 8) {
+      alert('Choose a new password with at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      alert('The new passwords do not match.');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      // Supabase Auth stores credentials securely; never save passwords to profiles.
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setShowPasswordEditor(false);
+      alert('Your Veylo password has been updated. Use it the next time you log in.');
+
+      if (isRecoveryMode) {
+        setIsRecoveryMode(false);
+        window.history.replaceState({}, '', window.location.pathname);
+        window.location.reload();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert(`Your password was not changed: ${message}`);
+    } finally {
+      setIsChangingPassword(false);
+    }
+  }
+
+  async function signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      alert('Could not sign out. Please try again.');
+      return;
+    }
+
     setCurrentMemberId('');
     setSelectedConversationId('');
     setSelectedOfficeId('');
-  }
-
-  function signIntoMember(memberId: string) {
-    setCurrentMemberId(memberId);
+    setConversations([]);
+    setOffices([]);
     setPage('network');
   }
 
@@ -631,25 +690,37 @@ export default function Home() {
       bio: currentMember.bio,
 
       location: currentMember.location,
+      contactEmail: currentMember.contactEmail,
+      contactPhone: currentMember.contactPhone,
     });
-  }, [currentMemberId]);
+  }, [currentMember]);
 
   async function saveProfile() {
     if (!currentMember) return;
+
+    const contactEmail = profileDraft.contactEmail.trim().toLowerCase();
+    if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
+      alert('Enter a valid contact email address, or leave it blank.');
+      return;
+    }
 
     const updatedProfile = {
       full_name: profileDraft.fullName.trim(),
       headline: profileDraft.headline.trim(),
       bio: profileDraft.bio.trim(),
       location: profileDraft.location.trim(),
+      contact_email: contactEmail,
+      contact_phone: profileDraft.contactPhone.trim(),
     };
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .update(updatedProfile)
-      .eq('id', currentMember.id);
+      .eq('id', currentMember.id)
+      .select('id')
+      .single();
 
-    if (error) {
+    if (error || !data) {
       console.error('Could not save profile:', error);
       alert('Profile could not be saved.');
       return;
@@ -664,37 +735,68 @@ export default function Home() {
               headline: updatedProfile.headline,
               bio: updatedProfile.bio,
               location: updatedProfile.location,
+              contactEmail: updatedProfile.contact_email,
+              contactPhone: updatedProfile.contact_phone,
             }
           : member
       )
     );
-
     alert('Profile saved.');
   }
 
-  function uploadProfilePicture(file?: File) {
-    if (!file || !currentMember) {
+  async function uploadProfilePicture(file?: File) {
+    if (!file || !currentMember) return;
+
+    const allowedTypes: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    };
+    const extension = allowedTypes[file.type];
+    if (!extension || file.size > 5 * 1024 * 1024) {
+      alert('Choose a JPG, PNG or WebP image smaller than 5 MB.');
       return;
     }
 
-    const reader = new FileReader();
+    setAvatarUploading(true);
+    const path = `${currentMember.id}/${crypto.randomUUID()}.${extension}`;
 
-    reader.onload = () => {
-      const image = String(reader.result || '');
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('veylo-avatars')
+        .upload(path, file, { contentType: file.type, upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data: imageData } = supabase.storage
+        .from('veylo-avatars')
+        .getPublicUrl(path);
+
+      const { data: saved, error: saveError } = await supabase
+        .from('profiles')
+        .update({ avatar: imageData.publicUrl })
+        .eq('id', currentMember.id)
+        .select('id')
+        .single();
+
+      if (saveError || !saved) {
+        await supabase.storage.from('veylo-avatars').remove([path]);
+        throw saveError || new Error('Could not save picture to your profile.');
+      }
 
       setMembers((current) =>
         current.map((member) =>
           member.id === currentMember.id
-            ? {
-                ...member,
-                avatar: image,
-              }
+            ? { ...member, avatar: imageData.publicUrl }
             : member
         )
       );
-    };
-
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Profile picture upload failed:', error);
+      alert('Profile picture could not be saved. Please try again.');
+    } finally {
+      setAvatarUploading(false);
+    }
   }
 
   async function addProject() {
@@ -737,19 +839,28 @@ export default function Home() {
     });
   }
 
-  function removeProject(projectId: string) {
+  async function removeProject(projectId: string) {
     if (!currentMember) return;
+
+    const updatedProjects = currentMember.projects.filter(
+      (project) => project.id !== projectId
+    );
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ projects: updatedProjects })
+      .eq('id', currentMember.id);
+
+    if (error) {
+      console.error('Could not remove project:', error);
+      alert('Project could not be removed.');
+      return;
+    }
 
     setMembers((current) =>
       current.map((member) =>
         member.id === currentMember.id
-          ? {
-              ...member,
-
-              projects: member.projects.filter(
-                (project) => project.id !== projectId
-              ),
-            }
+          ? { ...member, projects: updatedProjects }
           : member
       )
     );
@@ -1373,6 +1484,62 @@ export default function Home() {
      ACCOUNT SCREEN
   ===================================================== */
 
+  if (isRecoveryMode) {
+    return (
+      <main className="authPage">
+        <section className="authCard">
+          <img
+            src="/Veylo_Networks_White_Transparent.png"
+            alt="Veylo Networks"
+            className="authLogo"
+          />
+          <span className="pill">ACCOUNT SECURITY</span>
+          <h1>Set a new password</h1>
+          <p className="muted">
+            Your recovery link has opened Veylo. Enter a new password below
+            to finish resetting your account.
+          </p>
+          <div className="stack">
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="New password (8 characters minimum)"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+            />
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Confirm new password"
+              value={confirmNewPassword}
+              onChange={(event) => setConfirmNewPassword(event.target.value)}
+            />
+            <button
+              className="primary full"
+              type="button"
+              disabled={isChangingPassword}
+              onClick={changeAccountPassword}
+            >
+              {isChangingPassword ? 'Saving password...' : 'Save New Password'}
+            </button>
+            <button
+              className="authSecondaryButton"
+              type="button"
+              onClick={() => {
+                setIsRecoveryMode(false);
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+            >
+              Back to Veylo
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (!currentMember) {
     return (
       <main className="authPage">
@@ -1434,6 +1601,15 @@ export default function Home() {
   onChange={(event) => setSignupEmail(event.target.value)}
 />
 
+<input
+  className="field"
+  type="password"
+  placeholder="Password (minimum 8 characters)"
+  value={password}
+  onChange={(event) => setPassword(event.target.value)}
+  autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
+/>
+
 <button
   className="primary full"
   onClick={authMode === 'signup' ? createAccount : loginAccount}
@@ -1441,29 +1617,17 @@ export default function Home() {
   {authMode === 'signup' ? 'Create Veylo Account' : 'Log In'}
 </button>
 
-          {members.length > 0 && (
-            <div className="existingMembers">
-              <span className="small muted">
-                Existing profiles on this device
-              </span>
+{authMode === 'login' && (
+  <button
+    className="authSecondaryButton"
+    type="button"
+    disabled={isSendingReset}
+    onClick={requestPasswordReset}
+  >
+    {isSendingReset ? 'Sending reset email...' : 'Forgot password?'}
+  </button>
+)}
 
-              {members.map((member) => (
-                <button
-                  key={member.id}
-                  className="memberLogin"
-                  onClick={() => signIntoMember(member.id)}
-                >
-                  <Avatar member={member} />
-
-                  <div>
-                    <strong>{member.fullName}</strong>
-
-                    <small>{member.memberCode}</small>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
         </section>
       </main>
     );
@@ -1740,6 +1904,28 @@ export default function Home() {
                   <p className="muted profileBio">
                     {viewedMember.bio || 'No bio added yet.'}
                   </p>
+
+                  {(viewedMember.contactEmail || viewedMember.contactPhone) && (
+                    <section className="contactDetails">
+                      <h3>Contact Information</h3>
+                      {viewedMember.contactEmail && (
+                        <p>
+                          <span>Email</span>
+                          <a href={`mailto:${viewedMember.contactEmail}`}>
+                            {viewedMember.contactEmail}
+                          </a>
+                        </p>
+                      )}
+                      {viewedMember.contactPhone && (
+                        <p>
+                          <span>Phone</span>
+                          <a href={`tel:${viewedMember.contactPhone.replace(/[^+\d]/g, '')}`}>
+                            {viewedMember.contactPhone}
+                          </a>
+                        </p>
+                      )}
+                    </section>
+                  )}
 
                   <button
                     className="primary"
@@ -2215,16 +2401,19 @@ export default function Home() {
                 </div>
 
                 <label className="uploadButton">
-                  Change Profile Picture
+                  {avatarUploading ? 'Saving profile picture...' : 'Change Profile Picture'}
                   <input
                     hidden
+                    disabled={avatarUploading}
                     type="file"
-                    accept="image/*"
-                    onChange={(event) =>
-                      uploadProfilePicture(event.target.files?.[0])
-                    }
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => {
+                      uploadProfilePicture(event.target.files?.[0]);
+                      event.target.value = '';
+                    }}
                   />
                 </label>
+                <p className="muted small">JPG, PNG or WebP. Max 5 MB. Your picture is publicly viewable.</p>
 
                 <div className="stack">
                   <FieldLabel label="Full name">
@@ -2286,9 +2475,106 @@ export default function Home() {
                     />
                   </FieldLabel>
 
+                  <section className="contactEditor">
+                    <h3>Contact Information</h3>
+                    <p className="muted small">
+                      Optional business contact details. Anything entered here
+                      can be seen by other signed-in Veylo members.
+                      Your login email and password are separate.
+                    </p>
+                    <FieldLabel label="Contact email">
+                      <input
+                        className="field"
+                        type="email"
+                        maxLength={254}
+                        placeholder="business@example.com"
+                        value={profileDraft.contactEmail}
+                        onChange={(event) =>
+                          setProfileDraft((current) => ({
+                            ...current,
+                            contactEmail: event.target.value,
+                          }))
+                        }
+                      />
+                    </FieldLabel>
+                    <FieldLabel label="Phone number">
+                      <input
+                        className="field"
+                        type="tel"
+                        maxLength={40}
+                        placeholder="+353 ..."
+                        value={profileDraft.contactPhone}
+                        onChange={(event) =>
+                          setProfileDraft((current) => ({
+                            ...current,
+                            contactPhone: event.target.value,
+                          }))
+                        }
+                      />
+                    </FieldLabel>
+                  </section>
                   <button className="primary" onClick={saveProfile}>
                     Save Profile
                   </button>
+
+                  <section className="contactEditor">
+                    <h3>Account Security</h3>
+                    <p className="muted small">
+                      Your login password is private. Updating it does not
+                      change your public contact information.
+                    </p>
+                    {showPasswordEditor ? (
+                      <div className="stack">
+                        <FieldLabel label="New password">
+                          <input
+                            className="field"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="At least 8 characters"
+                            value={newPassword}
+                            onChange={(event) => setNewPassword(event.target.value)}
+                          />
+                        </FieldLabel>
+                        <FieldLabel label="Confirm new password">
+                          <input
+                            className="field"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="Repeat your new password"
+                            value={confirmNewPassword}
+                            onChange={(event) => setConfirmNewPassword(event.target.value)}
+                          />
+                        </FieldLabel>
+                        <button
+                          className="primary"
+                          type="button"
+                          disabled={isChangingPassword}
+                          onClick={changeAccountPassword}
+                        >
+                          {isChangingPassword ? 'Saving password...' : 'Save New Password'}
+                        </button>
+                        <button
+                          className="authSecondaryButton"
+                          type="button"
+                          onClick={() => {
+                            setShowPasswordEditor(false);
+                            setNewPassword('');
+                            setConfirmNewPassword('');
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="primary"
+                        type="button"
+                        onClick={() => setShowPasswordEditor(true)}
+                      >
+                        Change Password
+                      </button>
+                    )}
+                  </section>
                 </div>
               </section>
 
@@ -2437,6 +2723,29 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* MOBILE NAVIGATION - desktop sidebar remains unchanged */}
+      <nav className="veyloMobileNav" aria-label="Mobile navigation">
+        {[
+          { id: 'network', label: 'Network', icon: '⌂' },
+          { id: 'people', label: 'People', icon: '♙' },
+          { id: 'messages', label: 'Chats', icon: '▢' },
+          { id: 'offices', label: 'Offices', icon: '▦' },
+          { id: 'vbn', label: 'VBN', icon: '▤' },
+          { id: 'profile', label: 'Profile', icon: '◉' },
+        ].map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={page === item.id ? 'mobileTab active' : 'mobileTab'}
+            onClick={() => setPage(item.id as Page)}
+            aria-current={page === item.id ? 'page' : undefined}
+          >
+            <span className="mobileTabIcon">{item.icon}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </main>
   );
 }
