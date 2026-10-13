@@ -671,7 +671,7 @@ export default function Home() {
 
     // The reading progress is saved in Supabase, so other devices agree.
     void markConversationRead(selectedConversationId);
-  }, [ready, currentMemberId, selectedConversationId, selectedConversation?.messages.length, page]);
+  }, [ready, currentMemberId, selectedConversationId, conversations, page]);
 
   useEffect(() => {
     const markVisibleConversation = () => {
@@ -1626,46 +1626,69 @@ export default function Home() {
   }
 
   async function sendMessage() {
-    if (!currentMember || !selectedConversation || !messageText.trim()) {
-      return;
-    }
+    if (!currentMember || !selectedConversation) return;
+    const content = messageText.trim();
+    if (!content) return;
 
+    const conversationId = selectedConversation.id;
     const messageId = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
-
-    const { error } = await supabase.from('messages').insert({
-      id: messageId,
-      conversation_id: selectedConversation.id,
-      sender_id: currentMember.id,
-      content: messageText.trim(),
-      created_at: createdAt,
-    });
-
-    if (error) {
-      console.error('Could not send message:', error);
-      alert('Message could not be sent.');
-      return;
-    }
-
-    const message: ChatMessage = {
+    const optimistic: ChatMessage = {
       id: messageId,
       senderId: currentMember.id,
-      content: messageText.trim(),
-      createdAt,
+      content,
+      createdAt: new Date().toISOString(),
+      sending: true,
     };
 
-    setConversations((current) =>
-      current.map((conversation) =>
-        conversation.id === selectedConversation.id
-          ? {
-              ...conversation,
-              messages: [...conversation.messages, message],
-            }
-          : conversation
-      )
-    );
-
+    // Render immediately; the sender can keep typing while Supabase persists.
+    setConversations((current) => current.map((chat) =>
+      chat.id === conversationId
+        ? { ...chat, messages: [...chat.messages, optimistic] }
+        : chat
+    ));
     setMessageText('');
+    if (typingStopRef.current) clearTimeout(typingStopRef.current);
+    typingStopRef.current = null;
+    broadcastTyping(false);
+    playSentMessagePop();
+
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          id: messageId,
+          conversation_id: conversationId,
+          sender_id: currentMember.id,
+          content,
+        })
+        .select('id, created_at')
+        .single();
+      if (error || !data) throw error || new Error('The message was not saved.');
+
+      // Realtime might have delivered the same ID already: never duplicate it.
+      setConversations((current) => current.map((chat) =>
+        chat.id !== conversationId
+          ? chat
+          : {
+              ...chat,
+              messages: chat.messages.map((message) =>
+                message.id === messageId
+                  ? { ...message, createdAt: data.created_at, sending: false }
+                  : message
+              ).sort((one, two) => Date.parse(one.createdAt) - Date.parse(two.createdAt)),
+            }
+      ));
+    } catch (error) {
+      console.error('Could not send Veylo message:', error);
+      setConversations((current) => current.map((chat) =>
+        chat.id !== conversationId ? chat : {
+          ...chat,
+          messages: chat.messages.filter((message) => message.id !== messageId),
+        }
+      ));
+      setMessageText((draft) => draft.trim() ? draft : content);
+      alert('Message was not sent. Your text is still in the message box. Please try again.');
+    }
   }
 
   /* =====================================================
@@ -2161,7 +2184,12 @@ export default function Home() {
               active={page === 'messages'}
               onClick={() => setPage('messages')}
             >
-              Messages
+              <span>Messages</span>
+              {unreadCount > 0 && (
+                <span className="veyloUnreadBadge desktopUnreadBadge" aria-label={unreadCount + ' unread messages'}>
+                  {unreadCount >= 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavButton>
 
             <NavButton
@@ -2556,6 +2584,13 @@ export default function Home() {
                       members
                     );
 
+                    const readTime = Date.parse(readReceipts[conversation.id] || '') || 0;
+                    const unread = conversation.messages.filter((message) =>
+                      message.senderId !== currentMember.id &&
+                      Date.parse(message.createdAt) > readTime
+                    ).length;
+                    const lastMessage = conversation.messages[conversation.messages.length - 1];
+
                     return (
                       <button
                         key={conversation.id}
@@ -2564,17 +2599,21 @@ export default function Home() {
                             ? 'listButton active'
                             : 'listButton'
                         }
-                        onClick={() =>
-                          setSelectedConversationId(conversation.id)
-                        }
+                        onClick={() => setSelectedConversationId(conversation.id)}
                       >
-                        <strong>{displayName}</strong>
-
-                        <span>
-                          {conversation.type === 'group'
-                            ? `${conversation.members.length} members`
-                            : 'Direct message'}
+                        <strong className="veyloChatListTitle">{displayName}</strong>
+                        <span className="veyloChatPreview">
+                          {lastMessage
+                            ? (lastMessage.senderId === currentMember.id ? 'You: ' : '') + lastMessage.content
+                            : conversation.type === 'group'
+                              ? `${conversation.members.length} members`
+                              : 'Start a conversation'}
                         </span>
+                        {unread > 0 && (
+                          <span className="veyloUnreadBadge chatUnreadBadge" aria-label={unread + ' unread messages'}>
+                            {unread >= 99 ? '99+' : unread}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -2663,10 +2702,28 @@ export default function Home() {
                                   </small>
                                 )}
 
-                              {message.content}
+                              <span>{message.content}</span>
+                              {message.sending && (
+                                <span className="veyloSendingState" aria-label="Sending message">
+                                  Sending…
+                                </span>
+                              )}
                             </div>
                           );
                         })
+                      )}
+                      {activeTypingNames.length > 0 && (
+                        <div className="veyloTypingRow" role="status" aria-live="polite">
+                          <span className="veyloTypingKeyboard" aria-hidden="true">⌨</span>
+                          <span className="veyloTypingBubble" aria-hidden="true">
+                            <i /><i /><i />
+                          </span>
+                          <span className="veyloTypingLabel">
+                            {activeTypingNames.slice(0, 2).join(' and ')}
+                            {activeTypingNames.length > 2 ? ' and others' : ''}
+                            {' '}typing…
+                          </span>
+                        </div>
                       )}
                     </div>
 
@@ -2675,10 +2732,29 @@ export default function Home() {
                         className="field"
                         placeholder="Write a message..."
                         value={messageText}
-                        onChange={(event) => setMessageText(event.target.value)}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setMessageText(value);
+                          if (typingStopRef.current) clearTimeout(typingStopRef.current);
+                          if (value.trim()) {
+                            broadcastTyping(true);
+                            typingStopRef.current = setTimeout(() => {
+                              broadcastTyping(false);
+                              typingStopRef.current = null;
+                            }, 1700);
+                          } else {
+                            broadcastTyping(false);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (typingStopRef.current) clearTimeout(typingStopRef.current);
+                          typingStopRef.current = null;
+                          broadcastTyping(false);
+                        }}
                         onKeyDown={(event) => {
                           if (event.key === 'Enter') {
-                            sendMessage();
+                            event.preventDefault();
+                            void sendMessage();
                           }
                         }}
                       />
@@ -3276,6 +3352,14 @@ export default function Home() {
               }}
             >
               <MobileNavIcon name={tab.icon} />
+              {tab.id === 'messages' && unreadCount > 0 && (
+                <span
+                  className="veyloUnreadBadge mobileUnreadBadge"
+                  aria-label={unreadCount + ' unread messages'}
+                >
+                  {unreadCount >= 99 ? '99+' : unreadCount}
+                </span>
+              )}
               <span>{tab.label}</span>
             </button>
           );
