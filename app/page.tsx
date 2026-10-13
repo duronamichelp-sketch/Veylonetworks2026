@@ -146,6 +146,12 @@ export default function Home() {
   const [signupEmail, setSignupEmail] = useState('');
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const [password, setPassword] = useState('');
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [showPasswordEditor, setShowPasswordEditor] = useState(false);
   /* PEOPLE */
 
   const [peopleSearch, setPeopleSearch] = useState('');
@@ -214,6 +220,27 @@ export default function Home() {
   /* =====================================================
      STORAGE
   ===================================================== */
+
+  useEffect(() => {
+    // A recovery link authenticates the user, then the app must set a password.
+    const query = new URLSearchParams(window.location.search);
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (
+      query.get('recovery') === '1' ||
+      query.get('type') === 'recovery' ||
+      hash.get('type') === 'recovery'
+    ) {
+      setIsRecoveryMode(true);
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     async function loadVeyloData() {
@@ -573,6 +600,63 @@ export default function Home() {
       setPassword('');
       // Supabase persists the session. Reload to hydrate profiles, chats and offices.
       window.location.reload();
+    }
+  }
+
+  async function requestPasswordReset() {
+    const email = signupEmail.trim().toLowerCase();
+    if (!email) {
+      alert('Enter your account email address first.');
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      // The redirect site must be on Supabase Authentication's allowed URL list.
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/?recovery=1`,
+      });
+      if (error) throw error;
+      alert('If that email is registered, a reset link will be emailed to you. Open it to choose a new password.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again later.';
+      alert(`Could not request a reset email: ${message}`);
+    } finally {
+      setIsSendingReset(false);
+    }
+  }
+
+  async function changeAccountPassword() {
+    if (newPassword.length < 8) {
+      alert('Choose a new password with at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      alert('The new passwords do not match.');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      // Supabase Auth stores credentials securely; never save passwords to profiles.
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setShowPasswordEditor(false);
+      alert('Your Veylo password has been updated. Use it the next time you log in.');
+
+      if (isRecoveryMode) {
+        setIsRecoveryMode(false);
+        window.history.replaceState({}, '', window.location.pathname);
+        window.location.reload();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      alert(`Your password was not changed: ${message}`);
+    } finally {
+      setIsChangingPassword(false);
     }
   }
 
@@ -1400,6 +1484,62 @@ export default function Home() {
      ACCOUNT SCREEN
   ===================================================== */
 
+  if (isRecoveryMode) {
+    return (
+      <main className="authPage">
+        <section className="authCard">
+          <img
+            src="/Veylo_Networks_White_Transparent.png"
+            alt="Veylo Networks"
+            className="authLogo"
+          />
+          <span className="pill">ACCOUNT SECURITY</span>
+          <h1>Set a new password</h1>
+          <p className="muted">
+            Your recovery link has opened Veylo. Enter a new password below
+            to finish resetting your account.
+          </p>
+          <div className="stack">
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="New password (8 characters minimum)"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+            />
+            <input
+              className="field"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Confirm new password"
+              value={confirmNewPassword}
+              onChange={(event) => setConfirmNewPassword(event.target.value)}
+            />
+            <button
+              className="primary full"
+              type="button"
+              disabled={isChangingPassword}
+              onClick={changeAccountPassword}
+            >
+              {isChangingPassword ? 'Saving password...' : 'Save New Password'}
+            </button>
+            <button
+              className="authSecondaryButton"
+              type="button"
+              onClick={() => {
+                setIsRecoveryMode(false);
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+            >
+              Back to Veylo
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (!currentMember) {
     return (
       <main className="authPage">
@@ -1476,6 +1616,17 @@ export default function Home() {
 >
   {authMode === 'signup' ? 'Create Veylo Account' : 'Log In'}
 </button>
+
+{authMode === 'login' && (
+  <button
+    className="authSecondaryButton"
+    type="button"
+    disabled={isSendingReset}
+    onClick={requestPasswordReset}
+  >
+    {isSendingReset ? 'Sending reset email...' : 'Forgot password?'}
+  </button>
+)}
 
         </section>
       </main>
