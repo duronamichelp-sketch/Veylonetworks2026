@@ -2369,3 +2369,760 @@ a {
   .vbnNewsroomFooter { gap: 12px; }
   .vbnNewsroomFooter .vbnMastheadMark { font-size: 26px; }
 }
+
+
+/* ===========================================
+   VEYLO MOBILE 1.0
+   Mobile navigation, content, chat and offices
+   =========================================== */
+
+.mobileBottomNav,
+.mobileTopbarBrand,
+.mobileMoreButton,
+.mobileMoreMenu,
+.mobileMenuBackdrop,
+.mobileDetailBack {
+  display: none;
+}
+
+.profileSaveNotice {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  color: #a4dbfd;
+  line-height: 1.55;
+  padding: 11px 12px;
+  margin: 8px 0 0;
+  border: 1px solid rgba(54,158,245,.26);
+  border-radius: 10px;
+  background: rgba(29,125,217,.075);
+}
+
+@media (max-width: 760px) {
+  html, body {
+    min-width: 0;
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .app {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  .sidebar {
+    display: none !important;
+  }
+
+  .main {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 48;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 66px;
+    height: auto;
+    padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+    gap: 12px;
+    background: rgba(7,12,20,.94);
+    border-bottom: 1px solid rgba(77,137,206,.15);
+    backdrop-filter: blur(19px);
+    -webkit-backdrop-filter: blur(19px);
+  }
+
+  .desktopTopbarInfo,
+  .desktopAvatarButton {
+    display: none !important;
+  }
+
+  .mobileTopbarBrand {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 11px;
+    flex: 1;
+  }
+
+  .mobileTopbarBrand img {
+    display: block;
+    flex-shrink: 0;
+    width: 89px;
+    max-height: 42px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .mobileTopbarBrand > div {
+    min-width: 0;
+    border-left: 1px solid rgba(174,191,213,.18);
+    padding-left: 11px;
+  }
+
+  .mobileTopbarBrand span {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .17em;
+    color: #7e91aa;
+  }
+
+  .mobileTopbarBrand strong {
+    display: block;
+    max-width: 100%;
+    font-size: 14px;
+    line-height: 1.2;
+    color: #f6faff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobileMoreButton {
+    display: inline-flex;
+    flex: none;
+    width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(171,202,245,.17);
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+    color: #cde1fa;
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+
+  .mobileMoreButton[aria-expanded="true"] {
+    border-color: #1499ff;
+    background: rgba(20,153,255,.12);
+  }
+
+  .mobileMenuBackdrop {
+    display: block;
+    position: fixed;
+    z-index: 57;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: rgba(0,0,0,.53);
+  }
+
+  .mobileMoreMenu {
+    display: grid;
+    position: fixed;
+    z-index: 58;
+    top: max(74px, calc(62px + env(safe-area-inset-top)));
+    right: 12px;
+    width: min(310px, calc(100% - 24px));
+    padding: 13px;
+    gap: 7px;
+    border: 1px solid rgba(123,174,228,.3);
+    border-radius: 16px;
+    background: #0d1725;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5);
+  }
+
+  .mobileMenuMember {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 9px 6px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+    margin-bottom: 4px;
+  }
+
+  .mobileMenuMember > div:last-child {
+    min-width: 0;
+  }
+
+  .mobileMenuMember strong,
+  .mobileMenuMember small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileMenuMember strong {
+    font-size: 13px;
+    color: #eaf2fc;
+  }
+
+  .mobileMenuMember small {
+    margin-top: 5px;
+    font-size: 11px;
+    color: #8092a8;
+  }
+
+  .mobileMoreMenu > button {
+    border: 1px solid transparent;
+    min-height: 47px;
+    padding: 11px 14px;
+    border-radius: 11px;
+    background: rgba(255,255,255,.035);
+    color: #e7f0fc;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .mobileMoreMenu > button:active {
+    border-color: #1599ff;
+  }
+
+  .mobileMoreMenu > .mobileMenuSignOut {
+    color: #ffaaaa;
+  }
+
+  .mobileBottomNav {
+    display: grid;
+    position: fixed;
+    z-index: 52;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0;
+    inset: auto 0 0;
+    width: 100%;
+    min-height: 68px;
+    padding: 6px 5px max(7px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(83,154,245,.23);
+    background: rgba(8,15,26,.975);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 -11px 28px rgba(0,0,0,.22);
+  }
+
+  .mobileBottomTab {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    min-height: 54px;
+    padding: 5px 0;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #8997ab;
+    font-size: 10px;
+    font-weight: 650;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .mobileBottomTab svg {
+    display: block;
+    flex: none;
+  }
+
+  .mobileBottomTab.active {
+    color: #4cb3ff;
+    background: rgba(22,141,249,.095);
+  }
+
+  .mobileBottomTab:focus-visible,
+  .mobileMoreButton:focus-visible,
+  .mobileDetailBack:focus-visible {
+    outline: 2px solid #42b0ff;
+    outline-offset: -2px;
+  }
+
+  .content {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    padding: 17px 14px calc(107px + env(safe-area-inset-bottom));
+  }
+
+  .content > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .glass,
+  .panel,
+  .officeMain,
+  .profileEditor,
+  .projectsPanel,
+  .personCard,
+  .memberProfilePage,
+  .projectCard {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  h1, h2, h3, h4, p, span, strong {
+    overflow-wrap: break-word;
+  }
+
+  .field,
+  textarea,
+  select,
+  input {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .field {
+    min-height: 45px;
+  }
+
+  .primary,
+  .secondary {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .authPage {
+    min-height: 100dvh;
+    padding: 15px 15px calc(18px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+  }
+
+  .authCard {
+    width: 100%;
+    max-width: 430px;
+    padding: 23px 20px;
+    border-radius: 19px;
+  }
+
+  .authCard .stack {
+    min-width: 0;
+  }
+
+  .authLogo {
+    width: min(240px, 100%);
+  }
+
+  .networkColumn {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .composer,
+  .postCard {
+    padding: 16px;
+  }
+
+  .composer textarea {
+    min-height: 108px;
+    font-size: 16px;
+  }
+
+  .composerFooter {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .composerFooter .primary {
+    flex: none;
+    min-width: 80px;
+  }
+
+  .postContent,
+  .personBio,
+  .profileBio {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .peopleGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  .searchPanel,
+  .personCard {
+    padding: 16px;
+  }
+
+  .personCard {
+    min-height: 0;
+  }
+
+  .cardActions button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .memberProfilePage {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .publicProfileHero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 19px;
+    gap: 12px;
+  }
+
+  .publicProfileHero h2 {
+    font-size: clamp(22px, 6vw, 29px);
+    overflow-wrap: anywhere;
+  }
+
+  .profileMetadata {
+    flex-wrap: wrap;
+  }
+
+  .twoColumnLayout {
+    display: grid;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .mobileConversationLayout[data-mobile-view="detail"] > .mobileConversationList,
+  .mobileOfficeLayout[data-mobile-view="detail"] > .mobileOfficeList {
+    display: none;
+  }
+
+  .mobileConversationLayout[data-mobile-view="list"] > .chatPanel,
+  .mobileOfficeLayout[data-mobile-view="list"] > .officeMain {
+    display: none;
+  }
+
+  .mobileConversationList,
+  .mobileOfficeList {
+    display: block;
+    padding: 17px;
+    min-height: 56dvh;
+  }
+
+  .mobileConversationList h3,
+  .mobileOfficeList h3 {
+    margin-top: 0;
+  }
+
+  .mobileListEmpty {
+    display: grid;
+    gap: 13px;
+    padding: 15px 0;
+    color: #9dadbe;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .mobileListEmpty .secondary {
+    width: fit-content;
+  }
+
+  .list {
+    margin-top: 16px;
+    gap: 7px;
+  }
+
+  .listButton {
+    min-height: 65px;
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .listButton strong {
+    overflow-wrap: anywhere;
+  }
+
+  .mobileDetailBack {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    min-height: 44px;
+    padding: 12px 16px;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,.095);
+    background: rgba(25,69,111,.12);
+    color: #76c4ff;
+    font-size: 13px;
+    font-weight: 750;
+    width: 100%;
+    text-align: left;
+  }
+
+  .mobileDetailBack span {
+    font-size: 20px;
+    line-height: .7;
+  }
+
+  .chatPanel {
+    display: flex;
+    height: max(355px, calc(100dvh - 178px - env(safe-area-inset-bottom)));
+    min-height: 355px;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+
+  .panelHeader {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding: 12px 14px;
+  }
+
+  .panelHeader > div {
+    max-width: 100%;
+  }
+
+  .panelHeader .inlineForm {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .panelHeader .smallField {
+    flex: 1;
+    max-width: none;
+    min-width: 120px;
+  }
+
+  .messageArea {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 15px 12px;
+  }
+
+  .messageBubble {
+    max-width: 88%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .messageComposer {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    flex-shrink: 0;
+    gap: 7px;
+    padding: 10px;
+    background: rgba(9,16,26,.86);
+  }
+
+  .messageComposer .field {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .messageComposer .primary {
+    flex: none;
+    padding: 10px 14px;
+  }
+
+  .officeMain {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .officeMain > .mobileDetailBack {
+    margin: 0 0 10px;
+    border: 1px solid rgba(78,141,206,.18);
+    border-radius: 11px;
+  }
+
+  .officeHero {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .officeHero .inlineForm {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .officeHero .smallField {
+    min-width: 120px;
+    flex: 1;
+    max-width: none;
+  }
+
+  .officeGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .officeSection {
+    padding: 16px;
+  }
+
+  .officeNotes {
+    grid-column: auto;
+  }
+
+  .officeItems .task,
+  .officeItems .meeting,
+  .officeItems .note {
+    overflow-wrap: anywhere;
+  }
+
+  .profileGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  .profileEditor,
+  .projectsPanel {
+    padding: 16px;
+  }
+
+  .profileHero {
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .profileHero > div {
+    min-width: 0;
+  }
+
+  .profileHero h2 {
+    overflow-wrap: anywhere;
+    font-size: clamp(20px, 6vw, 28px);
+  }
+
+  .bioInput {
+    min-height: 148px;
+    line-height: 1.6;
+  }
+
+  .uploadButton {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .projectForm {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .projectDescription {
+    grid-column: auto;
+  }
+
+  .projectRow {
+    flex-wrap: wrap;
+    gap: 9px;
+    overflow-wrap: anywhere;
+  }
+
+  .projectRow > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .projectRow .removeButton {
+    min-height: 44px;
+    padding: 10px 0;
+  }
+
+  .comingGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  .comingHero,
+  .comingCard {
+    padding: 18px;
+  }
+
+  .vbnNewsroom {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .vbnTopNewsLayout,
+  .vbnSpotlightGrid,
+  .vbnDeskStories,
+  .vbnMoreGrid {
+    min-width: 0;
+  }
+
+  .vbnNewsroomHeader {
+    gap: 16px;
+  }
+
+  .vbnStripScroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vbnBrowseBar .vbnFilters {
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .vbnSearchLabel {
+    flex: 1;
+  }
+}
+
+@media (max-width: 370px) {
+  .mobileBottomTab {
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .mobileBottomTab svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .mobileTopbarBrand img {
+    width: 73px;
+  }
+
+  .mobileTopbarBrand strong {
+    font-size: 12px;
+  }
+
+  .content {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .authCard {
+    padding: 20px 16px;
+  }
+}
