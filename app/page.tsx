@@ -1268,8 +1268,51 @@ export default function Home() {
     }
   }
 
+  function normaliseProjectWebsite(value: string): string | null {
+    const input = value.trim();
+    if (!input) return '';
+    if (input.length > 500) return null;
+    try {
+      // Make business website links useful even when entered without https://.
+      const candidate = /^https?:\/\//i.test(input) ? input : 'https://' + input;
+      const url = new URL(candidate);
+      return (url.protocol === 'https:' || url.protocol === 'http:') &&
+        url.hostname.includes('.') ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function persistProjects(projects: Project[]): Promise<Project[]> {
+    if (!currentMember) throw new Error('Please sign in first.');
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user || user.id !== currentMember.id) {
+      throw new Error('Your login session has expired.');
+    }
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ projects })
+      .eq('id', user.id)
+      .select('projects')
+      .single();
+
+    if (error || !data) throw error || new Error('Project changes were not saved.');
+    const saved: Project[] = Array.isArray(data.projects) ? data.projects : projects;
+
+    setMembers((current) => current.map((member) =>
+      member.id === user.id ? { ...member, projects: saved } : member
+    ));
+    return saved;
+  }
+
   async function addProject() {
     if (!currentMember || !projectDraft.title.trim()) return;
+
+    const website = normaliseProjectWebsite(projectDraft.website);
+    if (website === null) {
+      setProjectLinkNotice('Enter a valid business website link, such as example.com.');
+      return;
+    }
 
     const project: Project = {
       id: crypto.randomUUID(),
@@ -1277,53 +1320,51 @@ export default function Home() {
       role: projectDraft.role.trim(),
       year: projectDraft.year.trim(),
       description: projectDraft.description.trim(),
+      website,
     };
 
-    const updatedProjects = [...currentMember.projects, project];
+    try {
+      await persistProjects([...currentMember.projects, project]);
+      setProjectDraft({ title: '', role: '', year: '', description: '', website: '' });
+      setProjectLinkNotice('Project saved to your Veylo profile.');
+    } catch (error) {
+      console.error('Could not add Veylo project:', error);
+      setProjectLinkNotice('Project not saved: ' + (error instanceof Error ? error.message : 'Try again.'));
+    }
+  }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ projects: updatedProjects })
-      .eq('id', currentMember.id);
+  async function saveProjectWebsite(projectId: string) {
+    if (!currentMember || projectLinkSavingId) return;
+    const project = currentMember.projects.find((item) => item.id === projectId);
+    if (!project) return;
 
-    if (error) {
-      console.error('Could not save project:', error);
-      alert('Project could not be saved.');
+    const website = normaliseProjectWebsite(projectLinkEdits[project.id] ?? project.website ?? '');
+    if (website === null) {
+      setProjectLinkNotice('Enter a valid business website, such as example.com.');
       return;
     }
 
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === currentMember.id
-          ? { ...member, projects: updatedProjects }
-          : member
-      )
-    );
-
-    setProjectDraft({
-      title: '',
-      role: '',
-      year: '',
-      description: '',
-    });
+    setProjectLinkSavingId(projectId);
+    try {
+      await persistProjects(currentMember.projects.map((item) =>
+        item.id === projectId ? { ...item, website } : item
+      ));
+      setProjectLinkNotice('Website saved for ' + project.title + '.');
+    } catch (error) {
+      setProjectLinkNotice('Website not saved: ' + (error instanceof Error ? error.message : 'Try again.'));
+    } finally {
+      setProjectLinkSavingId('');
+    }
   }
 
-  function removeProject(projectId: string) {
+  async function removeProject(projectId: string) {
     if (!currentMember) return;
-
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === currentMember.id
-          ? {
-              ...member,
-
-              projects: member.projects.filter(
-                (project) => project.id !== projectId
-              ),
-            }
-          : member
-      )
-    );
+    try {
+      await persistProjects(currentMember.projects.filter((project) => project.id !== projectId));
+      setProjectLinkNotice('Project removed from your profile.');
+    } catch (error) {
+      alert('Project was not removed: ' + (error instanceof Error ? error.message : 'Please try again.'));
+    }
   }
 
   function openMemberProfile(member: Member) {
@@ -2431,9 +2472,12 @@ export default function Home() {
                         <span><strong>{getFollowingCount(member.id)}</strong> following</span>
                       </p>
 
-                      <p className="personBio muted">
-                        {member.bio || 'No bio added yet.'}
-                      </p>
+                      <ExpandableText
+                        className="personBio muted"
+                        text={member.bio}
+                        maxCharacters={145}
+                        emptyText="No bio added yet."
+                      />
 
                       <div className="cardActions">
                         <button
@@ -2494,9 +2538,15 @@ export default function Home() {
                     <MemberCode code={viewedMember.memberCode} />
                   </div>
 
-                  <p className="muted profileBio">
-                    {viewedMember.bio || 'No bio added yet.'}
-                  </p>
+                  <div className="veyloProfileAbout">
+                    <span className="eyebrow">ABOUT</span>
+                    <ExpandableText
+                      className="muted profileBio"
+                      text={viewedMember.bio}
+                      maxCharacters={240}
+                      emptyText="No bio added yet."
+                    />
+                  </div>
 
                   <div className="memberFollowCounts">
                     <span><strong>{getFollowerCount(viewedMember.id)}</strong> followers</span>
@@ -2541,7 +2591,22 @@ export default function Home() {
                       {project.year ? ` • ${project.year}` : ''}
                     </span>
 
-                    <p className="muted">{project.description}</p>
+                    <ExpandableText
+                      className="muted"
+                      text={project.description}
+                      maxCharacters={210}
+                      emptyText="No project description added."
+                    />
+                    {project.website && normaliseProjectWebsite(project.website) && (
+                      <a
+                        className="veyloProjectLink"
+                        href={normaliseProjectWebsite(project.website) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Visit business website ↗
+                      </a>
+                    )}
                   </article>
                 ))
               )}
@@ -3233,6 +3298,20 @@ export default function Home() {
                     }
                   />
 
+                  <input
+                    className="field projectWebsiteField"
+                    type="text"
+                    inputMode="url"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    placeholder="Business website (optional), e.g. veylonetworks.com"
+                    aria-label="Website for this project"
+                    value={projectDraft.website}
+                    onChange={(event) =>
+                      setProjectDraft((current) => ({ ...current, website: event.target.value }))
+                    }
+                  />
+
                   <textarea
                     className="field projectDescription"
                     placeholder="What did you work on?"
@@ -3251,24 +3330,65 @@ export default function Home() {
                   </button>
                 </div>
 
+                {projectLinkNotice && (
+                  <p className="profileSaveNotice" role="status">{projectLinkNotice}</p>
+                )}
                 <div className="projectList">
                   {currentMember.projects.map((project) => (
-                    <article className="projectRow" key={project.id}>
-                      <div>
+                    <article className="projectRow veyloProjectEditor" key={project.id}>
+                      <div className="veyloProjectContent">
                         <strong>{project.title}</strong>
-
                         <span className="muted small">
                           {project.role}
-
                           {project.year ? ` • ${project.year}` : ''}
                         </span>
-
-                        <p className="muted">{project.description}</p>
+                        <ExpandableText
+                          className="muted"
+                          text={project.description}
+                          maxCharacters={195}
+                          emptyText="No project description added."
+                        />
+                        {project.website && normaliseProjectWebsite(project.website) && (
+                          <a
+                            className="veyloProjectLink"
+                            href={normaliseProjectWebsite(project.website) || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Visit business website ↗
+                          </a>
+                        )}
+                        <div className="veyloWebsiteEditor">
+                          <input
+                            className="field"
+                            type="text"
+                            inputMode="url"
+                            autoCapitalize="off"
+                            autoCorrect="off"
+                            aria-label={'Website for ' + project.title}
+                            placeholder="Business website link"
+                            value={projectLinkEdits[project.id] ?? project.website ?? ''}
+                            onChange={(event) =>
+                              setProjectLinkEdits((current) => ({
+                                ...current,
+                                [project.id]: event.target.value,
+                              }))
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="secondary"
+                            disabled={projectLinkSavingId === project.id}
+                            onClick={() => void saveProjectWebsite(project.id)}
+                          >
+                            {projectLinkSavingId === project.id ? 'Saving…' : 'Save link'}
+                          </button>
+                        </div>
                       </div>
-
                       <button
                         className="removeButton"
-                        onClick={() => removeProject(project.id)}
+                        type="button"
+                        onClick={() => void removeProject(project.id)}
                       >
                         Remove
                       </button>
