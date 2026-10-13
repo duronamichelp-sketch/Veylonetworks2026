@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/vbn-free-business-news
+      - feature/veylo-branding-avatars-follows-mobile-fixes
 
 permissions:
   contents: read
