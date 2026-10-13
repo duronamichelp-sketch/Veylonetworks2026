@@ -23,6 +23,17 @@ type Page =
   | 'memberProfile'
   | 'coming';
 
+type MobileIconName = 'network' | 'people' | 'messages' | 'offices' | 'vbn' | 'profile';
+
+const MOBILE_TABS: Array<{ id: Page; label: string; icon: MobileIconName }> = [
+  { id: 'network', label: 'Network', icon: 'network' },
+  { id: 'people', label: 'People', icon: 'people' },
+  { id: 'messages', label: 'Chats', icon: 'messages' },
+  { id: 'offices', label: 'Offices', icon: 'offices' },
+  { id: 'vbn', label: 'VBN', icon: 'vbn' },
+  { id: 'profile', label: 'Profile', icon: 'profile' },
+];
+
 type Project = {
   id: string;
   title: string;
@@ -1727,16 +1738,72 @@ export default function Home() {
 
       <section className="main">
         <header className="topbar">
-          <div>
+          <div className="desktopTopbarInfo">
             <span className="eyebrow">VEYLO NETWORKS</span>
-
             <h1>{pageTitle(page)}</h1>
           </div>
 
-          <button className="avatarButton" onClick={() => setPage('profile')}>
+          <div className="mobileTopbarBrand">
+            <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" />
+            <div>
+              <span>VEYLO NETWORKS</span>
+              <strong>{pageTitle(page)}</strong>
+            </div>
+          </div>
+          <button
+            className="mobileMoreButton"
+            type="button"
+            aria-label="More Veylo options"
+            aria-controls="veylo-mobile-menu"
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((open) => !open)}
+          >
+            <span aria-hidden="true">•••</span>
+          </button>
+
+          <button className="avatarButton desktopAvatarButton" onClick={() => setPage('profile')} aria-label="My Profile">
             <Avatar member={currentMember} />
           </button>
         </header>
+
+        {mobileMenuOpen && (
+          <>
+            <button
+              type="button"
+              className="mobileMenuBackdrop"
+              aria-label="Close more options"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="mobileMoreMenu" id="veylo-mobile-menu">
+              <div className="mobileMenuMember">
+                <Avatar member={currentMember} />
+                <div>
+                  <strong>{currentMember.fullName}</strong>
+                  <small>{currentMember.memberCode}</small>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setPage('coming');
+                }}
+              >
+                Coming Soon
+              </button>
+              <button
+                type="button"
+                className="mobileMenuSignOut"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut();
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </>
+        )}
 
         <div className="content">
           {/* NETWORK */}
@@ -2634,6 +2701,34 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <nav className="mobileBottomNav" aria-label="Veylo mobile navigation">
+        {MOBILE_TABS.map((tab) => {
+          const selected = page === tab.id || (page === 'memberProfile' && tab.id === 'people');
+          return (
+            <button
+              type="button"
+              key={tab.id}
+              className={selected ? 'mobileBottomTab active' : 'mobileBottomTab'}
+              aria-label={tab.label}
+              aria-current={selected ? 'page' : undefined}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (tab.id === 'messages' && page === 'messages' && selectedConversationId) {
+                  setSelectedConversationId('');
+                } else if (tab.id === 'offices' && page === 'offices' && selectedOfficeId) {
+                  setSelectedOfficeId('');
+                } else {
+                  setPage(tab.id);
+                }
+              }}
+            >
+              <MobileNavIcon name={tab.icon} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </main>
   );
 }
@@ -2641,6 +2736,58 @@ export default function Home() {
 /* =========================================================
    COMPONENTS
 ========================================================= */
+
+function MobileNavIcon({ name }: { name: MobileIconName }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="23"
+      height="23"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {name === 'network' && (
+        <>
+          <path d="m3 10 9-7 9 7" />
+          <path d="M5 9v12h14V9M9 21v-8h6v8" />
+        </>
+      )}
+      {name === 'people' && (
+        <>
+          <circle cx="9" cy="8" r="3" />
+          <path d="M3.5 20v-2.5a5.5 5.5 0 0 1 11 0V20M16 5.5a3 3 0 0 1 0 5.8M17 14a4 4 0 0 1 3.5 4V20" />
+        </>
+      )}
+      {name === 'messages' && (
+        <>
+          <path d="M4 5h16v12H8l-4 4V5Z" />
+          <path d="M8 9h8M8 13h5" />
+        </>
+      )}
+      {name === 'offices' && (
+        <>
+          <path d="M5 21V5l7-3 7 3v16M2 21h20M9 21v-5h6v5M9 7h.01M15 7h.01M9 11h.01M15 11h.01" />
+        </>
+      )}
+      {name === 'vbn' && (
+        <>
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h5v5H7zM15 8h3M15 11h3M7 16h11" />
+        </>
+      )}
+      {name === 'profile' && (
+        <>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </>
+      )}
+    </svg>
+  );
+}
 
 function NavButton({
   active,
