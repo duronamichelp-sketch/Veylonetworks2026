@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 
 const siteUrl = "https://veylonetworks2026.vercel.app";
 
@@ -35,12 +35,6 @@ export const metadata: Metadata = {
     shortcut: "/icon",
     apple: "/icon",
   },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#07101b",
-  width: "device-width",
-  initialScale: 1,
 };
 
 export default function RootLayout({
