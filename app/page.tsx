@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
 const supabase = createClient(
@@ -118,6 +118,7 @@ export default function Home() {
   const [ready, setReady] = useState(false);
 
   const [page, setPage] = useState<Page>('network');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [members, setMembers] = useState<Member[]>([]);
 
@@ -154,6 +155,7 @@ export default function Home() {
   const [selectedConversationId, setSelectedConversationId] = useState('');
 
   const [messageText, setMessageText] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [groupName, setGroupName] = useState('');
 
@@ -161,6 +163,8 @@ export default function Home() {
 
   /* PROFILE */
 
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaveMessage, setProfileSaveMessage] = useState('');
   const [profileDraft, setProfileDraft] = useState({
     fullName: '',
     headline: '',
@@ -655,44 +659,62 @@ export default function Home() {
 
       location: currentMember.location,
     });
-  }, [currentMemberId]);
+  }, [currentMember]);
 
   async function saveProfile() {
-    if (!currentMember) return;
+    if (!currentMember || profileSaving) return;
 
-    const updatedProfile = {
-      full_name: profileDraft.fullName.trim(),
-      headline: profileDraft.headline.trim(),
-      bio: profileDraft.bio.trim(),
-      location: profileDraft.location.trim(),
-    };
+    setProfileSaving(true);
+    setProfileSaveMessage('');
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updatedProfile)
-      .eq('id', currentMember.id);
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== currentMember.id) {
+        throw new Error('Your login session has expired. Please sign in again.');
+      }
 
-    if (error) {
-      console.error('Could not save profile:', error);
-      alert('Profile could not be saved.');
-      return;
+      const updatedProfile = {
+        full_name: profileDraft.fullName.trim(),
+        headline: profileDraft.headline.trim(),
+        bio: profileDraft.bio.trim(),
+        location: profileDraft.location.trim(),
+      };
+
+      // A standard update can report no error even if RLS updates no rows.
+      // Return the saved row from Supabase so persistence can be confirmed.
+      const { data: savedProfile, error } = await supabase
+        .from('profiles')
+        .update(updatedProfile)
+        .eq('id', user.id)
+        .select('id, full_name, headline, bio, location')
+        .single();
+
+      if (error || !savedProfile) {
+        throw error || new Error('Your profile could not be saved.');
+      }
+
+      setMembers((current) =>
+        current.map((member) =>
+          member.id === user.id
+            ? {
+                ...member,
+                fullName: savedProfile.full_name || '',
+                headline: savedProfile.headline || '',
+                bio: savedProfile.bio || '',
+                location: savedProfile.location || '',
+              }
+            : member
+        )
+      );
+
+      setProfileSaveMessage('Profile saved to your account. Your bio will remain after refreshing.');
+    } catch (error) {
+      console.error('Could not save Veylo profile:', error);
+      const reason = error instanceof Error ? error.message : 'Please try again.';
+      setProfileSaveMessage('Could not save profile: ' + reason);
+    } finally {
+      setProfileSaving(false);
     }
-
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === currentMember.id
-          ? {
-              ...member,
-              fullName: updatedProfile.full_name,
-              headline: updatedProfile.headline,
-              bio: updatedProfile.bio,
-              location: updatedProfile.location,
-            }
-          : member
-      )
-    );
-
-    alert('Profile saved.');
   }
 
   async function changePasswordFromProfile() {
@@ -2390,9 +2412,14 @@ export default function Home() {
                     />
                   </FieldLabel>
 
-                  <button className="primary" onClick={saveProfile}>
-                    Save Profile
+                  <button className="primary" type="button" onClick={saveProfile} disabled={profileSaving}>
+                    {profileSaving ? 'Saving your profile...' : 'Save Profile'}
                   </button>
+                  {profileSaveMessage && (
+                    <p className="profileSaveNotice" role="status" aria-live="polite">
+                      {profileSaveMessage}
+                    </p>
+                  )}
 
                   <section
                     style={{
