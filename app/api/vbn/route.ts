@@ -183,7 +183,8 @@ function safeUrl(raw: string): string | null {
 
 function rssImage(item: string): string | undefined {
   const tag = /<(?:media:thumbnail|media:content|enclosure)\b[^>]*>/gi;
-  for (const match of item.matchAll(tag)) {
+  let match: RegExpExecArray | null;
+  while ((match = tag.exec(item)) !== null) {
     const element = match[0];
     if (element.startsWith('<enclosure') && !/type=["']image\//i.test(element)) continue;
     if (element.startsWith('<media:content') && /medium=["']video/i.test(element)) continue;
@@ -213,11 +214,10 @@ function categorise(title: string, source: NewsCategory): NewsCategory {
 }
 
 function parseFeed(xml: string, definition: FeedDefinition): NewsArticle[] {
-  const items = [...xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)];
+  const items = xml.match(/<item(?:\s[^>]*)?>[\s\S]*?<\/item>/gi) || [];
   const articles: NewsArticle[] = [];
 
-  for (const itemMatch of items.slice(0, Math.max(definition.max * 2, 30))) {
-    const item = itemMatch[1];
+  for (const item of items.slice(0, Math.max(definition.max * 2, 30))) {
     const url = safeUrl(xmlValue(item, 'link'));
     let title = readableText(xmlValue(item, 'title'), 240);
     if (!url || !title) continue;
@@ -360,7 +360,8 @@ export async function GET() {
   );
 
   const primary = successes.flatMap(result => result.value);
-  for (const [index, result] of responses.entries()) {
+  for (let index = 0; index < responses.length; index++) {
+    const result = responses[index];
     if (result.status === 'rejected') {
       console.warn('[VBN] RSS feed unavailable: ' + FEEDS[index].name, result.reason);
     }
