@@ -2095,6 +2095,11 @@ export default function Home() {
 
                       <MemberCode code={member.memberCode} />
 
+                      <p className="memberFollowCounts compact">
+                        <span><strong>{getFollowerCount(member.id)}</strong> followers</span>
+                        <span><strong>{getFollowingCount(member.id)}</strong> following</span>
+                      </p>
+
                       <p className="personBio muted">
                         {member.bio || 'No bio added yet.'}
                       </p>
@@ -2112,6 +2117,17 @@ export default function Home() {
                           onClick={() => startDirectChat(member)}
                         >
                           Message
+                        </button>
+                        <button
+                          type="button"
+                          className={followingMemberIds.has(member.id) ? 'secondary followButton isFollowing' : 'secondary followButton'}
+                          disabled={followBusyId === member.id}
+                          aria-pressed={followingMemberIds.has(member.id)}
+                          onClick={() => toggleFollow(member)}
+                        >
+                          {followBusyId === member.id
+                            ? 'Saving...'
+                            : followingMemberIds.has(member.id) ? 'Following ✓' : '+ Follow'}
                         </button>
                       </div>
                     </article>
@@ -2151,12 +2167,31 @@ export default function Home() {
                     {viewedMember.bio || 'No bio added yet.'}
                   </p>
 
-                  <button
-                    className="primary"
-                    onClick={() => startDirectChat(viewedMember)}
-                  >
-                    Message
-                  </button>
+                  <div className="memberFollowCounts">
+                    <span><strong>{getFollowerCount(viewedMember.id)}</strong> followers</span>
+                    <span><strong>{getFollowingCount(viewedMember.id)}</strong> following</span>
+                  </div>
+
+                  <div className="memberProfileActionRow">
+                    <button
+                      className="primary"
+                      type="button"
+                      onClick={() => startDirectChat(viewedMember)}
+                    >
+                      Message
+                    </button>
+                    <button
+                      type="button"
+                      className={followingMemberIds.has(viewedMember.id) ? 'secondary followButton isFollowing' : 'secondary followButton'}
+                      disabled={followBusyId === viewedMember.id}
+                      aria-pressed={followingMemberIds.has(viewedMember.id)}
+                      onClick={() => toggleFollow(viewedMember)}
+                    >
+                      {followBusyId === viewedMember.id
+                        ? 'Saving...'
+                        : followingMemberIds.has(viewedMember.id) ? 'Following ✓' : '+ Follow'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -2604,20 +2639,34 @@ export default function Home() {
                     <MemberCode code={currentMember.memberCode} larger />
 
                     <p className="muted small">Permanent Veylo member ID.</p>
+                    <div className="memberFollowCounts">
+                      <span><strong>{getFollowerCount(currentMember.id)}</strong> followers</span>
+                      <span><strong>{getFollowingCount(currentMember.id)}</strong> following</span>
+                    </div>
                   </div>
                 </div>
 
-                <label className="uploadButton">
-                  Change Profile Picture
+                <label className={avatarUploading ? 'uploadButton isUploading' : 'uploadButton'}>
+                  {avatarUploading ? 'Uploading and saving photo...' : 'Change Profile Picture'}
                   <input
                     hidden
+                    disabled={avatarUploading}
                     type="file"
-                    accept="image/*"
-                    onChange={(event) =>
-                      uploadProfilePicture(event.target.files?.[0])
-                    }
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => {
+                      uploadProfilePicture(event.target.files?.[0]);
+                      event.target.value = '';
+                    }}
                   />
                 </label>
+                <p className="muted small avatarHelperText">
+                  JPG, PNG or WebP, up to 5 MB. Your picture is visible to Veylo members.
+                </p>
+                {avatarSaveMessage && (
+                  <p className="profileSaveNotice" role="status" aria-live="polite">
+                    {avatarSaveMessage}
+                  </p>
+                )}
 
                 <div className="stack">
                   <FieldLabel label="Full name">
