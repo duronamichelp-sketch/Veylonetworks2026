@@ -2447,19 +2447,19 @@ export default function Home() {
                 <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e => setPostFile(e.target.files?.[0] || null)} />
                 {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={() => {setPostFile(null); if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
                 <div className="composerFooter">
-                  <div style={{position:'relative'}}>
-                    <button type="button" className="secondary" aria-label="Add to Network post" aria-expanded={networkToolsOpen} onClick={() => setNetworkToolsOpen(!networkToolsOpen)} style={{width:40,height:40,padding:8,display:'grid',placeItems:'center'}}>
-                      <span aria-hidden="true" style={{display:'grid',gridTemplateColumns:'repeat(4, 3px)',gap:3}}>
+                  <div className="networkToolsAnchor">
+                    <button type="button" className={'secondary networkToolsTrigger' + (networkToolsOpen ? ' isOpen' : '')} aria-label="Add to Network post" aria-expanded={networkToolsOpen} onClick={() => setNetworkToolsOpen(!networkToolsOpen)} style={{width:40,height:40,padding:8,display:'grid',placeItems:'center'}}>
+                      <span className="networkToolsDots" aria-hidden="true" style={{display:'grid',gridTemplateColumns:'repeat(4, 3px)',gap:3}}>
                         {Array.from({length:16},(_,i)=><span key={i} style={{width:3,height:3,borderRadius:'50%',background:'currentColor'}} />)}
                       </span>
                     </button>
-                    {networkToolsOpen && <div style={{position:'absolute',left:0,bottom:'calc(100% + 9px)',zIndex:30,width:190,padding:6,borderRadius:14,background:'#161c25',border:'1px solid rgba(255,255,255,.18)',boxShadow:'0 12px 30px rgba(0,0,0,.4)'}}>
+                    {networkToolsOpen && <div className="networkToolsFan" role="menu" aria-label="Add to post options">
                       {[
                         {label:'Add link',accept:'link'},
                         {label:'Attach photo',accept:'image/*'},
                         {label:'Attach video',accept:'video/*'},
                         {label:'Attach file',accept:'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip'}
-                      ].map(item=><button key={item.accept} type="button" style={{display:'block',width:'100%',textAlign:'left',padding:'10px 12px',border:0,color:'inherit',background:'transparent',cursor:'pointer'}} onClick={()=>{
+                      ].map((item,index)=><button key={item.accept} type="button" className={'networkFanOption networkFanOption' + index} role="menuitem" onClick={()=>{
                         setNetworkToolsOpen(false);
                         if(item.accept==='link'){
                           const value=window.prompt('Paste your website link');
