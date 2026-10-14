@@ -3760,3 +3760,20 @@ a {
 }
 @keyframes vbnWordmarkShimmer { 0%,15% {background-position:100% 0} 75%,100% {background-position:-100% 0} }
 @media(prefers-reduced-motion:reduce) {.vbnMobileBrandText{animation:none;background:none;-webkit-text-fill-color:#e8f4ff;color:#e8f4ff}}
+
+/* Mobile VBN wordmark and compact values line */
+.vbnMobileMotto {display:none}
+@media(max-width:768px) {
+  .vbnMobileBrandText {font-size:clamp(15px,4.1vw,19px);font-weight:800;letter-spacing:-.035em}
+  .vbnNewsroomHeader {display:flex;flex-direction:column;align-items:stretch;gap:7px}
+  .vbnNewsroomBrand {width:100%;justify-content:flex-start}
+  .vbnNewsroomActions {display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0 !important;min-width:0}
+  .vbnNewsroomActions .secondary {flex-shrink:0}
+  .vbnMobileMotto {display:block;flex:1;text-align:center;min-width:0;color:#a3b7cd;font-size:clamp(8px,2.25vw,10px);font-weight:600;letter-spacing:-.02em;line-height:1.35;white-space:nowrap}
+  .vbnMobileMotto b {font-weight:700;color:#44b5ff;padding:0 1px}
+}
+@media(max-width:360px) {
+  .vbnMobileBrandText {font-size:14px}
+  .vbnMobileMotto {font-size:8px;white-space:normal}
+  .vbnNewsroomActions .secondary {padding:7px !important;font-size:10px !important}
+}
