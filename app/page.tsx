@@ -146,6 +146,17 @@ export default function Home() {
 
   const [page, setPage] = useState<Page>('network');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileNavPosition, setMobileNavPosition] = useState<'right' | 'left' | 'bottom'>('right');
+  const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
+  useEffect(() => {
+    const stored = localStorage.getItem('veylo_mobile_nav_position');
+    if (stored === 'right' || stored === 'left' || stored === 'bottom') setMobileNavPosition(stored);
+  }, []);
+  function changeMobileNavPosition(position: 'right' | 'left' | 'bottom') {
+    setMobileNavPosition(position);
+    setMobileNavCollapsed(false);
+    localStorage.setItem('veylo_mobile_nav_position', position);
+  }
 
   const [members, setMembers] = useState<Member[]>([]);
   const [follows, setFollows] = useState<FollowRelationship[]>([]);
@@ -2288,7 +2299,7 @@ export default function Home() {
   ===================================================== */
 
   return (
-    <main className="app">
+    <main className={'app veyloNavPosition-' + mobileNavPosition + (mobileNavCollapsed ? ' veyloNavCollapsed' : '')}>
       <aside className="sidebar">
         <div>
           <img
@@ -3174,6 +3185,19 @@ export default function Home() {
           {page === 'profile' && (
             <div className="profileGrid">
               <section className="glass profileEditor">
+                <div className="veyloNavSettings">
+                  <div className="veyloNavSettingsHeading"><span aria-hidden="true">⚙</span> Navigation Settings</div>
+                  <p className="muted small">Choose where the navigation bar appears on your phone.</p>
+                  <div className="veyloNavSettingChoices" role="group" aria-label="Mobile navigation position">
+                    {(['right','left','bottom'] as const).map(position => (
+                      <button type="button" key={position} aria-pressed={mobileNavPosition === position}
+                        className={'veyloNavChoice' + (mobileNavPosition === position ? ' selected' : '')}
+                        onClick={() => changeMobileNavPosition(position)}>
+                        {position === 'right' ? 'Right side' : position === 'left' ? 'Left side' : 'Bottom'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="profileHero">
                   <Avatar member={currentMember} large />
 
@@ -3553,6 +3577,14 @@ export default function Home() {
       </section>
 
       <nav className="mobileBottomNav" aria-label="Veylo mobile navigation">
+        {mobileNavPosition !== 'bottom' && <button type="button"
+          className="veyloNavCollapse"
+          aria-label={mobileNavCollapsed ? 'Show navigation' : 'Hide navigation'}
+          aria-expanded={!mobileNavCollapsed}
+          onClick={() => setMobileNavCollapsed(current => !current)}>
+          <span aria-hidden="true">{mobileNavCollapsed ? (mobileNavPosition === 'right' ? '‹' : '›') : (mobileNavPosition === 'right' ? '›' : '‹')}</span>
+        </button>}
+        <div className="veyloNavItems">
         {MOBILE_TABS.map((tab) => {
           const selected = page === tab.id || (page === 'memberProfile' && tab.id === 'people');
           return (
@@ -3586,6 +3618,7 @@ export default function Home() {
             </button>
           );
         })}
+        </div>
       </nav>
     </main>
   );
