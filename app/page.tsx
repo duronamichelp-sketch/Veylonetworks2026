@@ -78,6 +78,10 @@ type ChatMessage = {
   content: string;
   createdAt: string;
   sending?: boolean;
+  attachmentPath?: string;
+  attachmentName?: string;
+  attachmentType?: string;
+  attachmentSize?: number;
 };
 
 type Conversation = {
@@ -188,6 +192,8 @@ export default function Home() {
   const [selectedConversationId, setSelectedConversationId] = useState('');
 
   const [messageText, setMessageText] = useState('');
+  const [attachmentBusy, setAttachmentBusy] = useState(false);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [groupName, setGroupName] = useState('');
@@ -304,6 +310,10 @@ export default function Home() {
           id: row.id,
           senderId: row.sender_id,
           content: row.content,
+          attachmentPath: row.attachment_path || undefined,
+          attachmentName: row.attachment_name || undefined,
+          attachmentType: row.attachment_type || undefined,
+          attachmentSize: row.attachment_size || undefined,
           createdAt: row.created_at,
         }));
 
@@ -590,6 +600,10 @@ export default function Home() {
           sender_id: string;
           content: string;
           created_at: string;
+          attachment_path?: string;
+          attachment_name?: string;
+          attachment_type?: string;
+          attachment_size?: number;
         };
         if (!row.id || !row.conversation_id) return;
 
@@ -605,6 +619,10 @@ export default function Home() {
             id: row.id,
             senderId: row.sender_id,
             content: row.content,
+            attachmentPath: row.attachment_path || undefined,
+            attachmentName: row.attachment_name || undefined,
+            attachmentType: row.attachment_type || undefined,
+            attachmentSize: row.attachment_size || undefined,
             createdAt: row.created_at,
           };
 
@@ -1734,6 +1752,49 @@ export default function Home() {
     }
   }
 
+  async function sendAttachment(file: File) {
+    if (!currentMember || !selectedConversation || attachmentBusy) return;
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Files must be 15 MB or smaller.');
+      return;
+    }
+    setAttachmentBusy(true);
+    const conversationId = selectedConversation.id;
+    const memberId = currentMember.id;
+    const messageId = crypto.randomUUID();
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-130) || 'attachment';
+    const path = conversationId + '/' + memberId + '/' + messageId + '/' + safeName;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || user.id !== memberId) throw new Error('Please sign in again.');
+      const { error: uploadError } = await supabase.storage.from('message-attachments')
+        .upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+      if (uploadError) throw uploadError;
+      const { error: messageError } = await supabase.from('messages').insert({
+        id: messageId,
+        conversation_id: conversationId,
+        sender_id: memberId,
+        content: '',
+        attachment_path: path,
+        attachment_name: file.name,
+        attachment_type: file.type || 'application/octet-stream',
+        attachment_size: file.size,
+      });
+      if (messageError) {
+        await supabase.storage.from('message-attachments').remove([path]);
+        throw messageError;
+      }
+      playSentMessagePop();
+      await refreshInbox(memberId);
+    } catch (error) {
+      console.error('Could not send attachment:', error);
+      alert('File was not sent: ' + (error instanceof Error ? error.message : 'Please try again.'));
+    } finally {
+      if (attachmentInputRef.current) attachmentInputRef.current.value = '';
+      setAttachmentBusy(false);
+    }
+  }
+
   /* =====================================================
      OFFICES
   ===================================================== */
@@ -2769,7 +2830,8 @@ export default function Home() {
                                   </small>
                                 )}
 
-                              <span>{message.content}</span>
+                              {message.content && <span>{message.content}</span>}
+                              {message.attachmentPath && <MessageAttachment message={message} />}
                               {message.sending && (
                                 <span className="veyloSendingState" aria-label="Sending message">
                                   Sending…
@@ -2795,6 +2857,8 @@ export default function Home() {
                     </div>
 
                     <div className="messageComposer">
+                      <input ref={attachmentInputRef} type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{ display: "none" }} onChange={(event) => { const file = event.target.files?.[0]; if (file) void sendAttachment(file); }} />
+                      <button type="button" className="secondary" title="Attach photo or file" aria-label="Attach photo or file" disabled={attachmentBusy} onClick={() => attachmentInputRef.current?.click()}>{attachmentBusy ? "Uploading…" : "📎"}</button>
                       <input
                         className="field"
                         placeholder="Write a message..."
@@ -3663,4 +3727,32 @@ function pageTitle(page: Page) {
   };
 
   return titles[page];
+}
+
+function MessageAttachment({ message }: { message: ChatMessage }) {
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    if (!message.attachmentPath) return;
+    let active = true;
+    setUrl('');
+    setError(false);
+    void supabase.storage.from('message-attachments')
+      .createSignedUrl(message.attachmentPath, 3600)
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error || !data?.signedUrl) setError(true);
+        else setUrl(data.signedUrl);
+      });
+    return () => { active = false; };
+  }, [message.attachmentPath]);
+  if (error) return <span className="small">Attachment unavailable</span>;
+  if (!url) return <span className="small">Loading attachment…</span>;
+  const image = (message.attachmentType || '').startsWith('image/');
+  return <a href={url} target="_blank" rel="noopener noreferrer" download={message.attachmentName || 'attachment'}
+    style={{ display: 'block', maxWidth: '100%', overflowWrap: 'anywhere' }}>
+    {image ? <img src={url} alt={message.attachmentName || 'Photo'} loading="lazy"
+      style={{ maxWidth: 'min(260px, 100%)', maxHeight: 280, objectFit: 'contain', borderRadius: 12, display: 'block' }} />
+      : <span>📄 {message.attachmentName || 'Download file'}</span>}
+  </a>;
 }
