@@ -3702,3 +3702,25 @@ a {
 .veyloProjectsActionRow .secondary { min-height:32px; padding:6px 12px; font-size:12px; }
 @keyframes veyloProjectsIn {from {opacity:0;transform:translateY(-9px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.veyloSettingsGear,.veyloSettingsReveal,.veyloProjectsChevron{transition:none}.veyloProjectsExpanded{animation:none}}
+
+/* Veylo Business News: polished founder-first newsroom */
+.vbnNewsroom { isolation:isolate; }
+.vbnNewsroomHeader { position:relative; overflow:hidden; border-radius:20px; }
+.vbnNewsroomHeader::after { content:''; position:absolute; width:180px;height:180px;right:-70px;top:-90px; background:radial-gradient(circle,rgba(45,156,253,.16),transparent 70%); pointer-events:none; }
+.vbnNewsroomBrand h1 { letter-spacing:-.045em; line-height:1.13; }
+.vbnHeadlineStrip { border-radius:12px; }
+.vbnFilter { transition:color .22s ease,background .22s ease,border-color .22s ease,transform .22s ease; }
+.vbnFilter:active { transform:scale(.95); }
+.vbnFilter.active { box-shadow:inset 0 0 0 1px rgba(90,177,255,.12),0 4px 16px rgba(14,111,231,.11); }
+.vbnAnimatedEntrance { animation:vbnSlideIn .58s cubic-bezier(.19,1,.22,1) both; }
+.vbnAnimatedEntrance .vbnSpotlight { animation:vbnCardIn .6s ease both; }
+.vbnAnimatedEntrance .vbnSpotlight:nth-child(1) { animation-delay:.08s; }
+.vbnAnimatedEntrance .vbnSpotlight:nth-child(2) { animation-delay:.16s; }
+.vbnLeadStory,.vbnSpotlight,.vbnStoryRow,.vbnMoreCard { transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease; }
+@media(hover:hover) {
+  .vbnLeadStory:hover,.vbnSpotlight:hover,.vbnMoreCard:hover { transform:translateY(-3px); box-shadow:0 16px 38px rgba(0,0,0,.2); }
+  .vbnStoryRow:hover { transform:translateX(4px); }
+}
+@keyframes vbnSlideIn { from {opacity:0;transform:translateY(17px);filter:blur(3px)} to {opacity:1;transform:translateY(0);filter:blur(0)} }
+@keyframes vbnCardIn { from {opacity:0;transform:translateY(12px)} to {opacity:1;transform:translateY(0)} }
+@media(prefers-reduced-motion:reduce) { .vbnAnimatedEntrance,.vbnAnimatedEntrance .vbnSpotlight {animation:none!important} .vbnLeadStory,.vbnSpotlight,.vbnStoryRow,.vbnMoreCard,.vbnFilter {transition:none!important} }
