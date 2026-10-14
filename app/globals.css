@@ -3729,3 +3729,15 @@ a {
 @media (min-width: 769px) {
   .veyloProfileSettingsControl { display: none !important; }
 }
+
+/* Streamlined VBN masthead on mobile only */
+@media (max-width: 768px) {
+  .vbnNewsroomHeader { padding: 11px 12px !important; margin-bottom: 12px; border-radius: 12px; }
+  .vbnNewsroomBrand { display:flex; align-items:center; gap:10px; }
+  .vbnMastheadMark { font-size:32px !important; line-height:1 !important; letter-spacing:-.07em; }
+  .vbnNewsroomBrand > div:last-child { display:none !important; }
+  .vbnNewsroomActions { margin:0 0 0 auto !important; gap:7px; }
+  .vbnNewsroomActions .vbnLiveStatus { display:none !important; }
+  .vbnNewsroomActions .secondary { padding:7px 10px; min-height:33px; font-size:11px; border-radius:9px; }
+  .vbnHeadlineStrip { margin-top:4px; }
+}
