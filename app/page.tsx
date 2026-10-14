@@ -3393,7 +3393,7 @@ export default function Home() {
               <section className="glass projectsPanel veyloCollapsibleProjects">
                 <button type="button" className="veyloProjectsToggle" aria-expanded={profileProjectsOpen}
                   onClick={() => setProfileProjectsOpen(open => !open)}>
-                  <span><strong>Past Projects</strong><small>${currentMember.projects.length} projects</small></span>
+                  <span><strong>Past Projects</strong><small>{currentMember.projects.length} projects</small></span>
                   <span className={'veyloProjectsChevron' + (profileProjectsOpen ? ' expanded' : '')} aria-hidden="true">⌄</span>
                 </button>
                 {profileProjectsOpen && <div className="veyloProjectsExpanded">
@@ -3542,6 +3542,7 @@ export default function Home() {
                     </article>
                   ))}
                 </div>
+                </div>}
               </section>
             </div>
           )}
@@ -3559,7 +3560,6 @@ export default function Home() {
                   Veylo 1.0 establishes the core professional network, VBN and
                   internal business offices.
                 </p>
-                </div>}
               </section>
 
               <div className="comingGrid">
