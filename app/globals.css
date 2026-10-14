@@ -3680,3 +3680,25 @@ a {
   .veyloNavCollapsed.veyloNavPosition-right .content {padding-right:36px;}
   .veyloNavCollapsed.veyloNavPosition-left .content {padding-left:36px;}
 }
+
+/* Clean expandable member profile */
+.veyloProfileSettingsControl { margin:12px 0 18px; }
+.veyloSettingsButton,.veyloProjectsToggle { width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 15px; border:1px solid rgba(105,164,228,.24); border-radius:13px; background:rgba(18,32,49,.8); color:#ebf4ff; cursor:pointer; font-weight:650; font-size:13px; text-align:left; }
+.veyloSettingsButton { justify-content:flex-start; }
+.veyloSettingsButton > span:last-child { margin-left:auto; }
+.veyloSettingsGear { display:inline-flex; font-size:21px; color:#77baff; transition:transform .55s cubic-bezier(.2,1.2,.25,1); }
+.veyloSettingsButton.open .veyloSettingsGear { transform:rotate(150deg); }
+.veyloSettingsReveal { display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .35s ease,opacity .3s ease; }
+.veyloSettingsReveal.expanded { grid-template-rows:1fr; opacity:1; }
+.veyloSettingsRevealInner { min-height:0; overflow:hidden; }
+.veyloSettingsReveal .veyloNavSettings { margin:10px 0 0; }
+.veyloCollapsibleProjects { padding:12px !important; }
+.veyloProjectsToggle strong { display:block; font-size:15px; }
+.veyloProjectsToggle small { display:block; margin-top:4px; font-size:11px; color:#8ba2bb; font-weight:400; }
+.veyloProjectsChevron { display:block; font-size:24px; color:#80bbfa; transition:transform .3s ease; }
+.veyloProjectsChevron.expanded { transform:rotate(180deg); }
+.veyloProjectsExpanded { padding:10px 4px 5px; animation:veyloProjectsIn .3s ease both; }
+.veyloProjectsActionRow { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.veyloProjectsActionRow .secondary { min-height:32px; padding:6px 12px; font-size:12px; }
+@keyframes veyloProjectsIn {from {opacity:0;transform:translateY(-9px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.veyloSettingsGear,.veyloSettingsReveal,.veyloProjectsChevron{transition:none}.veyloProjectsExpanded{animation:none}}
