@@ -3593,3 +3593,9 @@ a {
 
 /* Office mobile layout containment */
 .officeSection,.officeSection .stack,.officeSection .field,.officeSection .primary{min-width:0;max-width:100%;box-sizing:border-box}.officeSection{overflow:hidden}.officeSection .stack{width:100%}.officeSection .veyloMeetingFields{grid-template-columns:minmax(0,1fr)}.officeSection .veyloMeetingField{width:100%;min-width:0}.officeSection .veyloMeetingField input{width:100%;min-width:0;max-width:100%;display:block;box-sizing:border-box;overflow:hidden}
+
+/* Ensure native iOS date/time controls are centered inside their card */
+.officeSection .veyloMeetingFields{width:100%;min-width:0;box-sizing:border-box;padding:0;margin:0;overflow:hidden}
+.officeSection .veyloMeetingField{width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;padding:0;overflow:hidden}
+.officeSection .veyloMeetingField input.field{display:block;appearance:none;-webkit-appearance:none;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;padding:12px 14px!important;overflow:hidden}
+.officeSection .veyloMeetingField input.field::-webkit-date-and-time-value{min-width:0;text-align:left}
