@@ -3599,3 +3599,20 @@ a {
 .officeSection .veyloMeetingField{width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;padding:0;overflow:hidden}
 .officeSection .veyloMeetingField input.field{display:block;appearance:none;-webkit-appearance:none;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;padding:12px 14px!important;overflow:hidden}
 .officeSection .veyloMeetingField input.field::-webkit-date-and-time-value{min-width:0;text-align:left}
+
+/* Network mobile attachment launcher: downward semicircle fan */
+.networkToolsAnchor { position:relative; flex-shrink:0; }
+.networkToolsTrigger { position:relative; z-index:3; transition:background .25s,border-color .25s; }
+.networkToolsDots { transition:transform .5s cubic-bezier(.2,.9,.2,1); }
+.networkToolsTrigger.isOpen .networkToolsDots { transform:rotate(180deg); }
+.networkToolsTrigger.isOpen { border-color:rgba(36,164,255,.65); background:rgba(24,117,190,.22); }
+.networkToolsFan { position:absolute; top:calc(100% + 9px); left:0; width:232px; height:160px; z-index:100; pointer-events:none; }
+.networkFanOption { position:absolute; left:0; top:0; width:104px; min-height:34px; border-radius:12px; border:1px solid rgba(109,174,234,.36); background:#172331; color:#f4f8ff; box-shadow:0 6px 18px rgba(0,0,0,.42); font-size:12px; font-weight:600; white-space:nowrap; cursor:pointer; pointer-events:auto; opacity:0; animation:networkFanOpen .42s cubic-bezier(.2,1.2,.25,1) forwards; }
+.networkFanOption0 { --fan-x:8px; --fan-y:7px; animation-delay:0ms; }
+.networkFanOption1 { --fan-x:112px; --fan-y:17px; animation-delay:45ms; }
+.networkFanOption2 { --fan-x:94px; --fan-y:72px; animation-delay:90ms; }
+.networkFanOption3 { --fan-x:0px; --fan-y:87px; animation-delay:135ms; }
+@keyframes networkFanOpen { from { opacity:0; transform:translate(0,0) scale(.45) rotate(-24deg); } to { opacity:1; transform:translate(var(--fan-x),var(--fan-y)) scale(1) rotate(0); } }
+.networkFanOption:active { filter:brightness(1.3); }
+@media(max-width:420px){ .networkToolsFan{width:220px;} .networkFanOption{width:98px;font-size:11px;} .networkFanOption1{--fan-x:105px;} .networkFanOption2{--fan-x:89px;} }
+@media(prefers-reduced-motion:reduce){.networkToolsDots{transition:none}.networkFanOption{animation-duration:.01ms;animation-delay:0ms}}
