@@ -2986,7 +2986,7 @@ export default function Home() {
                           <div className="veyloMeetingFields">
                             <label className="veyloMeetingField"><span>Date</span><input aria-label="Meeting date" className="field" type="date" value={meetingDraft.date} onChange={(event) => setMeetingDraft((current) => ({ ...current, date: event.target.value }))} /></label>
                             <label className="veyloMeetingField"><span>Time</span><input aria-label="Meeting time" className="field" type="time" value={meetingDraft.time} onChange={(event) => setMeetingDraft((current) => ({ ...current, time: event.target.value }))} /></label>
-                          </div> </div>
+                          </div>
 
                           <button className="primary" onClick={scheduleMeeting}>
                             Schedule Meeting
