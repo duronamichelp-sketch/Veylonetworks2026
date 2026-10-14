@@ -31,7 +31,7 @@ type Props = {
 
 type Topic = VbnCategory | 'All';
 
-const TOPICS: Topic[] = ['All', 'Business', 'Startups', 'Markets', 'Economy', 'World', 'Technology'];
+const TOPICS: Topic[] = ['Startups', 'Technology', 'Business', 'Markets', 'Economy', 'World', 'All'];
 
 function articleDate(value: string): string {
   const date = new Date(value);
@@ -213,14 +213,15 @@ export default function VbnNewsroom({
   updatedAt,
   onRefresh,
 }: Props) {
-  const [activeTopic, setActiveTopic] = useState<Topic>('All');
+  const [activeTopic, setActiveTopic] = useState<Topic>('Startups');
   const [search, setSearch] = useState('');
   const [moreVisible, setMoreVisible] = useState(false);
+  const [topicSwitch, setTopicSwitch] = useState(0);
   const term = search.trim().toLocaleLowerCase();
 
   const filtered = useMemo(
     () => articles.filter(article => {
-      if (activeTopic !== 'All' && article.category !== activeTopic) return false;
+      if (activeTopic !== 'All' && !(activeTopic === 'Startups' ? article.category === 'Startups' || article.category === 'Technology' : article.category === activeTopic)) return false;
       if (term && ![article.title, article.source, article.summary, article.category || '']
         .some(value => value.toLowerCase().includes(term))) {
         return false;
@@ -230,9 +231,7 @@ export default function VbnNewsroom({
     [articles, activeTopic, term]
   );
 
-  const lead = filtered.find(article =>
-    article.category === 'Business' || article.category === 'Startups' || article.category === 'Markets'
-  ) || filtered[0];
+  const lead = filtered.find(article => activeTopic === 'Startups' ? article.category === 'Startups' : article.category === activeTopic) || filtered[0];
 
   const secondary = filtered
     .filter(article => article.id !== lead?.id)
@@ -265,8 +264,8 @@ export default function VbnNewsroom({
           <div className="vbnMastheadMark">VBN<span className="vbnMarkPeriod">.</span></div>
           <div>
             <span className="vbnKicker">VEYLO NETWORKS / NEWSROOM</span>
-            <h1>Business. Markets. The World.</h1>
-            <p>Your briefing on global business, ambitious startups and the stories shaping our world.</p>
+            <h1>{activeTopic === 'Startups' ? 'The founder’s briefing.' : 'Business. Markets. The World.'}</h1>
+            <p>{activeTopic === 'Startups' ? 'Ideas, founders, funding rounds and the next generation of businesses.' : 'Your briefing on global business, technology and the stories shaping our world.'}</p>
           </div>
         </div>
         <div className="vbnNewsroomActions">
@@ -282,7 +281,7 @@ export default function VbnNewsroom({
       {articles.length > 0 && (
         <>
           <div className="vbnHeadlineStrip" aria-label="Top headlines">
-            <span className="vbnStripTag">TOP HEADLINES</span>
+            <span className="vbnStripTag">BREAKING / VBN</span>
             <div className="vbnStripScroll">
               {articles.slice(0, 8).map(article => (
                 <StoryLink article={article} className="vbnStripHeadline" key={article.id}>
@@ -296,7 +295,7 @@ export default function VbnNewsroom({
             <div className="vbnFilters" role="group" aria-label="News categories">
               {TOPICS.map(topic => {
                 const count = topic === 'All' ? articles.length
-                  : articles.filter(article => article.category === topic).length;
+                  : articles.filter(article => topic === 'Startups' ? article.category === 'Startups' || article.category === 'Technology' : article.category === topic).length;
                 return (
                   <button
                     key={topic}
@@ -306,6 +305,7 @@ export default function VbnNewsroom({
                     onClick={() => {
                       setActiveTopic(topic);
                       setMoreVisible(false);
+                      setTopicSwitch(value => value + 1);
                     }}
                   >
                     {topic}
@@ -361,14 +361,14 @@ export default function VbnNewsroom({
           <button
             type="button"
             className="secondary"
-            onClick={() => { setActiveTopic('All'); setSearch(''); }}
+            onClick={() => { setActiveTopic('All'); setSearch(''); setTopicSwitch(value => value + 1); }}
           >
             Show all news
           </button>
         </div>
       ) : (
         <>
-          <div className="vbnTopNewsLayout">
+          <div className="vbnTopNewsLayout vbnAnimatedEntrance" key={activeTopic + "-" + topicSwitch}>
             <div className="vbnTopMain">
               <LeadStory article={lead} />
               {secondary.length > 0 && (
