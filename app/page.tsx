@@ -53,6 +53,7 @@ type Member = {
   id: string;
   memberNumber: number;
   memberCode: string;
+  isVerified?: boolean;
   email: string;
   fullName: string;
   headline: string;
@@ -455,6 +456,7 @@ export default function Home() {
             id: profile.id,
             memberNumber: profile.member_number,
             memberCode: profile.member_code,
+            isVerified: profile.is_verified === true,
             email: profile.email || '',
             fullName: profile.full_name || '',
             headline: profile.headline || '',
@@ -2524,7 +2526,7 @@ export default function Home() {
                 <Avatar member={viewedMember} large />
 
                 <div>
-                  <h2>{viewedMember.fullName}</h2>
+                  <h2 className="veyloVerifiedName">{viewedMember.fullName}{viewedMember.isVerified && <span className="veyloVerifiedBadge" title="Veylo Verified" aria-label="Veylo Verified">✓</span>}</h2>
 
                   <p className="profileHeadline">
                     {viewedMember.headline || 'Veylo Member'}
@@ -2981,33 +2983,10 @@ export default function Home() {
                             }
                           />
 
-                          <div className="split">
-                            <input
-                              className="field"
-                              type="date"
-                              value={meetingDraft.date}
-                              onChange={(event) =>
-                                setMeetingDraft((current) => ({
-                                  ...current,
-
-                                  date: event.target.value,
-                                }))
-                              }
-                            />
-
-                            <input
-                              className="field"
-                              type="time"
-                              value={meetingDraft.time}
-                              onChange={(event) =>
-                                setMeetingDraft((current) => ({
-                                  ...current,
-
-                                  time: event.target.value,
-                                }))
-                              }
-                            />
-                          </div>
+                          <div className="veyloMeetingFields">
+                            <label className="veyloMeetingField"><span>Date</span><input aria-label="Meeting date" className="field" type="date" value={meetingDraft.date} onChange={(event) => setMeetingDraft((current) => ({ ...current, date: event.target.value }))} /></label>
+                            <label className="veyloMeetingField"><span>Time</span><input aria-label="Meeting time" className="field" type="time" value={meetingDraft.time} onChange={(event) => setMeetingDraft((current) => ({ ...current, time: event.target.value }))} /></label>
+                          </div> </div>
 
                           <button className="primary" onClick={scheduleMeeting}>
                             Schedule Meeting
@@ -3078,7 +3057,7 @@ export default function Home() {
                   <div>
                     <span className="eyebrow">PERSONAL PROFILE</span>
 
-                    <h2>{currentMember.fullName}</h2>
+                    <h2 className="veyloVerifiedName">{currentMember.fullName}{currentMember.isVerified && <span className="veyloVerifiedBadge" title="Veylo Verified" aria-label="Veylo Verified">✓</span>}</h2>
 
                     <MemberCode code={currentMember.memberCode} larger />
 
