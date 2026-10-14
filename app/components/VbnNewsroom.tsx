@@ -274,6 +274,7 @@ export default function VbnNewsroom({
           <button type="button" className="secondary" onClick={onRefresh} disabled={loading}>
             {loading ? 'Updating…' : '↻ Refresh news'}
           </button>
+          <span className="vbnMobileMotto">Networking <b>·</b> News <b>·</b> Progression <b>·</b> Vision</span>
         </div>
       </header>
 
