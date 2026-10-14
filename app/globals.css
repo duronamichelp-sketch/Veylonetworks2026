@@ -3741,3 +3741,22 @@ a {
   .vbnNewsroomActions .secondary { padding:7px 10px; min-height:33px; font-size:11px; border-radius:9px; }
   .vbnHeadlineStrip { margin-top:4px; }
 }
+
+/* Animated VBN mobile wordmark */
+.vbnMobileBrandText { display:none; }
+@media(max-width:768px) {
+  .vbnMobileBrandText {
+    display:inline-block; flex:0 1 auto; min-width:0;
+    font-size:clamp(12px,3.3vw,16px); font-weight:750;
+    letter-spacing:-.025em; white-space:nowrap;
+    background:linear-gradient(105deg,#e8f4ff 0%,#e8f4ff 35%,#69bbff 49%,#ffffff 54%,#e8f4ff 68%,#e8f4ff 100%);
+    background-size:230% 100%; background-position:100% 0;
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:vbnWordmarkShimmer 5s linear infinite;
+  }
+  .vbnNewsroomBrand { gap:9px; min-width:0; }
+  .vbnNewsroomActions { flex-shrink:0; }
+}
+@keyframes vbnWordmarkShimmer { 0%,15% {background-position:100% 0} 75%,100% {background-position:-100% 0} }
+@media(prefers-reduced-motion:reduce) {.vbnMobileBrandText{animation:none;background:none;-webkit-text-fill-color:#e8f4ff;color:#e8f4ff}}
