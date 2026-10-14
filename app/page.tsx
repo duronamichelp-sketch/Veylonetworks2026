@@ -192,6 +192,15 @@ export default function Home() {
   const [postFile, setPostFile] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
   const [networkToolsOpen, setNetworkToolsOpen] = useState(false);
+  const networkToolsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!networkToolsOpen) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!networkToolsRef.current?.contains(event.target as Node)) setNetworkToolsOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [networkToolsOpen]);
   const postFileInput = useRef<HTMLInputElement>(null);
 
   /* MESSAGES */
@@ -2447,7 +2456,7 @@ export default function Home() {
                 <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e => setPostFile(e.target.files?.[0] || null)} />
                 {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={() => {setPostFile(null); if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
                 <div className="composerFooter">
-                  <div className="networkToolsAnchor">
+                  <div className="networkToolsAnchor" ref={networkToolsRef}>
                     <button type="button" className={'secondary networkToolsTrigger' + (networkToolsOpen ? ' isOpen' : '')} aria-label="Add to Network post" aria-expanded={networkToolsOpen} onClick={() => setNetworkToolsOpen(!networkToolsOpen)} style={{width:40,height:40,padding:8,display:'grid',placeItems:'center'}}>
                       <span className="networkToolsDots" aria-hidden="true" style={{display:'grid',gridTemplateColumns:'repeat(4, 3px)',gap:3}}>
                         {Array.from({length:16},(_,i)=><span key={i} style={{width:3,height:3,borderRadius:'50%',background:'currentColor'}} />)}
@@ -2455,10 +2464,10 @@ export default function Home() {
                     </button>
                     {networkToolsOpen && <div className="networkToolsFan" role="menu" aria-label="Add to post options">
                       {[
-                        {label:'Add link',accept:'link'},
-                        {label:'Attach photo',accept:'image/*'},
-                        {label:'Attach video',accept:'video/*'},
-                        {label:'Attach file',accept:'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip'}
+                        {label:'Files',accept:'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip',symbol:'file'},
+                        {label:'Photos',accept:'image/*',symbol:'photo'},
+                        {label:'Links',accept:'link',symbol:'link'},
+                        {label:'Videos',accept:'video/*',symbol:'video'}
                       ].map((item,index)=><button key={item.accept} type="button" className={'networkFanOption networkFanOption' + index} role="menuitem" onClick={()=>{
                         setNetworkToolsOpen(false);
                         if(item.accept==='link'){
@@ -2473,7 +2482,7 @@ export default function Home() {
                           postFileInput.current.accept=item.accept;
                           postFileInput.current.click();
                         }
-                      }}>{item.label}</button>)}
+                      }}><span className="networkFanIcon" aria-hidden="true">{item.symbol === 'file' ? '▤' : item.symbol === 'photo' ? '▧' : item.symbol === 'link' ? '↗' : '▷'}</span>{item.label}</button>)}
                     </div>}
                   </div>
 
