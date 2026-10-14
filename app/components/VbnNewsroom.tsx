@@ -262,6 +262,7 @@ export default function VbnNewsroom({
       <header className="vbnNewsroomHeader">
         <div className="vbnNewsroomBrand">
           <div className="vbnMastheadMark">VBN<span className="vbnMarkPeriod">.</span></div>
+          <span className="vbnMobileBrandText">Veylo Business News</span>
           <div>
             <span className="vbnKicker">VEYLO NETWORKS / NEWSROOM</span>
             <h1>{activeTopic === 'Startups' ? 'The founder’s briefing.' : 'Business. Markets. The World.'}</h1>
