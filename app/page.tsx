@@ -148,6 +148,9 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileNavPosition, setMobileNavPosition] = useState<'right' | 'left' | 'bottom'>('right');
   const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
+  const [profileSettingsOpen, setProfileSettingsOpen] = useState(false);
+  const [profileProjectsOpen, setProfileProjectsOpen] = useState(false);
+  const [profileAddProjectOpen, setProfileAddProjectOpen] = useState(false);
   useEffect(() => {
     const stored = localStorage.getItem('veylo_mobile_nav_position');
     if (stored === 'right' || stored === 'left' || stored === 'bottom') setMobileNavPosition(stored);
@@ -3185,19 +3188,6 @@ export default function Home() {
           {page === 'profile' && (
             <div className="profileGrid">
               <section className="glass profileEditor">
-                <div className="veyloNavSettings">
-                  <div className="veyloNavSettingsHeading"><span aria-hidden="true">⚙</span> Navigation Settings</div>
-                  <p className="muted small">Choose where the navigation bar appears on your phone.</p>
-                  <div className="veyloNavSettingChoices" role="group" aria-label="Mobile navigation position">
-                    {(['right','left','bottom'] as const).map(position => (
-                      <button type="button" key={position} aria-pressed={mobileNavPosition === position}
-                        className={'veyloNavChoice' + (mobileNavPosition === position ? ' selected' : '')}
-                        onClick={() => changeMobileNavPosition(position)}>
-                        {position === 'right' ? 'Right side' : position === 'left' ? 'Left side' : 'Bottom'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 <div className="profileHero">
                   <Avatar member={currentMember} large />
 
@@ -3216,6 +3206,31 @@ export default function Home() {
                   </div>
                 </div>
 
+                <div className="veyloProfileSettingsControl">
+                  <button type="button" className={'veyloSettingsButton' + (profileSettingsOpen ? ' open' : '')}
+                    aria-expanded={profileSettingsOpen} aria-controls="veylo-profile-settings"
+                    onClick={() => setProfileSettingsOpen(open => !open)}>
+                    <span className="veyloSettingsGear" aria-hidden="true">⚙</span> Settings
+                    <span aria-hidden="true">{profileSettingsOpen ? '⌃' : '⌄'}</span>
+                  </button>
+                  <div id="veylo-profile-settings" className={'veyloSettingsReveal' + (profileSettingsOpen ? ' expanded' : '')}>
+                    <div className="veyloSettingsRevealInner">
+                <div className="veyloNavSettings">
+                  <div className="veyloNavSettingsHeading"><span aria-hidden="true">⚙</span> Navigation Settings</div>
+                  <p className="muted small">Choose where the navigation bar appears on your phone.</p>
+                  <div className="veyloNavSettingChoices" role="group" aria-label="Mobile navigation position">
+                    {(['right','left','bottom'] as const).map(position => (
+                      <button type="button" key={position} aria-pressed={mobileNavPosition === position}
+                        className={'veyloNavChoice' + (mobileNavPosition === position ? ' selected' : '')}
+                        onClick={() => changeMobileNavPosition(position)}>
+                        {position === 'right' ? 'Right side' : position === 'left' ? 'Left side' : 'Bottom'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                    </div>
+                  </div>
+                </div>
                 <label className={avatarUploading ? 'uploadButton isUploading' : 'uploadButton'}>
                   {avatarUploading ? 'Uploading and saving photo...' : 'Change Profile Picture'}
                   <input
@@ -3375,15 +3390,20 @@ export default function Home() {
                 </div>
               </section>
 
-              <section className="glass projectsPanel">
-                <span className="eyebrow">PROFESSIONAL HISTORY</span>
-
-                <h2>Past Projects</h2>
-
-                <p className="muted">
-                  Show the businesses, products and projects you have worked on.
-                </p>
-
+              <section className="glass projectsPanel veyloCollapsibleProjects">
+                <button type="button" className="veyloProjectsToggle" aria-expanded={profileProjectsOpen}
+                  onClick={() => setProfileProjectsOpen(open => !open)}>
+                  <span><strong>Past Projects</strong><small>${currentMember.projects.length} projects</small></span>
+                  <span className={'veyloProjectsChevron' + (profileProjectsOpen ? ' expanded' : '')} aria-hidden="true">⌄</span>
+                </button>
+                {profileProjectsOpen && <div className="veyloProjectsExpanded">
+                  <div className="veyloProjectsActionRow">
+                    <span className="muted small">Your professional history</span>
+                    <button type="button" className="secondary" onClick={() => setProfileAddProjectOpen(open => !open)}>
+                      {profileAddProjectOpen ? 'Cancel' : '+ Add'}
+                    </button>
+                  </div>
+                  {profileAddProjectOpen && (
                 <div className="projectForm">
                   <input
                     className="field"
@@ -3456,6 +3476,7 @@ export default function Home() {
                   </button>
                 </div>
 
+                  )}
                 {projectLinkNotice && (
                   <p className="profileSaveNotice" role="status">{projectLinkNotice}</p>
                 )}
@@ -3538,6 +3559,7 @@ export default function Home() {
                   Veylo 1.0 establishes the core professional network, VBN and
                   internal business offices.
                 </p>
+                </div>}
               </section>
 
               <div className="comingGrid">
