@@ -65,6 +65,9 @@ type Member = {
 };
 
 type NetworkPost = {
+  attachmentPath?: string;
+  attachmentName?: string;
+  attachmentType?: string;
   id: string;
   memberId: string;
   content: string;
@@ -186,6 +189,9 @@ export default function Home() {
   /* NETWORK */
 
   const [postText, setPostText] = useState('');
+  const [postFile, setPostFile] = useState<File | null>(null);
+  const [posting, setPosting] = useState(false);
+  const postFileInput = useRef<HTMLInputElement>(null);
 
   /* MESSAGES */
 
@@ -498,9 +504,13 @@ export default function Home() {
         // Keep these local for now
         const storedPosts = localStorage.getItem(STORAGE.posts);
 
-        if (storedPosts) {
-          setPosts(JSON.parse(storedPosts));
-        }
+        const localPosts: NetworkPost[] = storedPosts ? JSON.parse(storedPosts) : [];
+        const { data: remotePosts } = await supabase.from('network_posts').select('*').order('created_at', { ascending: false });
+        setPosts([...(remotePosts || []).map((p): NetworkPost => ({
+          id: p.id, memberId: p.member_id, content: p.content, likes: [], createdAt: p.created_at,
+          attachmentPath: p.attachment_path || undefined, attachmentName: p.attachment_name || undefined,
+          attachmentType: p.attachment_type || undefined,
+        })), ...localPosts.filter(p => !(remotePosts || []).some(r => r.id === p.id))]);
 
         if (user) {
           await refreshInbox(user.id, (profiles || []).map((profile) => ({
@@ -1397,26 +1407,36 @@ export default function Home() {
      NETWORK
   ===================================================== */
 
-  function createPost() {
-    if (!currentMember || !postText.trim()) {
-      return;
-    }
-
-    const post: NetworkPost = {
-      id: crypto.randomUUID(),
-
-      memberId: currentMember.id,
-
-      content: postText.trim(),
-
-      likes: [],
-
-      createdAt: new Date().toISOString(),
-    };
-
-    setPosts((current) => [post, ...current]);
-
-    setPostText('');
+  async function createPost() {
+    if (!currentMember || posting || (!postText.trim() && !postFile)) return;
+    setPosting(true);
+    let path = '';
+    try {
+      if (postFile && postFile.size > 50 * 1024 * 1024) throw new Error('Max 50 MB per file.');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || user.id !== currentMember.id) throw new Error('Please log in again.');
+      const id = crypto.randomUUID();
+      if (postFile) {
+        path = user.id + '/' + id + '/' + postFile.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-120);
+        const { error } = await supabase.storage.from('network-attachments').upload(path, postFile, { upsert: false });
+        if (error) throw error;
+      }
+      const { data, error } = await supabase.from('network_posts').insert({
+        id, member_id: user.id, content: postText.trim(), attachment_path: path || null,
+        attachment_name: postFile?.name || null, attachment_type: postFile?.type || null,
+      }).select('created_at').single();
+      if (error || !data) throw error || new Error('Post failed.');
+      setPosts(old => [{
+        id, memberId: user.id, content: postText.trim(), createdAt: data.created_at,
+        attachmentPath: path || undefined, attachmentName: postFile?.name,
+        attachmentType: postFile?.type, likes: [],
+      }, ...old]);
+      setPostText('');
+      setPostFile(null);
+      if (postFileInput.current) postFileInput.current.value = '';
+    } catch (error) {
+      alert('Could not post: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally { setPosting(false); }
   }
 
   function toggleLike(postId: string) {
@@ -2423,12 +2443,15 @@ export default function Home() {
                   placeholder="Share something with the Veylo network..."
                 />
 
+                <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e => setPostFile(e.target.files?.[0] || null)} />
+                {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={() => {setPostFile(null); if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
                 <div className="composerFooter">
                   <span className="muted small">
                     Ideas • progress • opportunities • questions
                   </span>
 
-                  <button className="primary" onClick={createPost}>
+                  <button className="secondary" title="Attach photo, video or file" aria-label="Attach photo, video or file" onClick={() => postFileInput.current?.click()}>📎</button>
+                  <button className="primary" disabled={posting} onClick={() => void createPost()}>
                     Post
                   </button>
                 </div>
@@ -2477,7 +2500,8 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <p className="postContent">{post.content}</p>
+                      {post.content && <p className="postContent">{post.content}</p>}
+                      {post.attachmentPath && <NetworkPostMedia post={post} />}
 
                       <button
                         className={liked ? 'likeButton liked' : 'likeButton'}
@@ -3755,4 +3779,22 @@ function MessageAttachment({ message }: { message: ChatMessage }) {
       style={{ maxWidth: 'min(260px, 100%)', maxHeight: 280, objectFit: 'contain', borderRadius: 12, display: 'block' }} />
       : <span>📄 {message.attachmentName || 'Download file'}</span>}
   </a>;
+}
+
+function NetworkPostMedia({ post }: { post: NetworkPost }) {
+  const [url, setUrl] = useState('');
+  useEffect(() => {
+    if (!post.attachmentPath) return;
+    let valid = true;
+    void supabase.storage.from('network-attachments').createSignedUrl(post.attachmentPath, 3600).then(({data}) => {
+      if (valid) setUrl(data?.signedUrl || '');
+    });
+    return () => { valid = false; };
+  }, [post.attachmentPath]);
+  if (!url) return <span className="muted small">Loading attachment…</span>;
+  return <div style={{margin:'12px 0'}}>
+    {post.attachmentType?.startsWith('image/') ? <img src={url} alt={post.attachmentName || 'Post photo'} style={{width:'100%',maxHeight:440,objectFit:'contain',borderRadius:12}} /> :
+      post.attachmentType?.startsWith('video/') ? <video controls preload="metadata" src={url} style={{width:'100%',maxHeight:440}} /> :
+      <a href={url} target="_blank" rel="noopener noreferrer">📎 {post.attachmentName || 'Open file'}</a>}
+  </div>;
 }
