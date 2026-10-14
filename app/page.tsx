@@ -191,6 +191,7 @@ export default function Home() {
   const [postText, setPostText] = useState('');
   const [postFile, setPostFile] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
+  const [networkToolsOpen, setNetworkToolsOpen] = useState(false);
   const postFileInput = useRef<HTMLInputElement>(null);
 
   /* MESSAGES */
@@ -2446,11 +2447,36 @@ export default function Home() {
                 <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e => setPostFile(e.target.files?.[0] || null)} />
                 {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={() => {setPostFile(null); if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
                 <div className="composerFooter">
-                  <span className="muted small">
-                    Ideas • progress • opportunities • questions
-                  </span>
+                  <div style={{position:'relative'}}>
+                    <button type="button" className="secondary" aria-label="Add to Network post" aria-expanded={networkToolsOpen} onClick={() => setNetworkToolsOpen(!networkToolsOpen)} style={{width:40,height:40,padding:8,display:'grid',placeItems:'center'}}>
+                      <span aria-hidden="true" style={{display:'grid',gridTemplateColumns:'repeat(4, 3px)',gap:3}}>
+                        {Array.from({length:16},(_,i)=><span key={i} style={{width:3,height:3,borderRadius:'50%',background:'currentColor'}} />)}
+                      </span>
+                    </button>
+                    {networkToolsOpen && <div style={{position:'absolute',left:0,bottom:'calc(100% + 9px)',zIndex:30,width:190,padding:6,borderRadius:14,background:'#161c25',border:'1px solid rgba(255,255,255,.18)',boxShadow:'0 12px 30px rgba(0,0,0,.4)'}}>
+                      {[
+                        {label:'Add link',accept:'link'},
+                        {label:'Attach photo',accept:'image/*'},
+                        {label:'Attach video',accept:'video/*'},
+                        {label:'Attach file',accept:'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip'}
+                      ].map(item=><button key={item.accept} type="button" style={{display:'block',width:'100%',textAlign:'left',padding:'10px 12px',border:0,color:'inherit',background:'transparent',cursor:'pointer'}} onClick={()=>{
+                        setNetworkToolsOpen(false);
+                        if(item.accept==='link'){
+                          const value=window.prompt('Paste your website link');
+                          if(!value?.trim())return;
+                          try{
+                            const url=new URL(value.trim());
+                            if(url.protocol!=='https:' && url.protocol!=='http:')throw new Error('Invalid link');
+                            setPostText(text=>text ? text.trimEnd()+'\n'+url.href : url.href);
+                          }catch{alert('Please enter a valid website link starting with https://');}
+                        }else if(postFileInput.current){
+                          postFileInput.current.accept=item.accept;
+                          postFileInput.current.click();
+                        }
+                      }}>{item.label}</button>)}
+                    </div>}
+                  </div>
 
-                  <button className="secondary" title="Attach photo, video or file" aria-label="Attach photo, video or file" onClick={() => postFileInput.current?.click()}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.82-2.83l8.49-8.48"/></svg></button>
                   <button className="primary" disabled={posting} onClick={() => void createPost()}>
                     Post
                   </button>
@@ -2500,7 +2526,7 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {post.content && <p className="postContent">{post.content}</p>}
+                      {post.content && <p className="postContent"><NetworkPostText content={post.content} /></p>}
                       {post.attachmentPath && <NetworkPostMedia post={post} />}
 
                       <button
@@ -3797,4 +3823,8 @@ function NetworkPostMedia({ post }: { post: NetworkPost }) {
       post.attachmentType?.startsWith('video/') ? <video controls preload="metadata" src={url} style={{width:'100%',maxHeight:440}} /> :
       <a href={url} target="_blank" rel="noopener noreferrer">📎 {post.attachmentName || 'Open file'}</a>}
   </div>;
+}
+
+function NetworkPostText({content}:{content:string}) {
+  return <>{content.split(/(https?:\/\/[^\s]+)/g).map((part,i)=>/^https?:\/\//.test(part) ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{color:'#56b5ff',overflowWrap:'anywhere'}}>{part}</a> : <span key={i} style={{whiteSpace:'pre-wrap'}}>{part}</span>)}</>;
 }
