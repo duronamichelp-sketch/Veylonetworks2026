@@ -2460,8 +2460,8 @@ export default function Home() {
           {page === 'network' && (
             <section className="networkColumn veyloCleanFeed">
               <div className="veyloNetworkShortcuts">
-                <strong>Your Network</strong>
-                <button type="button" onClick={() => setPage('vbn')}>▤ VBN News <span aria-hidden="true">›</span></button>
+                <div className="veyloNetworkTitle"><span className="veyloNetworkKicker">THE BUSINESS COMMUNITY</span><strong>Network<span className="veyloBluePeriod">.</span></strong></div>
+                <button type="button" onClick={() => setPage('vbn')}>VBN <span aria-hidden="true">↗</span></button>
               </div>
               <div className="glass composer">
                 <textarea
@@ -2555,12 +2555,11 @@ export default function Home() {
                       {post.content && <p className="postContent"><NetworkPostText content={post.content} /></p>}
                       {post.attachmentPath && <NetworkPostMedia post={post} />}
 
-                      <button
-                        className={liked ? 'likeButton liked' : 'likeButton'}
-                        onClick={() => toggleLike(post.id)}
-                      >
-                        ♥ {post.likes.length}
-                      </button>
+                      <div className="veyloSocialActionBar">
+                        <button type="button" className={liked ? 'likeButton liked' : 'likeButton'} onClick={() => toggleLike(post.id)} aria-label={liked?'Unlike post':'Like post'}>♥ <span>{post.likes.length}</span></button>
+                        <button type="button" onClick={() => { const el=document.querySelector('.veyloNetworkShortcuts'); el?.scrollIntoView({behavior:'smooth',block:'start'}); }} aria-label="Go to network feed">⌂</button>
+                        <button type="button" onClick={() => { const url=window.location.origin+'/?post='+encodeURIComponent(post.id); if(navigator.share)void navigator.share({title:'Veylo Networks',url}).catch(()=>{});else if(navigator.clipboard)void navigator.clipboard.writeText(url).then(()=>alert('Post link copied'));else window.prompt('Copy link',url); }} aria-label="Share post">↗</button>
+                      </div>
                     </article>
                   );
                 })
