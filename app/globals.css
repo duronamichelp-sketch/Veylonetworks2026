@@ -4383,3 +4383,30 @@ input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36ba
  .mobileBottomTab svg{width:24px;height:24px}
 }
 @media(prefers-reduced-motion:reduce){.primary,.glass,.mobileBottomTab{transition:none!important}}
+
+/* Veylo multicolour neon navigation + cohesive site-wide midnight glass */
+.app{--veylo-accent:#18bdff;--veylo-accent-rgb:24,189,255;--veylo-accent-soft:rgba(24,189,255,.19)}
+.app.veyloPage-network{--veylo-accent:#1fb9ff;--veylo-accent-rgb:31,185,255}
+.app.veyloPage-people,.app.veyloPage-memberProfile{--veylo-accent:#ff9d3c;--veylo-accent-rgb:255,157,60}
+.app.veyloPage-messages{--veylo-accent:#a67bff;--veylo-accent-rgb:166,123,255}
+.app.veyloPage-offices{--veylo-accent:#13d5ee;--veylo-accent-rgb:19,213,238}
+.app.veyloPage-profile{--veylo-accent:#32e5a4;--veylo-accent-rgb:50,229,164}
+.app.veyloPage-vbn{--veylo-accent:#e879ff;--veylo-accent-rgb:232,121,255}
+.app.veyloPage-coming{--veylo-accent:#f6bd55;--veylo-accent-rgb:246,189,85}
+.app .main{background:radial-gradient(ellipse at 50% -12%,rgba(var(--veylo-accent-rgb),.095),transparent 55%),#030a15}
+.app .content .glass,.app .content .panel,.app .content .postCard,.app .content .composer,.app .content .searchPanel,.app .content .projectCard,.app .content .officeSection{border-color:rgba(var(--veylo-accent-rgb),.29);background:linear-gradient(145deg,rgba(10,30,53,.96),rgba(5,15,30,.97));box-shadow:inset 0 1px rgba(191,229,255,.055),0 9px 29px rgba(0,0,0,.14)}
+.app .content .glass:hover,.app .content .projectCard:hover{border-color:rgba(var(--veylo-accent-rgb),.53)}
+.app .content .primary{background:linear-gradient(115deg,rgba(var(--veylo-accent-rgb),.95),rgba(var(--veylo-accent-rgb),.58) 68%,#163b87);border-color:rgba(var(--veylo-accent-rgb),.7);box-shadow:0 0 20px rgba(var(--veylo-accent-rgb),.22);color:#fff}
+.app .content .eyebrow,.app .content .sectionHeading a{color:var(--veylo-accent)}
+.app .sidebar .navButton.active{color:var(--veylo-accent)!important;background:linear-gradient(90deg,rgba(var(--veylo-accent-rgb),.22),rgba(var(--veylo-accent-rgb),.04));border-color:rgba(var(--veylo-accent-rgb),.4);box-shadow:inset 3px 0 var(--veylo-accent),0 0 20px rgba(var(--veylo-accent-rgb),.12);text-shadow:0 0 12px rgba(var(--veylo-accent-rgb),.55)}
+/* Each tab has its own signature glow, both active and inactive icons stay recognisable */
+.mobileBottomTab.veyloTab-network{--tab-glow:#1fb9ff;--tab-rgb:31,185,255}
+.mobileBottomTab.veyloTab-people{--tab-glow:#ff9d3c;--tab-rgb:255,157,60}
+.mobileBottomTab.veyloTab-messages{--tab-glow:#a67bff;--tab-rgb:166,123,255}
+.mobileBottomTab.veyloTab-offices{--tab-glow:#13d5ee;--tab-rgb:19,213,238}
+.mobileBottomTab.veyloTab-profile{--tab-glow:#32e5a4;--tab-rgb:50,229,164}
+.mobileBottomTab.active{color:var(--tab-glow)!important;text-shadow:0 0 13px rgba(var(--tab-rgb),.7);background:radial-gradient(ellipse at 50% 70%,rgba(var(--tab-rgb),.17),transparent 73%)}
+.mobileBottomTab.active svg{stroke:var(--tab-glow)!important;filter:drop-shadow(0 0 7px rgba(var(--tab-rgb),.85))}
+.mobileBottomTab.active::after{background:linear-gradient(90deg,transparent,var(--tab-glow),transparent)!important;box-shadow:0 0 10px rgba(var(--tab-rgb),.55)}
+.mobileBottomTab:not(.active):hover svg{stroke:var(--tab-glow);filter:drop-shadow(0 0 5px rgba(var(--tab-rgb),.4))}
+@media(prefers-reduced-motion:reduce){.mobileBottomTab svg{transition:none}}
