@@ -3989,3 +3989,26 @@ a {
  .veyloCleanFeed .veyloEngagementActions>button svg{display:block!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;visibility:visible!important;opacity:1!important}
  .veyloCleanFeed .veyloEngagementActions>button small{display:block!important;font-size:11px!important;color:#b7c1cd!important}
 }
+
+/* Collapsible animated attachment tray */
+.veyloComposerToolGroup{display:flex;align-items:center;gap:8px;min-width:0}
+.veyloClipToggle{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;padding:8px;border:1px solid #374353;border-radius:13px;background:#242b35;color:#e7eff8;cursor:pointer;transition:background .25s,transform .3s,border-color .25s}
+.veyloClipToggle svg{width:23px;height:23px;display:block;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.veyloClipToggle.isOpen{background:#18344b;border-color:#3cb8ff;color:#50baff}
+.veyloClipToggle.isOpen svg{transform:rotate(-35deg)}
+.veyloComposerToolGroup .veyloComposerTools{display:flex;gap:7px;align-items:center;overflow:hidden;max-width:0;opacity:0;transform:translateX(-13px);pointer-events:none;transition:max-width .4s cubic-bezier(.2,.8,.2,1),opacity .25s,transform .35s}
+.veyloComposerToolGroup .veyloComposerTools.isOpen{max-width:240px;opacity:1;transform:translateX(0);pointer-events:auto}
+.veyloComposerToolGroup .veyloComposerTools .veyloComposerTool{opacity:0;transform:translateX(-9px) scale(.75);transition:opacity .25s,transform .35s cubic-bezier(.2,.8,.2,1)}
+.veyloComposerToolGroup .veyloComposerTools.isOpen .veyloComposerTool{opacity:1;transform:translateX(0) scale(1)}
+.veyloComposerTools.isOpen .veyloComposerTool:nth-child(2){transition-delay:40ms}
+.veyloComposerTools.isOpen .veyloComposerTool:nth-child(3){transition-delay:80ms}
+.veyloComposerTools.isOpen .veyloComposerTool:nth-child(4){transition-delay:120ms}
+@media(max-width:768px){
+ .veyloCleanFeed .veyloComposerToolGroup{gap:5px!important;flex:1!important}
+ .veyloCleanFeed .veyloClipToggle{width:39px!important;height:39px!important;flex-basis:39px!important}
+ .veyloCleanFeed .veyloComposerToolGroup .veyloComposerTools{gap:5px!important;min-width:0!important}
+ .veyloCleanFeed .veyloComposerToolGroup .veyloComposerTools button{width:34px!important;height:36px!important;padding:6px!important;flex:0 0 34px!important}
+ .veyloCleanFeed .veyloComposerToolGroup .veyloComposerTools button svg{width:20px!important;height:20px!important}
+ .veyloCleanFeed .veyloComposerFooter>.primary{min-width:85px!important;padding:8px!important}
+}
+@media(prefers-reduced-motion:reduce){.veyloClipToggle,.veyloClipToggle svg,.veyloComposerToolGroup .veyloComposerTools,.veyloComposerToolGroup .veyloComposerTools .veyloComposerTool{transition:none!important}}
