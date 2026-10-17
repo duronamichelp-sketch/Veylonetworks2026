@@ -24,7 +24,7 @@ type Page =
   | 'memberProfile'
   | 'coming';
 
-type MobileIconName = 'network' | 'people' | 'messages' | 'offices' | 'vbn' | 'profile';
+type MobileIconName = 'network' | 'people' | 'messages' | 'offices' | 'vbn' | 'profile' | 'coming';
 
 const MOBILE_TABS: Array<{ id: Page; label: string; icon: MobileIconName }> = [
   { id: 'network', label: 'Network', icon: 'network' },
@@ -3680,6 +3680,12 @@ function MobileNavIcon({ name }: { name: MobileIconName }) {
         <>
           <rect x="3" y="4" width="18" height="16" rx="2" />
           <path d="M7 8h5v5H7zM15 8h3M15 11h3M7 16h11" />
+        </>
+      )}
+      {name === 'coming' && (
+        <>
+          <path d="m12 2 2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2Z" />
+          <path d="m19 18 1 2.5 2.5 1-2.5 1L19 25" />
         </>
       )}
       {name === 'profile' && (
