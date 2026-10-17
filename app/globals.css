@@ -3804,3 +3804,19 @@ a {
  .mobileBottomNav{box-shadow:0 -10px 38px rgba(0,0,0,.35);backdrop-filter:blur(24px)}
 }
 @media(prefers-reduced-motion:reduce){.veyloMobileHeroGlow{animation:none}}
+
+
+/* Network social actions */
+.veyloFeedFilters{display:flex;gap:9px;margin:5px 0 13px}
+.veyloFeedFilters button{border:1px solid rgba(143,190,238,.22);background:rgba(255,255,255,.035);color:#aab8ca;border-radius:999px;padding:9px 15px;font-size:12px}
+.veyloFeedFilters button.active{background:rgba(43,150,255,.18);border-color:rgba(65,165,255,.5);color:#e6f5ff}
+.veyloPostActions{display:flex;align-items:center;justify-content:space-between;gap:5px;flex-wrap:wrap;margin-top:15px;border-top:1px solid rgba(255,255,255,.09);padding-top:12px}
+.veyloPostActions button{border:0;background:transparent;color:#aabbd0;padding:8px 6px;font-size:12px;border-radius:9px}
+.veyloPostActions button:hover{background:rgba(91,172,255,.1)}
+.veyloPostActions button.liked{color:#ff779e}.veyloPostActions button.isSaved{color:#6ac5ff}
+.veyloPostComments{border-top:1px solid rgba(255,255,255,.08);margin-top:8px;padding-top:12px}
+.veyloPostComment{background:rgba(255,255,255,.045);border-radius:13px;padding:11px 13px;margin:7px 0}
+.veyloPostComment strong{font-size:12px;color:#cce9ff}.veyloPostComment p{font-size:13px;line-height:1.5;margin:5px 0 0;overflow-wrap:anywhere}
+.veyloCommentComposer{display:flex;gap:8px;margin-top:12px}
+.veyloCommentComposer input{flex:1;min-width:0;border-radius:13px;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:white;font-size:13px}
+.veyloCommentComposer button{border:0;border-radius:12px;background:#167bdb;color:white;padding:0 15px;font-weight:700}
