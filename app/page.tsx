@@ -268,8 +268,13 @@ export default function Home() {
   const [officeWelcomeDismissed, setOfficeWelcomeDismissed] = useState(false);
   function enterVeyloOffice(id: string) {
     setSelectedOfficeId(id);
-    setOfficeWelcomeOpen(true);
-    setOfficeWelcomeDismissed(false);
+  }
+  function openOfficesSection() {
+    setPage('offices');
+    if (page !== 'offices') {
+      setOfficeWelcomeOpen(true);
+      setOfficeWelcomeDismissed(false);
+    }
   }
 
 
@@ -2356,7 +2361,7 @@ export default function Home() {
 
             <NavButton
               active={page === 'offices'}
-              onClick={() => setPage('offices')}
+              onClick={openOfficesSection}
             >
               Offices
             </NavButton>
@@ -3017,15 +3022,15 @@ export default function Home() {
               </aside>
 
               <section className="officeMain">
-                {selectedOffice && officeWelcomeOpen && !officeWelcomeDismissed && (
+                {officeWelcomeOpen && !officeWelcomeDismissed && (
                   <div className="veyloOfficeWelcomeOverlay" role="dialog" aria-modal="true" aria-label="Welcome to office">
                     <div className="veyloOfficeWelcomeCard">
                       <div className="veyloOfficeWelcomeLogo">V</div>
-                      <span className="eyebrow">VEYLO NETWORKS • PRIVATE OFFICE</span>
+                      <span className="eyebrow">VEYLO NETWORKS • OFFICES</span>
                       <h2>Welcome, {officePreferredTitle ? officePreferredTitle + ' ' : ''}{currentMember.fullName.trim().split(' ').filter(Boolean).slice(-1)[0]}.</h2>
                       <p>Your projects await.</p>
                       <div className="veyloOfficeTitleChoice"><label htmlFor="veylo-office-title">Preferred title</label><select id="veylo-office-title" value={officePreferredTitle} onChange={e=>setOfficePreferredTitle(e.target.value)}><option value="">No title</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mx.">Mx.</option></select></div>
-                      <button type="button" className="veyloOfficeEnterButton" onClick={()=>{setOfficeWelcomeDismissed(true);setOfficeWelcomeOpen(false);}}>Enter Office <span aria-hidden="true">→</span></button>
+                      <button type="button" className="veyloOfficeEnterButton" onClick={()=>{setOfficeWelcomeDismissed(true);setOfficeWelcomeOpen(false);}}>Enter Offices <span aria-hidden="true">→</span></button>
                     </div>
                   </div>
                 )}
@@ -3626,8 +3631,9 @@ export default function Home() {
                 setMobileMenuOpen(false);
                 if (tab.id === 'messages' && page === 'messages' && selectedConversationId) {
                   setSelectedConversationId('');
-                } else if (tab.id === 'offices' && page === 'offices' && selectedOfficeId) {
-                  setSelectedOfficeId('');
+                } else if (tab.id === 'offices') {
+                  if (page === 'offices' && selectedOfficeId) setSelectedOfficeId('');
+                  else openOfficesSection();
                 } else {
                   setPage(tab.id);
                 }
