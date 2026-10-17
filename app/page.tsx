@@ -635,10 +635,10 @@ export default function Home() {
         console.error('Veylo data could not load.', error);
       }
 
-      // Keep the animated welcome visible for at least four seconds, but never
+      // Keep the animated welcome visible for at least seven seconds, but never
       // dismiss it before the real startup work has completed.
       setStartupProgress(96);
-      const remaining = Math.max(0, 4000 - (Date.now() - loadingStartedAt));
+      const remaining = Math.max(0, 7000 - (Date.now() - loadingStartedAt));
       if (remaining > 0) await new Promise<void>(resolve => window.setTimeout(resolve, remaining));
       setStartupProgress(100);
       setReady(true);
