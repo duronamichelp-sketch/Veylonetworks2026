@@ -4124,3 +4124,12 @@ a {
  body .mobileConversationLayout[data-mobile-view="detail"]>.chatPanel .messageList{flex:1!important;min-height:240px!important;max-height:calc(100dvh - 380px)!important;overflow-y:auto!important}
  body .mobileConversationLayout[data-mobile-view="list"]>.chatPanel{display:none!important}
 }
+
+/* Compact post engagement icons on phones */
+@media(max-width:768px){
+ body .veyloSocialActionBar.veyloEngagementActions{gap:4px!important;padding:12px 4px!important}
+ body .veyloSocialActionBar.veyloEngagementActions>button{min-width:0!important;min-height:54px!important;padding:7px 3px!important;gap:4px!important}
+ body .veyloSocialActionBar.veyloEngagementActions>button svg{width:19px!important;height:19px!important;max-width:19px!important;max-height:19px!important;flex:0 0 19px!important}
+ body .veyloSocialActionBar.veyloEngagementActions>button span{font-size:11px!important;line-height:1.2!important}
+ body .veyloSocialActionBar.veyloEngagementActions>button small{font-size:10px!important;line-height:1.2!important}
+}
