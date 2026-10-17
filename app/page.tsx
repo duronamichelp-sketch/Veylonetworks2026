@@ -2974,7 +2974,7 @@ export default function Home() {
                   <div className="veyloOfficeWelcomeOverlay" role="dialog" aria-modal="true" aria-label="Welcome to office">
                     <div className="veyloOfficeWelcomeCard">
                       <span className="eyebrow">VEYLO NETWORKS • OFFICES</span>
-                      <h2>Welcome, {officePreferredTitle ? officePreferredTitle + ' ' : ''}{currentMember.fullName.trim().split(' ').filter(Boolean).slice(-1)[0]}.</h2>
+                      <h2>Welcome, {officePreferredTitle ? officePreferredTitle + ' ' : ''}{currentMember.fullName.trim().split(' ').filter(Boolean).slice(-1)[0]?.replace(/^./, letter => letter.toLocaleUpperCase())}.</h2>
                       <p>Your projects await.</p>
                       <div className="veyloOfficeTitleChoice"><label htmlFor="veylo-office-title">Preferred title</label><select id="veylo-office-title" value={officePreferredTitle} onChange={e=>setOfficePreferredTitle(e.target.value)}><option value="">No title</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mx.">Mx.</option></select></div>
                       <button type="button" className="veyloOfficeEnterButton" onClick={()=>{setOfficeWelcomeDismissed(true);setOfficeWelcomeOpen(false);}}>Enter Offices <span aria-hidden="true">→</span></button>
