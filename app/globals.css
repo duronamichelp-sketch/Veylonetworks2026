@@ -4272,3 +4272,20 @@ body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow:hover{background:rgba(
 @keyframes veyloDotGlow{to{opacity:.45;transform:scale(.65)}}
 @keyframes veyloStreak{0%{translate:0;opacity:0}50%{opacity:.6}100%{translate:220vw;opacity:0}}
 @media(prefers-reduced-motion:reduce){.veyloNextHalo,.veyloNextOrbit,.veyloNextDot,.veyloNextStreak{animation:none!important}}
+
+/* Cinematic Veylo launch: approved Earth art with motion, genuine startup bar */
+.veyloCinematicLoading{background:#01050d!important;isolation:isolate}
+.veyloCinemaBackdrop{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#01050d}
+.veyloCinemaImage{position:absolute;inset:-2%;background-image:url('/veylo-cinematic-clean.svg');background-size:cover;background-position:center center;transform-origin:50% 44%;animation:veyloCinemaDrift 10s ease-in-out infinite alternate;will-change:transform,filter}
+.veyloCinemaBackdrop::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.07),transparent 35%,rgba(0,0,0,.07) 80%,rgba(0,0,0,.18));pointer-events:none}
+.veyloCinemaSweep{position:absolute;left:-35%;top:28%;width:80%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(58,184,255,.15),rgba(177,245,255,.9),transparent);transform:rotate(-17deg);filter:drop-shadow(0 0 8px #0faaff);animation:veyloCinemaBeam 6s ease-in-out infinite}
+.veyloCinemaSpark{position:absolute;width:5px;height:5px;border-radius:50%;background:#dcffff;box-shadow:0 0 8px 3px #36c8ff,0 0 25px 9px rgba(0,106,255,.6);animation:veyloCinemaPulse 2.8s ease-in-out infinite alternate}
+.veyloCinemaSparkOne{top:20%;left:26%}.veyloCinemaSparkTwo{top:32%;right:16%;animation-delay:-1.1s}.veyloCinemaSparkThree{top:68%;left:15%;animation-delay:-2s}
+.veyloCinematicLoading .veyloRealLoading{top:61.4%;width:min(70vw,380px);gap:10px;z-index:5}
+.veyloCinematicLoading .veyloRealLoadingTrack{height:7px;background:rgba(0,8,23,.92);border:1px solid rgba(111,192,255,.68);box-shadow:0 0 15px rgba(0,139,255,.3),inset 0 0 5px rgba(18,110,204,.24)}
+.veyloCinematicLoading .veyloRealLoadingFill{background:linear-gradient(90deg,#0655f9,#009fff,#83efff);box-shadow:0 0 13px rgba(62,207,255,.8);transition:width .35s ease}
+.veyloCinematicLoading .veyloRealLoadingPercent{font-size:12px;color:#d1eaff;letter-spacing:.12em;text-shadow:0 0 8px rgba(0,120,255,.7)}
+@keyframes veyloCinemaDrift{0%{transform:scale(1.01) translateY(0);filter:brightness(.92)}100%{transform:scale(1.075) translateY(-1.1%);filter:brightness(1.13)}}
+@keyframes veyloCinemaBeam{0%{translate:-45vw 0;opacity:0}45%{opacity:.8}100%{translate:180vw 0;opacity:0}}
+@keyframes veyloCinemaPulse{0%{opacity:.3;transform:scale(.55)}100%{opacity:1;transform:scale(1.8)}}
+@media(prefers-reduced-motion:reduce){.veyloCinemaImage,.veyloCinemaSweep,.veyloCinemaSpark{animation:none!important}}
