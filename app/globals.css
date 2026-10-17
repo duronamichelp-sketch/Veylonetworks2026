@@ -4312,3 +4312,31 @@ body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow:hover{background:rgba(
 .veyloOfficeMember small{color:#8da9c2}
 .veyloOfficeOwner{color:#53c4ff;font-size:12px}
 @media(max-width:700px){.veyloOfficeMobileDesign .officeHero{background:linear-gradient(135deg,#102236,#080d15);border-color:rgba(44,142,230,.3)}.veyloOfficeMobileDesign .officeHero h2{font-size:clamp(25px,7vw,34px)}.veyloOfficeMobileDesign .officeGrid{display:grid;grid-template-columns:minmax(0,1fr)}.veyloOfficeMobileDesign .officeSection{min-width:0}.veyloOfficeMobileDesign .officeHero .inlineForm{width:100%}}
+
+/* Veylo unified neon-glass design system — mobile and desktop */
+:root{--veylo-electric:#15baff;--veylo-violet:#7357ff;--veylo-glass:#081a30;--veylo-glass-edge:rgba(46,160,255,.32)}
+body{background:#030915;color:#f2f7ff}
+button,a,input,textarea,select{transition:background-color .2s ease,border-color .2s ease,box-shadow .22s ease,transform .2s ease,color .2s ease}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #4bc8ff;outline-offset:3px}
+.veyloOfficeMobileDesign{gap:18px}
+.veyloOfficeTabs{gap:8px;padding:6px 2px 0;border-color:rgba(76,156,255,.23)}
+.veyloOfficeTabs button{border-radius:12px 12px 0 0;color:#91a9c8;font-weight:700;letter-spacing:.01em}
+.veyloOfficeTabs button.active{color:#64d5ff;text-shadow:0 0 16px rgba(19,173,255,.6);border-bottom-color:#19c3ff;background:linear-gradient(180deg,rgba(11,118,219,.16),transparent)}
+.veyloOfficeStats{gap:12px}
+.veyloOfficeStats button{position:relative;overflow:hidden;border-radius:19px;padding:19px 14px;background:radial-gradient(ellipse at 12% 10%,rgba(24,103,220,.25),transparent 68%),linear-gradient(145deg,#0b203b,#061021);border:1px solid rgba(31,152,255,.49);box-shadow:inset 0 1px rgba(194,226,255,.08),0 8px 28px rgba(0,0,0,.18)}
+.veyloOfficeStats button::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-50%;height:60%;border-top:1px solid rgba(42,145,255,.22);border-radius:50%;transform:rotate(-9deg);pointer-events:none}
+.veyloOfficeStats button:hover{transform:translateY(-2px);border-color:rgba(67,196,255,.85);box-shadow:0 0 24px rgba(0,142,255,.17)}
+.veyloOfficeStats button span{display:grid;place-items:center;width:34px;height:34px;color:#35c9ff;filter:drop-shadow(0 0 7px rgba(15,171,255,.65))}
+.veyloOfficeStats button:nth-child(2){background:radial-gradient(ellipse at 15% 5%,rgba(108,66,255,.27),transparent 68%),linear-gradient(145deg,#111b3a,#071021);border-color:rgba(111,88,255,.54)}
+.veyloOfficeStats button:nth-child(2) span{color:#a18cff;filter:drop-shadow(0 0 8px #6758ff)}
+.veyloOfficeStats button:nth-child(3){background:radial-gradient(ellipse at 10% 5%,rgba(0,192,160,.23),transparent 65%),linear-gradient(145deg,#092b31,#071221);border-color:rgba(0,207,174,.42)}
+.veyloOfficeStats button:nth-child(3) span{color:#27e7ce;filter:drop-shadow(0 0 7px #04bfa9)}
+.veyloOfficeStats button:nth-child(4){background:radial-gradient(ellipse at 10% 5%,rgba(240,153,35,.19),transparent 65%),linear-gradient(145deg,#28201e,#091322);border-color:rgba(245,172,68,.43)}
+.veyloOfficeStats button:nth-child(4) span{color:#ffb847;filter:drop-shadow(0 0 7px #e89a24)}
+.veyloOfficeStats button strong{font-size:27px;font-weight:800}
+.veyloOfficeStats button small{font-size:12px;color:#bbcee7}
+.veyloOfficeMobileDesign .officeSection{background:linear-gradient(150deg,rgba(11,30,52,.94),rgba(4,12,24,.96));border:1px solid rgba(55,135,228,.32);border-radius:20px;box-shadow:inset 0 1px rgba(190,230,255,.05),0 10px 30px rgba(0,0,0,.16)}
+.veyloOfficeMobileDesign .officeHero{background:radial-gradient(ellipse at 10% 0%,rgba(14,98,205,.26),transparent 70%),linear-gradient(135deg,#0c1e35,#060d19);border-color:rgba(42,159,255,.5);border-radius:20px}
+.veyloOfficeMobileDesign .officeSection input,.veyloOfficeMobileDesign .officeHero input{background:rgba(11,25,43,.92);border-color:rgba(101,163,224,.28);border-radius:12px}
+.veyloOfficeMobileDesign .officeSection button:not(.active):hover{box-shadow:0 0 14px rgba(30,154,255,.18)}
+@media(prefers-reduced-motion:reduce){.veyloOfficeStats button{transition:none}}
