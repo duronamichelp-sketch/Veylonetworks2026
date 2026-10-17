@@ -3777,3 +3777,30 @@ a {
   .vbnMobileMotto {font-size:8px;white-space:normal}
   .vbnNewsroomActions .secondary {padding:7px !important;font-size:10px !important}
 }
+
+
+/* Veylo mobile editorial redesign: Network */
+.veyloMobileNetworkHero,.veyloMobileFeedLabel{display:none}
+@media(max-width:768px){
+ .networkColumn{gap:15px!important}
+ .veyloMobileNetworkHero{display:flex;position:relative;isolation:isolate;overflow:hidden;flex-direction:column;justify-content:flex-end;min-height:290px;padding:27px 22px 22px;border-radius:25px;border:1px solid rgba(139,204,255,.28);background:linear-gradient(180deg,rgba(4,12,29,.12) 0%,rgba(3,10,24,.64) 45%,#050c1b 100%),url('https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80') center/cover;box-shadow:0 22px 65px rgba(0,0,0,.32)}
+ .veyloMobileHeroGlow{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 95% 90%,rgba(0,136,255,.30),transparent 55%);pointer-events:none}
+ .veyloMobileHeroEyebrow{font-size:10px;letter-spacing:2.5px;font-weight:800;color:#8bd5ff}
+ .veyloMobileNetworkHero h1{margin:11px 0 7px;font-size:clamp(31px,9vw,44px);line-height:1.04;letter-spacing:-1.6px;color:white}
+ .veyloMobileNetworkHero h1 em{font-style:normal;color:#6ac5ff}
+ .veyloMobileNetworkHero p{font-size:12px;line-height:1.55;color:#d0dfef;max-width:280px;margin:0 0 19px}
+ .veyloMobileHeroActions{display:flex;gap:9px;flex-wrap:wrap}
+ .veyloMobileHeroActions button{border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.12);color:white;padding:11px 15px;font-weight:700;font-size:12px;backdrop-filter:blur(12px)}
+ .veyloMobileHeroActions button:first-child{background:#e5f5ff;color:#082139;border-color:#e5f5ff}
+ .veyloMobileHeroActions button span{margin-left:8px}
+ .veyloMobileFeedLabel{display:flex;align-items:center;gap:9px;padding:5px 2px 0}
+ .veyloMobileFeedLabel>span:first-child{font-size:11px;font-weight:900;letter-spacing:2px;color:#e6f4ff}
+ .veyloMobileFeedLabel small{font-size:10px;color:#8d9bab}
+ .veyloMobileLiveDot{width:6px;height:6px;background:#49c5ff;border-radius:50%;box-shadow:0 0 12px #49c5ff}
+ .networkColumn .composer,.networkColumn .postCard{border-radius:22px;border-color:rgba(124,172,224,.17);background:linear-gradient(150deg,rgba(28,43,65,.88),rgba(9,17,30,.94));box-shadow:0 10px 30px rgba(0,0,0,.18)}
+ .networkColumn .composer textarea{min-height:90px;font-size:14px}
+ .networkColumn .postCard{padding:18px}
+ .networkColumn .postContent{font-size:14px;line-height:1.6}
+ .mobileBottomNav{box-shadow:0 -10px 38px rgba(0,0,0,.35);backdrop-filter:blur(24px)}
+}
+@media(prefers-reduced-motion:reduce){.veyloMobileHeroGlow{animation:none}}
