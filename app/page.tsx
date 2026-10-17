@@ -2469,49 +2469,18 @@ export default function Home() {
                 <div className="veyloNetworkTitle"><span className="veyloNetworkKicker">THE BUSINESS COMMUNITY</span><strong>Network<span className="veyloBluePeriod">.</span></strong></div>
                 <button type="button" onClick={() => setPage('vbn')}>VBN <span aria-hidden="true">↗</span></button>
               </div>
-              <div className="glass composer">
-                <textarea
-                  value={postText}
-                  onChange={(event) => setPostText(event.target.value)}
-                  placeholder="Share an idea or update..."
-                />
-
-                <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e => setPostFile(e.target.files?.[0] || null)} />
-                {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={() => {setPostFile(null); if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
-                <div className="composerFooter">
-                  <div className="networkToolsAnchor" ref={networkToolsRef}>
-                    <button type="button" className={'secondary networkToolsTrigger' + (networkToolsOpen ? ' isOpen' : '')} aria-label="Add to Network post" aria-expanded={networkToolsOpen} onClick={() => setNetworkToolsOpen(!networkToolsOpen)} style={{width:40,height:40,padding:8,display:'grid',placeItems:'center'}}>
-                      <span className="networkToolsDots" aria-hidden="true" style={{display:'grid',gridTemplateColumns:'repeat(4, 3px)',gap:3}}>
-                        {Array.from({length:16},(_,i)=><span key={i} style={{width:3,height:3,borderRadius:'50%',background:'currentColor'}} />)}
-                      </span>
-                    </button>
-                    {networkToolsOpen && <div className="networkToolsFan" role="menu" aria-label="Add to post options">
-                      {[
-                        {label:'Files',accept:'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip',symbol:'file'},
-                        {label:'Photos',accept:'image/*',symbol:'photo'},
-                        {label:'Links',accept:'link',symbol:'link'},
-                        {label:'Videos',accept:'video/*',symbol:'video'}
-                      ].map((item,index)=><button key={item.accept} type="button" className={'networkFanOption networkFanOption' + index} role="menuitem" onClick={()=>{
-                        setNetworkToolsOpen(false);
-                        if(item.accept==='link'){
-                          const value=window.prompt('Paste your website link');
-                          if(!value?.trim())return;
-                          try{
-                            const url=new URL(value.trim());
-                            if(url.protocol!=='https:' && url.protocol!=='http:')throw new Error('Invalid link');
-                            setPostText(text=>text ? text.trimEnd()+'\n'+url.href : url.href);
-                          }catch{alert('Please enter a valid website link starting with https://');}
-                        }else if(postFileInput.current){
-                          postFileInput.current.accept=item.accept;
-                          postFileInput.current.click();
-                        }
-                      }}><span className="networkFanIcon" aria-hidden="true">{item.symbol === 'file' ? '▤' : item.symbol === 'photo' ? '▧' : item.symbol === 'link' ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg> : '▷'}</span>{item.label}</button>)}
-                    </div>}
+              <div className="glass composer veyloReferenceComposer">
+                <div className="veyloComposerEntry"><Avatar member={currentMember} /><textarea value={postText} onChange={event=>setPostText(event.target.value)} placeholder="Share an idea or update..." /></div>
+                <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e=>setPostFile(e.target.files?.[0]||null)} />
+                {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={()=>{setPostFile(null);if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
+                <div className="composerFooter veyloComposerFooter">
+                  <div className="veyloComposerTools">
+                    <button type="button" title="Add photo" aria-label="Add photo" onClick={()=>{if(postFileInput.current){postFileInput.current.accept='image/*';postFileInput.current.click();}}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22,display:'block',flexShrink:0}}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
+                    <button type="button" title="Add file" aria-label="Add file" onClick={()=>{if(postFileInput.current){postFileInput.current.accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip';postFileInput.current.click();}}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22,display:'block',flexShrink:0}}><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9l-6-6H8Z"/><path d="M14 3v6h6M7 13h10M7 17h8"/></svg></button>
+                    <button type="button" title="Add link" aria-label="Add link" onClick={()=>{const value=window.prompt('Paste your website link');if(!value?.trim())return;try{const url=new URL(value.trim());if(!['https:','http:'].includes(url.protocol))throw new Error('Invalid link');setPostText(text=>text?text.trimEnd()+'\n'+url.href:url.href);}catch{alert('Please enter a valid link starting with https://');}}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22,display:'block',flexShrink:0}}><path d="M10 13a5 5 0 0 0 7.1 0l2.1-2.1a5 5 0 0 0-7.1-7.1L10.9 5"/><path d="M14 11a5 5 0 0 0-7.1 0l-2.1 2.1a5 5 0 0 0 7.1 7.1l1.2-1.2"/></svg></button>
+                    <button type="button" title="Add video" aria-label="Add video" onClick={()=>{if(postFileInput.current){postFileInput.current.accept='video/*';postFileInput.current.click();}}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22,display:'block',flexShrink:0}}><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3V9Z"/></svg></button>
                   </div>
-
-                  <button className="primary" disabled={posting} onClick={() => void createPost()}>
-                    Post
-                  </button>
+                  <button className="primary" disabled={posting} onClick={()=>void createPost()}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{display:'inline-block',verticalAlign:'middle',marginRight:6}}><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Post</button>
                 </div>
               </div>
 
@@ -2562,10 +2531,10 @@ export default function Home() {
                       {post.attachmentPath && <NetworkPostMedia post={post} />}
 
                       <div className="veyloSocialActionBar veyloEngagementActions">
-                        <button type="button" className={liked ? 'likeButton liked' : 'likeButton'} onClick={() => void toggleLike(post.id)} aria-label={liked?'Unlike post':'Like post'}><svg viewBox="0 0 24 24" fill={liked?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>{post.likes.length}</span><small>Like</small></button>
-                        <button type="button" onClick={() => void commentOnPost(post.id)} aria-label="Comment on post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.4a8.5 8.5 0 1 1 16.1-4.1Z"/></svg><span>{postComments.filter(c=>c.post_id===post.id).length}</span><small>Comment</small></button>
-                        <button type="button" onClick={() => { const url=window.location.origin+'/?post='+encodeURIComponent(post.id); if(navigator.share)void navigator.share({title:'Veylo Networks',url}).catch(()=>{});else if(navigator.clipboard)void navigator.clipboard.writeText(url).then(()=>alert('Post link copied'));else window.prompt('Copy link',url); }} aria-label="Share post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 4 21 12l-8 8v-5c-6 0-9 2-11 5 0-8 3-13 11-13V4Z"/></svg><small>Share</small></button>
-                        <button type="button" className={postSaves.includes(post.id)?'isSaved':''} onClick={() => void togglePostSave(post.id)} aria-label={postSaves.includes(post.id)?'Unsave post':'Save post'}><svg viewBox="0 0 24 24" fill={postSaves.includes(post.id)?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3h14v18l-7-5-7 5V3Z"/></svg><small>{postSaves.includes(post.id)?'Saved':'Save'}</small></button>
+                        <button type="button" className={liked ? 'likeButton liked' : 'likeButton'} onClick={() => void toggleLike(post.id)} aria-label={liked?'Unlike post':'Like post'}><svg width="25" height="25" style={{display:"block",width:25,height:25,flexShrink:0}} viewBox="0 0 24 24" fill={liked?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>{post.likes.length}</span><small>Like</small></button>
+                        <button type="button" onClick={() => void commentOnPost(post.id)} aria-label="Comment on post"><svg width="25" height="25" style={{display:"block",width:25,height:25,flexShrink:0}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.4a8.5 8.5 0 1 1 16.1-4.1Z"/></svg><span>{postComments.filter(c=>c.post_id===post.id).length}</span><small>Comment</small></button>
+                        <button type="button" onClick={() => { const url=window.location.origin+'/?post='+encodeURIComponent(post.id); if(navigator.share)void navigator.share({title:'Veylo Networks',url}).catch(()=>{});else if(navigator.clipboard)void navigator.clipboard.writeText(url).then(()=>alert('Post link copied'));else window.prompt('Copy link',url); }} aria-label="Share post"><svg width="25" height="25" style={{display:"block",width:25,height:25,flexShrink:0}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 4 21 12l-8 8v-5c-6 0-9 2-11 5 0-8 3-13 11-13V4Z"/></svg><small>Share</small></button>
+                        <button type="button" className={postSaves.includes(post.id)?'isSaved':''} onClick={() => void togglePostSave(post.id)} aria-label={postSaves.includes(post.id)?'Unsave post':'Save post'}><svg width="25" height="25" style={{display:"block",width:25,height:25,flexShrink:0}} viewBox="0 0 24 24" fill={postSaves.includes(post.id)?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3h14v18l-7-5-7 5V3Z"/></svg><small>{postSaves.includes(post.id)?'Saved':'Save'}</small></button>
                       </div>
                     </article>
                   );
