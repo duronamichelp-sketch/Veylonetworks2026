@@ -2754,7 +2754,7 @@ export default function Home() {
           {page === 'messages' && (
             <div className="twoColumnLayout mobileConversationLayout" data-mobile-view={selectedConversation ? 'detail' : 'list'}>
               <aside className="glass panel mobileConversationList veyloChatInbox">
-                <div className="veyloChatInboxHeader"><div><span className="eyebrow">VEYLO NETWORKS</span><h2>Messages<span>.</span></h2></div><button type="button" className="veyloChatHeaderAction" title="New message" onClick={()=>setChatComposeOpen(true)}>＋</button></div>
+                <div className="veyloChatInboxHeader"><div><span className="eyebrow">VEYLO NETWORKS</span><h2>Messages<span>.</span></h2></div></div>
                 <div className="veyloChatSearch"><span aria-hidden="true">⌕</span><input aria-label="Search conversations" placeholder="Search conversations..." value={chatSearch} onChange={e=>setChatSearch(e.target.value)} /><button type="button" title="New group" onClick={()=>setChatNewGroupOpen(v=>!v)}>☷</button></div>
                 <div className="veyloChatFilters">{(['all','unread','groups','pinned'] as const).map(filter=><button type="button" key={filter} className={chatFilter===filter?'active':''} onClick={()=>setChatFilter(filter)}>{filter.charAt(0).toUpperCase()+filter.slice(1)}{filter==='unread'&&unreadCount>0?<span>{unreadCount>99?'99+':unreadCount}</span>:null}</button>)}</div>
                 {chatNewGroupOpen&&<div className="veyloChatGroupForm"><input className="field" placeholder="Group name" value={groupName} onChange={e=>setGroupName(e.target.value)}/><button className="primary" onClick={()=>{void createGroup();setChatNewGroupOpen(false);}}>Create Group</button></div>}
