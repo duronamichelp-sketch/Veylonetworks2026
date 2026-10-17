@@ -4438,3 +4438,34 @@ input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36ba
  .app .postCard:hover,.app .veyloPeopleCompactCard:hover,.app .projectCard:hover{transform:none}
 }
 @media(prefers-reduced-motion:reduce){.app .postCard,.app .veyloPeopleCompactCard,.app .projectCard{transition:none}}
+
+/* Final Veylo navigation + section visual system */
+.app .sidebar nav .navButton{display:flex;align-items:center;gap:13px;width:100%;min-height:46px;position:relative;border:1px solid transparent;border-radius:14px;margin:3px 0;padding:10px 13px;text-align:left;transition:background .2s,border-color .2s,box-shadow .2s,color .2s}
+.app .sidebar nav .navButton:nth-child(1){--nav-color:#1fb9ff;--nav-rgb:31,185,255}
+.app .sidebar nav .navButton:nth-child(2){--nav-color:#ff9d3c;--nav-rgb:255,157,60}
+.app .sidebar nav .navButton:nth-child(3){--nav-color:#a67bff;--nav-rgb:166,123,255}
+.app .sidebar nav .navButton:nth-child(4){--nav-color:#13d5ee;--nav-rgb:19,213,238}
+.app .sidebar nav .navButton:nth-child(5){--nav-color:#e879ff;--nav-rgb:232,121,255}
+.app .sidebar nav .navButton:nth-child(6){--nav-color:#32e5a4;--nav-rgb:50,229,164}
+.app .sidebar nav .navButton:nth-child(7){--nav-color:#f6bd55;--nav-rgb:246,189,85}
+.app .sidebar nav .navButton.active{color:var(--nav-color)!important;border-color:rgba(var(--nav-rgb),.38)!important;background:linear-gradient(90deg,rgba(var(--nav-rgb),.18),rgba(var(--nav-rgb),.035))!important;box-shadow:inset 3px 0 var(--nav-color),0 0 20px rgba(var(--nav-rgb),.12)!important;text-shadow:0 0 12px rgba(var(--nav-rgb),.5)}
+.app .veyloDesktopNavIcon{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;flex:0 0 29px;border-radius:9px;background:rgba(var(--nav-rgb),.075);color:var(--nav-color)}
+.app .veyloDesktopNavIcon svg{width:20px;height:20px;stroke:currentColor;transition:filter .2s,transform .2s}
+.app .navButton.active .veyloDesktopNavIcon{background:rgba(var(--nav-rgb),.15);box-shadow:0 0 14px rgba(var(--nav-rgb),.12)}
+.app .navButton.active .veyloDesktopNavIcon svg{filter:drop-shadow(0 0 5px rgba(var(--nav-rgb),.65))}
+.app .navButton:hover .veyloDesktopNavIcon svg{transform:scale(1.08)}
+.app .veyloDesktopNavLabel{display:inline-flex;align-items:center;gap:8px;min-width:0}
+.app .sidebar{background:linear-gradient(180deg,#071629,#030b16)!important;border-right:1px solid rgba(82,163,219,.17)}
+.app .topbar{background:linear-gradient(95deg,rgba(5,19,36,.98),rgba(7,25,45,.94))!important;border-bottom:1px solid rgba(var(--veylo-accent-rgb),.19)!important}
+.app .content .panel,.app .content .postCard,.app .content .profileHero,.app .content .officeHero,.app .content .chatPanel,.app .content .veyloChatInbox,.app .content .veyloChatConversationMain{background:radial-gradient(ellipse at 12% -35%,rgba(var(--veylo-accent-rgb),.11),transparent 60%),linear-gradient(155deg,rgba(12,33,56,.98),rgba(4,15,29,.98));border:1px solid rgba(var(--veylo-accent-rgb),.29);border-radius:20px;box-shadow:inset 0 1px rgba(220,240,255,.07),0 10px 30px rgba(0,0,0,.16)}
+.app .content .veyloChatConversationList,.app .content .messageArea,.app .content .officeItems{scrollbar-color:rgba(var(--veylo-accent-rgb),.45) transparent}
+.app .content input:focus,.app .content textarea:focus,.app .content select:focus{outline:2px solid rgba(var(--veylo-accent-rgb),.38);outline-offset:1px;border-color:rgba(var(--veylo-accent-rgb),.65)!important;box-shadow:0 0 16px rgba(var(--veylo-accent-rgb),.11)}
+.app .content button:focus-visible,.app .sidebar button:focus-visible,.app .mobileBottomNav button:focus-visible{outline:2px solid var(--veylo-accent);outline-offset:3px}
+.app .content .primary,.app .content .secondary,.app .content .pill{transition:transform .2s,box-shadow .2s,border-color .2s,background .2s}
+.app .content .primary:hover{transform:translateY(-1px);box-shadow:0 0 23px rgba(var(--veylo-accent-rgb),.34)}
+.app .mobileBottomNav{background:linear-gradient(180deg,rgba(4,14,28,.96),rgba(2,9,19,.99))!important;border-top:1px solid rgba(90,171,230,.23);backdrop-filter:blur(20px)}
+.app .mobileBottomTab{position:relative;transition:color .2s,background .2s}
+.app .mobileBottomTab svg{transition:stroke .2s,filter .2s,transform .2s}
+.app .mobileBottomTab.active svg{transform:translateY(-2px)}
+@media(max-width:700px){.app .content .panel,.app .content .postCard,.app .content .profileHero,.app .content .officeHero,.app .content .chatPanel,.app .content .veyloChatInbox,.app .content .veyloChatConversationMain{border-radius:17px}.app .content .primary:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.app .sidebar nav .navButton,.app .veyloDesktopNavIcon svg,.app .mobileBottomTab,.app .mobileBottomTab svg,.app .content .primary,.app .content .secondary{transition:none!important}.app .mobileBottomTab.active svg{transform:none}}
