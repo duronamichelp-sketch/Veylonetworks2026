@@ -2359,6 +2359,7 @@ export default function Home() {
 
           <nav>
             <NavButton
+              icon="network"
               active={page === 'network'}
               onClick={() => setPage('network')}
             >
@@ -2366,6 +2367,7 @@ export default function Home() {
             </NavButton>
 
             <NavButton
+              icon="people"
               active={page === 'people' || page === 'memberProfile'}
               onClick={() => setPage('people')}
             >
@@ -2373,6 +2375,7 @@ export default function Home() {
             </NavButton>
 
             <NavButton
+              icon="messages"
               active={page === 'messages'}
               onClick={() => setPage('messages')}
             >
@@ -2385,17 +2388,20 @@ export default function Home() {
             </NavButton>
 
             <NavButton
+              icon="offices"
               active={page === 'offices'}
               onClick={openOfficesSection}
             >
               Offices
             </NavButton>
 
-            <NavButton active={page === 'vbn'} onClick={() => setPage('vbn')}>
+            <NavButton icon="vbn"
+              active={page === 'vbn'} onClick={() => setPage('vbn')}>
               VBN
             </NavButton>
 
             <NavButton
+              icon="profile"
               active={page === 'profile'}
               onClick={() => setPage('profile')}
             >
@@ -2403,6 +2409,7 @@ export default function Home() {
             </NavButton>
 
             <NavButton
+              icon="coming"
               active={page === 'coming'}
               onClick={() => setPage('coming')}
             >
@@ -3689,17 +3696,20 @@ function NavButton({
   active,
   onClick,
   children,
+  icon,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  icon?: MobileIconName;
 }) {
   return (
     <button
       className={active ? 'navButton active' : 'navButton'}
       onClick={onClick}
     >
-      {children}
+      {icon && <span className="veyloDesktopNavIcon"><MobileNavIcon name={icon} /></span>}
+      <span className="veyloDesktopNavLabel">{children}</span>
     </button>
   );
 }
