@@ -3878,3 +3878,40 @@ a {
  .memberProfilePage .publicProfileHero .profileMetadata{justify-content:center;flex-wrap:wrap}
  .memberProfilePage .publicProfileHero .veyloVerifiedName{font-size:24px;letter-spacing:-.7px}
 }
+
+
+/* Mobile layout restructure: compact social directory and tools */
+@media(max-width:768px){
+ .searchPanel{padding:12px!important;border-radius:16px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+ .searchPanel .field{border-radius:14px!important;background:#1c2027!important;font-size:14px!important;min-height:45px!important}
+ .searchPanel p.muted{display:none!important}
+ .peopleGrid{display:flex!important;flex-direction:column!important;gap:10px!important}
+ .peopleGrid .personCard{display:grid!important;grid-template-columns:1fr auto!important;gap:8px 12px!important;padding:14px!important;border-radius:16px!important;background:#171b22!important;box-shadow:none!important}
+ .peopleGrid .personCard .memberHeader{grid-column:1 / -1!important;gap:12px!important}
+ .peopleGrid .personCard .memberText strong{font-size:16px!important}
+ .peopleGrid .personCard .memberText span{font-size:12px!important}
+ .peopleGrid .personCard>.memberFollowCounts{grid-column:1 / -1!important;font-size:11px!important;margin:0!important}
+ .peopleGrid .personCard>.personBio{grid-column:1 / -1!important;max-height:48px;overflow:hidden;font-size:12px!important;line-height:1.4!important;margin:0!important}
+ .peopleGrid .personCard>.cardActions{grid-column:1 / -1!important;display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;gap:8px!important;margin-top:4px!important}
+ .peopleGrid .personCard>.cardActions button{flex:1!important;min-width:0!important;padding:9px 5px!important;font-size:12px!important;border-radius:10px!important}
+ .peopleGrid .personCard>.cardActions .followButton{max-width:120px!important}
+ .mobileConversationList,.mobileOfficeList{padding:14px!important;background:#12161c!important;border-radius:17px!important;min-height:0!important}
+ .mobileConversationList h3,.mobileOfficeList h3{font-size:21px!important;letter-spacing:-.7px!important;margin-bottom:13px!important}
+ .veyloCreateDisclosure{margin-bottom:13px!important;border:1px solid #2a3038;border-radius:13px;background:#1a2028;overflow:hidden}
+ .veyloCreateDisclosure>summary{list-style:none;cursor:pointer;padding:13px 15px;color:#8cd1ff;font-size:13px;font-weight:750}
+ .veyloCreateDisclosure>summary::-webkit-details-marker{display:none}
+ .veyloCreateDisclosure[open]>summary{border-bottom:1px solid #2a3038}
+ .veyloCreateDisclosure>.stack{padding:12px!important}
+ .mobileConversationList .listButton,.mobileOfficeList .listButton{border-radius:13px!important;padding:13px!important;background:#1c222a!important;border:1px solid #2a323d!important;margin-bottom:8px!important}
+ .profileGrid{display:block!important}
+ .profileEditor{padding:16px!important;background:#11151b!important;border-radius:20px!important}
+ .profileEditor .profileHero{display:flex!important;flex-direction:column!important;text-align:center!important;align-items:center!important;gap:12px!important;padding:16px 0 22px!important}
+ .profileEditor .profileHero>div{display:flex;flex-direction:column;align-items:center;gap:5px}
+ .profileEditor .profileHero .avatar{width:88px!important;height:88px!important;border-radius:50%!important;object-fit:cover!important}
+ .profileEditor .profileHero .eyebrow{font-size:10px!important;letter-spacing:2.5px!important}
+ .profileEditor .profileHero h2{font-size:25px!important;letter-spacing:-.9px!important;margin:4px 0!important}
+ .profileEditor .profileHero .memberFollowCounts{display:flex!important;justify-content:center!important;gap:24px!important;margin-top:8px!important}
+ .profileEditor .veyloProfileSettingsControl{margin:0 0 16px!important}
+ .profileEditor .veyloSettingsButton{border-radius:13px!important;padding:12px!important;font-size:14px!important}
+ .profileEditor .field{border-radius:12px!important;font-size:14px!important}
+}
