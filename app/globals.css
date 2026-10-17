@@ -4160,3 +4160,15 @@ a {
 .veyloPostMediaLoading{position:relative;min-height:130px;margin:12px 0}
 @keyframes veyloMediaShimmer{0%{background-position:110% 0}100%{background-position:-110% 0}}
 @media(prefers-reduced-motion:reduce){.veyloPostMediaSkeleton{animation:none}.veyloPostMediaImage{transition:none}}
+
+/* Member discovery inside Chats and swipe-to-remove control */
+.veyloChatMemberResults{display:flex;flex-direction:column;gap:3px;max-height:230px;overflow-y:auto;margin:8px 0 12px;padding:8px;border:1px solid #293e50;border-radius:13px;background:#13202d}
+.veyloChatMemberResults>.eyebrow{padding:4px 8px 8px;font-size:10px;color:#80b2d5;letter-spacing:1.5px}
+.veyloChatMemberResults>button{display:flex;align-items:center;gap:10px;width:100%;min-width:0;padding:8px;border:0;border-radius:9px;background:transparent;color:#eaf4ff;text-align:left;cursor:pointer}
+.veyloChatMemberResults>button:hover{background:#223548}
+.veyloChatMemberResults>button .avatar{width:35px;height:35px;min-width:35px;border-radius:50%}
+.veyloChatMemberResults>button>span:nth-of-type(1){display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.veyloChatMemberResults>button strong{font-size:13px}
+.veyloChatMemberResults>button small{font-size:10px;color:#8ea9bf}
+.veyloChatMemberResults>button>span:last-child{font-size:11px;color:#4dbefb}
+.veyloChatHideButton{flex:0 0 auto!important;align-self:center!important;min-width:65px!important;min-height:35px!important;margin:0 4px!important;padding:6px 9px!important;border:0!important;border-radius:9px!important;background:#a92f42!important;color:#fff!important;font-size:12px!important;font-weight:700!important}
