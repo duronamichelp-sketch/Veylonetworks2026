@@ -4113,3 +4113,14 @@ a {
  body .mobileConversationLayout .veyloChatInbox .veyloChatPin{display:grid!important;place-items:center!important;flex:0 0 25px!important;width:25px!important;height:35px!important;min-width:25px!important;padding:0!important;border:0!important;background:transparent!important;color:#6c8298!important;font-size:17px!important}
  body .mobileConversationLayout .veyloChatInbox .veyloChatFloatingNew{position:absolute!important;right:16px!important;bottom:16px!important;display:grid!important;place-items:center!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;border:0!important;border-radius:50%!important;background:#0b9bfa!important;color:#fff!important;font-size:29px!important;box-shadow:0 5px 20px #008cff55!important}
 }
+
+/* Chats: mobile conversation is a dedicated full-screen view, never below inbox */
+@media(max-width:900px){
+ body .mobileConversationLayout[data-mobile-view="detail"]{display:block!important;width:100%!important;min-width:0!important;grid-template-columns:minmax(0,1fr)!important;margin:0!important}
+ body .mobileConversationLayout[data-mobile-view="detail"]>.mobileConversationList,
+ body .mobileConversationLayout[data-mobile-view="detail"]>.veyloChatInbox{display:none!important}
+ body .mobileConversationLayout[data-mobile-view="detail"]>.chatPanel{display:flex!important;flex-direction:column!important;width:100%!important;max-width:none!important;min-width:0!important;min-height:calc(100dvh - 215px)!important;margin:0!important;padding:12px!important;overflow:hidden!important;border-radius:16px!important}
+ body .mobileConversationLayout[data-mobile-view="detail"]>.chatPanel>.mobileDetailBack{display:flex!important;align-items:center!important;align-self:flex-start!important;gap:8px!important;margin:0 0 12px!important;padding:9px 12px!important;background:#1c2b3a!important;color:#69c9ff!important;border:1px solid #2d506b!important;border-radius:11px!important;font-size:13px!important;font-weight:700!important}
+ body .mobileConversationLayout[data-mobile-view="detail"]>.chatPanel .messageList{flex:1!important;min-height:240px!important;max-height:calc(100dvh - 380px)!important;overflow-y:auto!important}
+ body .mobileConversationLayout[data-mobile-view="list"]>.chatPanel{display:none!important}
+}
