@@ -4231,3 +4231,16 @@ body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow:hover{background:rgba(
 
 /* Sharper 1080-pixel-wide loading background */
 .veyloCinematicLoading .veyloLoadingArtwork{background-image:url('/veylo-hd-loading.svg')!important}
+
+/* Veylo premium splash: sharp vector art, separate native logo, clean hierarchy */
+.veyloCinematicLoading{background:#02070e!important}
+.veyloCinematicLoading .veyloLoadingArtwork{background-image:url('/veylo-premium-splash.svg')!important;background-size:cover;background-position:center;animation:veyloPremiumBreath 8s ease-in-out infinite alternate}
+.veyloCinematicLoading .veyloNetworkMotion{opacity:.45}
+.veyloPremiumBrand{position:absolute;z-index:4;left:50%;top:47%;transform:translate(-50%,-50%);width:min(79vw,430px);display:flex;align-items:center;justify-content:center}
+.veyloPremiumLogo{display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 5px 28px rgba(0,92,255,.22))}
+.veyloCinematicLoading .veyloRealLoading{top:62%;width:min(70vw,370px);gap:13px}
+.veyloCinematicLoading .veyloRealLoadingTrack{height:4px;background:#0b1a2c;border:1px solid rgba(77,143,209,.36);box-shadow:none}
+.veyloCinematicLoading .veyloRealLoadingFill{background:linear-gradient(90deg,#0867ee,#32c9ff);box-shadow:0 0 12px rgba(47,180,255,.35)}
+.veyloCinematicLoading .veyloRealLoadingPercent{font-size:12px;letter-spacing:.12em;color:#b6c9df;text-shadow:none}
+@keyframes veyloPremiumBreath{from{filter:brightness(.95)}to{filter:brightness(1.07)}}
+@media(prefers-reduced-motion:reduce){.veyloCinematicLoading .veyloLoadingArtwork{animation:none!important}}
