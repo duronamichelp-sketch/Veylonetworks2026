@@ -142,6 +142,7 @@ const STORAGE = {
 
 export default function Home() {
   const [ready, setReady] = useState(false);
+  const [startupProgress, setStartupProgress] = useState(4);
 
   const [page, setPage] = useState<Page>('network');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -501,6 +502,7 @@ export default function Home() {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError) console.warn('Could not restore Veylo session:', authError.message);
         setCurrentMemberId(user?.id || '');
+        setStartupProgress(18);
 
         // Load real Veylo members from Supabase
         const { data: profiles, error } = await supabase
@@ -529,6 +531,7 @@ export default function Home() {
           setMembers(realMembers);
         }
 
+        setStartupProgress(36);
         if (user) {
           const { data: followRows, error: followError } = await supabase
             .from('follows')
@@ -544,6 +547,7 @@ export default function Home() {
           }
         }
 
+        setStartupProgress(48);
         // Keep these local for now
         const storedPosts = localStorage.getItem(STORAGE.posts);
 
@@ -558,6 +562,7 @@ export default function Home() {
           attachmentType: p.attachment_type || undefined,
         })), ...localPosts.filter(p => !(remotePosts || []).some(r => r.id === p.id))]);
 
+        setStartupProgress(68);
         if (user) {
           await refreshInbox(user.id, (profiles || []).map((profile) => ({
             id: profile.id,
@@ -565,6 +570,7 @@ export default function Home() {
           })));
         }
 
+        setStartupProgress(83);
         if (user) {
           const { data: officeMemberRows, error: officeMemberError } =
             await supabase
@@ -628,6 +634,7 @@ export default function Home() {
         console.error('Veylo data could not load.', error);
       }
 
+      setStartupProgress(100);
       setReady(true);
     }
 
@@ -2151,6 +2158,12 @@ export default function Home() {
               <path d="M20 260 Q270 560 405 285" />
             </g>
           </svg>
+        </div>
+        <div className="veyloRealLoading" aria-label="Veylo startup progress">
+          <div className="veyloRealLoadingTrack" role="progressbar" aria-label="Loading Veylo Networks" aria-valuemin={0} aria-valuemax={100} aria-valuenow={startupProgress}>
+            <div className="veyloRealLoadingFill" style={{width: startupProgress + '%'}} />
+          </div>
+          <span className="veyloRealLoadingPercent">{startupProgress}%</span>
         </div>
         <span className="sr-only">Loading Veylo Networks</span>
       </main>
