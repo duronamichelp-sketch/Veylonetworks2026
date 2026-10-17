@@ -2346,7 +2346,7 @@ export default function Home() {
   ===================================================== */
 
   return (
-    <main className={'app veyloNavPosition-' + mobileNavPosition + (mobileNavCollapsed ? ' veyloNavCollapsed' : '')}>
+    <main className={'app veyloPage-' + page + ' veyloNavPosition-' + mobileNavPosition + (mobileNavCollapsed ? ' veyloNavCollapsed' : '')}>
       <aside className="sidebar">
         <div>
           <img
@@ -3586,7 +3586,7 @@ export default function Home() {
             <button
               type="button"
               key={tab.id}
-              className={selected ? 'mobileBottomTab active' : 'mobileBottomTab'}
+              className={'mobileBottomTab veyloTab-' + tab.id + (selected ? ' active' : '')}
               aria-label={tab.label}
               aria-current={selected ? 'page' : undefined}
               onClick={() => {
