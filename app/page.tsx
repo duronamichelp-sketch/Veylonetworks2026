@@ -170,6 +170,11 @@ export default function Home() {
   const [viewedMemberId, setViewedMemberId] = useState('');
 
   const [posts, setPosts] = useState<NetworkPost[]>([]);
+  const [savedIds,setSavedIds]=useState<string[]>([]);
+  const [comments,setComments]=useState<Array<{id:string;postId:string;userId:string;content:string}>>([]);
+  const [commentInputs,setCommentInputs]=useState<Record<string,string>>({});
+  const [openComments,setOpenComments]=useState<string[]>([]);
+  const [savedOnly,setSavedOnly]=useState(false);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [readReceipts, setReadReceipts] = useState<Record<string, string>>({});
@@ -530,8 +535,15 @@ export default function Home() {
 
         const localPosts: NetworkPost[] = storedPosts ? JSON.parse(storedPosts) : [];
         const { data: remotePosts } = await supabase.from('network_posts').select('*').order('created_at', { ascending: false });
+        const [{data:likesData},{data:savesData},{data:commentsData}]=await Promise.all([
+          supabase.from('network_post_likes').select('post_id,user_id'),
+          user?supabase.from('network_post_saves').select('post_id').eq('user_id',user.id):Promise.resolve({data:[]}),
+          supabase.from('network_post_comments').select('id,post_id,user_id,content')
+        ]);
+        setSavedIds((savesData||[]).map(x=>x.post_id));
+        setComments((commentsData||[]).map(x=>({id:x.id,postId:x.post_id,userId:x.user_id,content:x.content})));
         setPosts([...(remotePosts || []).map((p): NetworkPost => ({
-          id: p.id, memberId: p.member_id, content: p.content, likes: [], createdAt: p.created_at,
+          id: p.id, memberId: p.member_id, content: p.content, likes: (likesData||[]).filter(x=>x.post_id===p.id).map(x=>x.user_id), createdAt: p.created_at,
           attachmentPath: p.attachment_path || undefined, attachmentName: p.attachment_name || undefined,
           attachmentType: p.attachment_type || undefined,
         })), ...localPosts.filter(p => !(remotePosts || []).some(r => r.id === p.id))]);
@@ -1463,26 +1475,32 @@ export default function Home() {
     } finally { setPosting(false); }
   }
 
-  function toggleLike(postId: string) {
-    if (!currentMember) return;
-
-    setPosts((current) =>
-      current.map((post) => {
-        if (post.id !== postId) {
-          return post;
-        }
-
-        const liked = post.likes.includes(currentMember.id);
-
-        return {
-          ...post,
-
-          likes: liked
-            ? post.likes.filter((memberId) => memberId !== currentMember.id)
-            : [...post.likes, currentMember.id],
-        };
-      })
-    );
+  async function toggleLike(postId:string){
+    if(!currentMember)return;
+    const post=posts.find(p=>p.id===postId);if(!post)return;
+    const liked=post.likes.includes(currentMember.id);
+    setPosts(v=>v.map(p=>p.id===postId?{...p,likes:liked?p.likes.filter(x=>x!==currentMember.id):[...p.likes,currentMember.id]}:p));
+    const {error}=liked?await supabase.from('network_post_likes').delete().eq('post_id',postId).eq('user_id',currentMember.id):await supabase.from('network_post_likes').upsert({post_id:postId,user_id:currentMember.id});
+    if(error){setPosts(v=>v.map(p=>p.id===postId?{...p,likes:post.likes}:p));alert(error.message);}
+  }
+  async function toggleSave(postId:string){
+    if(!currentMember)return;
+    const saved=savedIds.includes(postId);
+    setSavedIds(v=>saved?v.filter(x=>x!==postId):[...v,postId]);
+    const {error}=saved?await supabase.from('network_post_saves').delete().eq('post_id',postId).eq('user_id',currentMember.id):await supabase.from('network_post_saves').upsert({post_id:postId,user_id:currentMember.id});
+    if(error){setSavedIds(v=>saved?[...v,postId]:v.filter(x=>x!==postId));alert(error.message);}
+  }
+  async function addComment(postId:string){
+    if(!currentMember)return;
+    const content=(commentInputs[postId]||'').trim();if(!content)return;
+    const {data,error}=await supabase.from('network_post_comments').insert({post_id:postId,user_id:currentMember.id,content}).select('id,post_id,user_id,content').single();
+    if(error){alert(error.message);return;}
+    if(data){setComments(v=>[...v,{id:data.id,postId:data.post_id,userId:data.user_id,content:data.content}]);setCommentInputs(v=>({...v,[postId]:''}));}
+  }
+  async function sharePost(postId:string){
+    const url=window.location.origin+'/?post='+encodeURIComponent(postId);
+    try{if(navigator.share)await navigator.share({title:'Veylo Networks',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Link copied');}else window.prompt('Copy post link',url);}
+    catch(e){if((e as Error).name!=='AbortError')alert('Sharing failed');}
   }
 
   /* =====================================================
@@ -2517,13 +2535,14 @@ export default function Home() {
                 </div>
               </div>
 
+              <div className="veyloFeedFilters"><button onClick={()=>setSavedOnly(false)} className={!savedOnly?'active':''}>Latest</button><button onClick={()=>setSavedOnly(true)} className={savedOnly?'active':''}>Saved ({savedIds.length})</button></div>
               {posts.length === 0 ? (
                 <EmptyState
                   title="The Veylo network is ready."
                   text="There are no posts yet."
                 />
               ) : (
-                posts.map((post) => {
+                posts.filter(p=>!savedOnly||savedIds.includes(p.id)).map((post) => {
                   const author = members.find(
                     (member) => member.id === post.memberId
                   );
@@ -2563,12 +2582,19 @@ export default function Home() {
                       {post.content && <p className="postContent"><NetworkPostText content={post.content} /></p>}
                       {post.attachmentPath && <NetworkPostMedia post={post} />}
 
-                      <button
-                        className={liked ? 'likeButton liked' : 'likeButton'}
-                        onClick={() => toggleLike(post.id)}
-                      >
-                        ♥ {post.likes.length}
-                      </button>
+                      <div className="veyloPostActions">
+                        <button className={liked?'liked':''} onClick={()=>void toggleLike(post.id)}>♥ {post.likes.length} Like</button>
+                        <button onClick={()=>setOpenComments(v=>v.includes(post.id)?v.filter(x=>x!==post.id):[...v,post.id])}>♧ {comments.filter(c=>c.postId===post.id).length} Comment</button>
+                        <button onClick={()=>void sharePost(post.id)}>↗ Share</button>
+                        <button className={savedIds.includes(post.id)?'isSaved':''} onClick={()=>void toggleSave(post.id)}>{savedIds.includes(post.id)?'▣ Saved':'▢ Save'}</button>
+                      </div>
+                      {openComments.includes(post.id)&&<div className="veyloPostComments">
+                        {comments.filter(c=>c.postId===post.id).map(c=><div className="veyloPostComment" key={c.id}><strong>{members.find(m=>m.id===c.userId)?.fullName||'Member'}</strong><p>{c.content}</p></div>)}
+                        <form className="veyloCommentComposer" onSubmit={e=>{e.preventDefault();void addComment(post.id)}}>
+                          <input aria-label="Comment" maxLength={2000} placeholder="Write a comment..." value={commentInputs[post.id]||''} onChange={e=>setCommentInputs(v=>({...v,[post.id]:e.target.value}))}/>
+                          <button type="submit" disabled={!commentInputs[post.id]?.trim()}>Send</button>
+                        </form>
+                      </div>
                     </article>
                   );
                 })
