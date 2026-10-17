@@ -2147,23 +2147,21 @@ export default function Home() {
         <div className="veyloLoadingArtwork" aria-hidden="true" />
         <div className="veyloNetworkMotion" aria-hidden="true">
           <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
-            <defs><linearGradient id="veyloBeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#1e9bff" stopOpacity="0"/><stop offset=".5" stopColor="#72e8ff" stopOpacity=".9"/><stop offset="1" stopColor="#1e9bff" stopOpacity="0"/></linearGradient></defs>
             <g className="veyloOrbitMotion">
-              <path d="M-55 390 Q195 50 445 390" />
-              <path d="M-60 460 Q195 155 455 460" />
-              <path d="M20 260 Q270 560 405 285" />
-              <path d="M15 515 Q180 175 390 525" />
-              <path d="M55 225 Q350 370 295 605" />
+              <path d="M-45 350 Q195 90 440 350" />
+              <path d="M-40 430 Q195 170 435 430" />
+              <path d="M25 250 Q195 510 375 250" />
             </g>
             <g className="veyloPulseNodes">
-              <circle cx="55" cy="390" r="3"/><circle cx="320" cy="285" r="3"/><circle cx="245" cy="235" r="3"/><circle cx="350" cy="475" r="3"/><circle cx="80" cy="530" r="3"/><circle cx="195" cy="630" r="3"/>
-            </g>
-            <g className="veyloOrbitBeams">
-              <path d="M-55 390 Q195 50 445 390" />
-              <path d="M-60 460 Q195 155 455 460" />
-              <path d="M20 260 Q270 560 405 285" />
+              <circle cx="40" cy="350" r="2.4" />
+              <circle cx="335" cy="335" r="2.4" />
+              <circle cx="195" cy="202" r="2.4" />
+              <circle cx="340" cy="465" r="2.4" />
             </g>
           </svg>
+        </div>
+        <div className="veyloPremiumBrand">
+          <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" className="veyloPremiumLogo" />
         </div>
         <div className="veyloRealLoading" aria-label="Veylo startup progress">
           <div className="veyloRealLoadingTrack" role="progressbar" aria-label="Loading Veylo Networks" aria-valuemin={0} aria-valuemax={100} aria-valuenow={startupProgress}>
