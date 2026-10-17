@@ -232,38 +232,6 @@ export default function Home() {
   const [chatPinnedIds, setChatPinnedIds] = useState<string[]>([]);
   const [chatComposeOpen, setChatComposeOpen] = useState(false);
   const [chatNewGroupOpen, setChatNewGroupOpen] = useState(false);
-  const [hiddenChatIds, setHiddenChatIds] = useState<string[]>([]);
-  const [swipedChatId, setSwipedChatId] = useState('');
-  const [chatSelectionMode, setChatSelectionMode] = useState(false);
-  const [selectedChatIds, setSelectedChatIds] = useState<string[]>([]);
-  function removeSelectedChats() {
-    if (!currentMemberId || !selectedChatIds.length) return;
-    if (!window.confirm('Remove ' + selectedChatIds.length + ' selected conversation(s) from your list? Other members and their messages will not be deleted.')) return;
-    const next = [...new Set([...hiddenChatIds, ...selectedChatIds])];
-    setHiddenChatIds(next);
-    localStorage.setItem('veylo-hidden-conversations-' + currentMemberId, JSON.stringify(next));
-    if (selectedChatIds.includes(selectedConversationId)) setSelectedConversationId('');
-    setSelectedChatIds([]);
-    setChatSelectionMode(false);
-  }
-
-  const chatSwipeStart = useRef<{ x: number; y: number } | null>(null);
-  useEffect(() => {
-    if (!currentMemberId) return;
-    try {
-      const saved = JSON.parse(localStorage.getItem('veylo-hidden-conversations-' + currentMemberId) || '[]');
-      setHiddenChatIds(Array.isArray(saved) ? saved : []);
-    } catch { setHiddenChatIds([]); }
-  }, [currentMemberId]);
-  function removeChatFromList(id: string) {
-    if (!currentMemberId) return;
-    const next = [...new Set([...hiddenChatIds, id])];
-    setHiddenChatIds(next);
-    localStorage.setItem('veylo-hidden-conversations-' + currentMemberId, JSON.stringify(next));
-    setSwipedChatId('');
-    if (selectedConversationId === id) setSelectedConversationId('');
-  }
-
   const [groupName, setGroupName] = useState('');
 
   const [groupInviteCode, setGroupInviteCode] = useState('');
@@ -2738,42 +2706,36 @@ export default function Home() {
           {page === 'messages' && (
             <div className="twoColumnLayout mobileConversationLayout" data-mobile-view={selectedConversation ? 'detail' : 'list'}>
               <aside className="glass panel mobileConversationList veyloChatInbox">
-                <div className="veyloChatInboxHeader"><div><span className="eyebrow">VEYLO NETWORKS</span><h2>Messages<span>.</span></h2></div><button type="button" className="veyloChatSelectToggle" onClick={()=>{setChatSelectionMode(v=>!v);setSelectedChatIds([]);}}>{chatSelectionMode?'Cancel':'Select'}</button></div>
+                <div className="veyloChatInboxHeader"><div><span className="eyebrow">VEYLO NETWORKS</span><h2>Messages<span>.</span></h2></div></div>
                 <div className="veyloChatSearch"><span aria-hidden="true">⌕</span><input aria-label="Search conversations" placeholder="Search conversations..." value={chatSearch} onChange={e=>setChatSearch(e.target.value)} /><button type="button" title="New group" onClick={()=>setChatNewGroupOpen(v=>!v)}>☷</button></div>
                 <div className="veyloChatFilters">{(['all','unread','groups','pinned'] as const).map(filter=><button type="button" key={filter} className={chatFilter===filter?'active':''} onClick={()=>setChatFilter(filter)}>{filter.charAt(0).toUpperCase()+filter.slice(1)}{filter==='unread'&&unreadCount>0?<span>{unreadCount>99?'99+':unreadCount}</span>:null}</button>)}</div>
                 {chatNewGroupOpen&&<div className="veyloChatGroupForm"><input className="field" placeholder="Group name" value={groupName} onChange={e=>setGroupName(e.target.value)}/><button className="primary" onClick={()=>{void createGroup();setChatNewGroupOpen(false);}}>Create Group</button></div>}
-                {chatSearch.trim() && <div className="veyloChatMemberResults"><span className="eyebrow">MATCHING MEMBERS</span>{members.filter(m=>m.id!==currentMember.id && (m.fullName.toLowerCase().includes(chatSearch.trim().toLowerCase()) || m.memberCode.toLowerCase()===chatSearch.trim().toLowerCase())).slice(0,30).map(m=><button type="button" key={m.id} onClick={()=>{setChatSearch('');void startDirectChat(m);}}><Avatar member={m}/><span><strong>{m.fullName}</strong><small>{m.memberCode}</small></span><span>Message →</span></button>)}</div>}
-                {chatSelectionMode && <div className="veyloChatSelectionBar"><span>{selectedChatIds.length} selected</span><button type="button" disabled={!selectedChatIds.length} onClick={removeSelectedChats}>Remove selected</button></div>}
                 <div className="veyloChatConversationList">
                 {visibleConversations.filter(conversation=>{
                   const name=getConversationName(conversation,currentMember,members).toLowerCase();
                   const last=conversation.messages[conversation.messages.length-1];
                   const read=Date.parse(readReceipts[conversation.id]||'')||0;
                   const hasUnread=conversation.messages.some(m=>m.senderId!==currentMember.id&&Date.parse(m.createdAt)>read);
-                  return !hiddenChatIds.includes(conversation.id) && (!chatSearch||name.includes(chatSearch.toLowerCase())||(last?.content||'').toLowerCase().includes(chatSearch.toLowerCase()))&&(chatFilter==='all'||(chatFilter==='groups'&&conversation.type==='group')||(chatFilter==='pinned'&&chatPinnedIds.includes(conversation.id))||(chatFilter==='unread'&&hasUnread));
+                  return (!chatSearch||name.includes(chatSearch.toLowerCase())||(last?.content||'').toLowerCase().includes(chatSearch.toLowerCase()))&&(chatFilter==='all'||(chatFilter==='groups'&&conversation.type==='group')||(chatFilter==='pinned'&&chatPinnedIds.includes(conversation.id))||(chatFilter==='unread'&&hasUnread));
                 }).sort((a,b)=>Number(chatPinnedIds.includes(b.id))-Number(chatPinnedIds.includes(a.id))).map(conversation=>{
                   const displayName=getConversationName(conversation,currentMember,members);
                   const other=members.find(m=>m.id!==currentMember.id&&conversation.members.includes(m.id));
                   const last=conversation.messages[conversation.messages.length-1];
                   const read=Date.parse(readReceipts[conversation.id]||'')||0;
                   const unread=conversation.messages.filter(m=>m.senderId!==currentMember.id&&Date.parse(m.createdAt)>read).length;
-                  return <div key={conversation.id} className={'veyloChatConversation'+(selectedConversationId===conversation.id?' active':'')+(swipedChatId===conversation.id?' swiped':'')}
-                    onTouchStart={e=>{chatSwipeStart.current={x:e.touches[0].clientX,y:e.touches[0].clientY};}}
-                    onTouchEnd={e=>{const start=chatSwipeStart.current;chatSwipeStart.current=null;if(!start)return;const dx=e.changedTouches[0].clientX-start.x;const dy=e.changedTouches[0].clientY-start.y;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5)setSwipedChatId(dx<0?conversation.id:'');}}>
-                    {chatSelectionMode && <input type="checkbox" className="veyloChatSelectCheck" aria-label={'Select '+displayName} checked={selectedChatIds.includes(conversation.id)} onChange={e=>setSelectedChatIds(ids=>e.target.checked?[...ids,conversation.id]:ids.filter(id=>id!==conversation.id))}/>}
-                    <button type="button" className="veyloChatConversationMain" onClick={()=>chatSelectionMode?setSelectedChatIds(ids=>ids.includes(conversation.id)?ids.filter(id=>id!==conversation.id):[...ids,conversation.id]):setSelectedConversationId(conversation.id)}>
+                  return <div key={conversation.id} className={'veyloChatConversation'+(selectedConversationId===conversation.id?' active':'')}>
+                    <button type="button" className="veyloChatConversationMain" onClick={()=>setSelectedConversationId(conversation.id)}>
                       <div className="veyloChatConversationAvatar">{conversation.type==='direct'&&other?<Avatar member={other}/>:<span>♙</span>}</div>
                       <div className="veyloChatConversationCopy"><strong>{displayName}{other?.isVerified?<span className="veyloChatVerified">✓</span>:null}</strong><span>{last?(last.senderId===currentMember.id?'You: ':'')+(last.attachmentName||last.content):conversation.type==='group'?conversation.members.length+' members':'Start a conversation'}</span></div>
                       <div className="veyloChatConversationMeta">{last&&<time>{new Date(last.createdAt).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</time>}{unread>0&&<b>{unread>99?'99+':unread}</b>}</div>
                     </button>
-                    {!chatSelectionMode && swipedChatId===conversation.id && <button type="button" className="veyloChatHideButton" onClick={()=>{if(window.confirm('Remove this conversation from your list? This will not delete the other person or their messages.'))removeChatFromList(conversation.id);}}>Remove</button>}
                     <button type="button" className={'veyloChatPin'+(chatPinnedIds.includes(conversation.id)?' pinned':'')} aria-label={chatPinnedIds.includes(conversation.id)?'Unpin chat':'Pin chat'} title={chatPinnedIds.includes(conversation.id)?'Unpin':'Pin'} onClick={()=>setChatPinnedIds(ids=>ids.includes(conversation.id)?ids.filter(id=>id!==conversation.id):[...ids,conversation.id])}>♧</button>
                   </div>;
                 })}
                 {visibleConversations.length===0&&<div className="mobileListEmpty">No conversations yet. <button type="button" className="secondary" onClick={()=>setPage('people')}>Find people</button></div>}
                 </div>
                 <button type="button" className="veyloChatFloatingNew" aria-label="New message" onClick={()=>setChatComposeOpen(true)}>＋</button>
-                {chatComposeOpen&&<div className="veyloChatComposeShade" onClick={()=>setChatComposeOpen(false)}><div className="veyloChatComposeSheet" onClick={e=>e.stopPropagation()}><div className="veyloChatComposeTitle"><strong>New Message</strong><button type="button" aria-label="Close" onClick={()=>setChatComposeOpen(false)}>×</button></div><input className="field" placeholder="Search people..." value={chatSearch} onChange={e=>setChatSearch(e.target.value)}/><div className="veyloChatComposePeople">{members.filter(m=>m.id!==currentMember.id&&(m.fullName.toLowerCase().includes(chatSearch.toLowerCase())||m.memberCode.toLowerCase()===chatSearch.trim().toLowerCase())).slice(0,20).map(m=><button type="button" key={m.id} onClick={()=>{setChatComposeOpen(false);setChatSearch('');void startDirectChat(m);}}><Avatar member={m}/><span><strong>{m.fullName}</strong><small>{m.headline||'Veylo member'}</small></span><span>→</span></button>)}</div><button className="primary full" type="button" onClick={()=>{setChatComposeOpen(false);setChatNewGroupOpen(true);}}>＋ New Group</button></div></div>}
+                {chatComposeOpen&&<div className="veyloChatComposeShade" onClick={()=>setChatComposeOpen(false)}><div className="veyloChatComposeSheet" onClick={e=>e.stopPropagation()}><div className="veyloChatComposeTitle"><strong>New Message</strong><button type="button" aria-label="Close" onClick={()=>setChatComposeOpen(false)}>×</button></div><input className="field" placeholder="Search people..." value={chatSearch} onChange={e=>setChatSearch(e.target.value)}/><div className="veyloChatComposePeople">{members.filter(m=>m.id!==currentMember.id&&m.fullName.toLowerCase().includes(chatSearch.toLowerCase())).slice(0,20).map(m=><button type="button" key={m.id} onClick={()=>{setChatComposeOpen(false);setPage('people');setPeopleSearch(m.fullName);}}><Avatar member={m}/><span><strong>{m.fullName}</strong><small>{m.headline||'Veylo member'}</small></span><span>→</span></button>)}</div><button className="primary full" type="button" onClick={()=>{setChatComposeOpen(false);setChatNewGroupOpen(true);}}>＋ New Group</button></div></div>}
               </aside>
 
               <section className="glass chatPanel">
