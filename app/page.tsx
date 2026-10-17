@@ -3804,20 +3804,42 @@ function MessageAttachment({ message }: { message: ChatMessage }) {
   </a>;
 }
 
+const networkMediaUrlCache = new Map<string, { url: string; expiresAt: number }>();
+
 function NetworkPostMedia({ post }: { post: NetworkPost }) {
-  const [url, setUrl] = useState('');
+  const path = post.attachmentPath || '';
+  const cached = path ? networkMediaUrlCache.get(path) : undefined;
+  const [url, setUrl] = useState(() => cached && cached.expiresAt > Date.now() ? cached.url : '');
+  const [imageReady, setImageReady] = useState(false);
   useEffect(() => {
-    if (!post.attachmentPath) return;
-    let valid = true;
-    void supabase.storage.from('network-attachments').createSignedUrl(post.attachmentPath, 3600).then(({data}) => {
-      if (valid) setUrl(data?.signedUrl || '');
+    if (!path) return;
+    const existing = networkMediaUrlCache.get(path);
+    if (existing && existing.expiresAt > Date.now()) {
+      setUrl(existing.url);
+      return;
+    }
+    let active = true;
+    setUrl('');
+    setImageReady(false);
+    void supabase.storage.from('network-attachments').createSignedUrl(path, 3600).then(({ data }) => {
+      if (!active) return;
+      const signed = data?.signedUrl || '';
+      if (signed) networkMediaUrlCache.set(path, { url: signed, expiresAt: Date.now() + 55 * 60 * 1000 });
+      setUrl(signed);
     });
-    return () => { valid = false; };
-  }, [post.attachmentPath]);
-  if (!url) return <span className="muted small">Loading attachment…</span>;
-  return <div style={{margin:'12px 0'}}>
-    {post.attachmentType?.startsWith('image/') ? <img src={url} alt={post.attachmentName || 'Post photo'} style={{width:'100%',maxHeight:440,objectFit:'contain',borderRadius:12}} /> :
-      post.attachmentType?.startsWith('video/') ? <video controls preload="metadata" src={url} style={{width:'100%',maxHeight:440}} /> :
+    return () => { active = false; };
+  }, [path]);
+  if (!path) return null;
+  const isImage = post.attachmentType?.startsWith('image/');
+  if (isImage) return <div className="veyloPostMediaFrame">
+    {!imageReady && <div className="veyloPostMediaSkeleton" aria-label="Loading post photo" />}
+    {url && <img src={url} alt={post.attachmentName || 'Post photo'} loading="eager" decoding="async"
+      onLoad={() => setImageReady(true)} onError={() => setImageReady(false)}
+      className={'veyloPostMediaImage' + (imageReady ? ' isReady' : '')} />}
+  </div>;
+  if (!url) return <div className="veyloPostMediaSkeleton veyloPostMediaLoading" aria-label="Loading attachment" />;
+  return <div style={{ margin: '12px 0' }}>
+    {post.attachmentType?.startsWith('video/') ? <video controls preload="metadata" src={url} style={{ width: '100%', maxHeight: 440 }} /> :
       <a href={url} target="_blank" rel="noopener noreferrer">📎 {post.attachmentName || 'Open file'}</a>}
   </div>;
 }
