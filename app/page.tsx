@@ -2460,17 +2460,6 @@ export default function Home() {
 
           {page === 'network' && (
             <section className="networkColumn">
-              <div className="veyloMobileNetworkHero">
-                <div className="veyloMobileHeroGlow" aria-hidden="true" />
-                <span className="veyloMobileHeroEyebrow">THE WORLD IS YOUR NETWORK</span>
-                <h1>Build what&apos;s <em>next.</em></h1>
-                <p>Ideas become opportunities when the right people connect.</p>
-                <div className="veyloMobileHeroActions">
-                  <button type="button" onClick={() => document.querySelector<HTMLTextAreaElement>('.networkColumn .composer textarea')?.focus()}>Create a post <span aria-hidden="true">↗</span></button>
-                  <button type="button" onClick={() => setPage('people')}>Explore people <span aria-hidden="true">→</span></button>
-                </div>
-              </div>
-              <div className="veyloMobileFeedLabel"><span>YOUR NETWORK</span><span className="veyloMobileLiveDot" /> <small>Ideas · Connections · Progress</small></div>
               <div className="glass composer">
                 <textarea
                   value={postText}
