@@ -4289,3 +4289,26 @@ body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow:hover{background:rgba(
 @keyframes veyloCinemaBeam{0%{translate:-45vw 0;opacity:0}45%{opacity:.8}100%{translate:180vw 0;opacity:0}}
 @keyframes veyloCinemaPulse{0%{opacity:.3;transform:scale(.55)}100%{opacity:1;transform:scale(1.8)}}
 @media(prefers-reduced-motion:reduce){.veyloCinemaImage,.veyloCinemaSweep,.veyloCinemaSpark{animation:none!important}}
+
+
+/* Veylo mobile office redesign */
+.veyloOfficeMobileDesign{display:flex;flex-direction:column;gap:16px;min-width:0}
+.veyloOfficeTabs{display:flex;gap:5px;overflow-x:auto;border-bottom:1px solid rgba(93,151,201,.22);scrollbar-width:none;padding:0 2px}
+.veyloOfficeTabs::-webkit-scrollbar{display:none}
+.veyloOfficeTabs button{flex:0 0 auto;padding:13px 11px;background:transparent;border:0;border-bottom:2px solid transparent;color:#9baec3;font-size:13px;font-weight:650}
+.veyloOfficeTabs button.active{color:#54c3ff;border-bottom-color:#09aaff}
+.veyloOfficeOverview{display:grid;gap:16px}
+.veyloOfficeStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.veyloOfficeStats button{min-width:0;text-align:left;display:grid;grid-template-columns:32px 1fr;align-items:center;column-gap:8px;row-gap:4px;padding:15px 12px;background:linear-gradient(145deg,#0e1d2d,#07111d);border:1px solid rgba(61,151,235,.22);border-radius:15px;color:white}
+.veyloOfficeStats button span{grid-row:span 2;color:#2fb5ff;font-size:23px}
+.veyloOfficeStats button strong{font-size:25px;line-height:1}
+.veyloOfficeStats button small{font-size:11px;color:#a1b6ca}
+.veyloOfficeSectionHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.veyloOfficeSectionHead h3{margin:0}
+.veyloOfficeSectionHead button{border:0;background:transparent;color:#41baff;font-size:12px;white-space:nowrap}
+.veyloOfficeMember{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(112,158,200,.16)}
+.veyloOfficeMemberAvatar{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#0d5eab;color:white;font-weight:700}
+.veyloOfficeMember div{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.veyloOfficeMember small{color:#8da9c2}
+.veyloOfficeOwner{color:#53c4ff;font-size:12px}
+@media(max-width:700px){.veyloOfficeMobileDesign .officeHero{background:linear-gradient(135deg,#102236,#080d15);border-color:rgba(44,142,230,.3)}.veyloOfficeMobileDesign .officeHero h2{font-size:clamp(25px,7vw,34px)}.veyloOfficeMobileDesign .officeGrid{display:grid;grid-template-columns:minmax(0,1fr)}.veyloOfficeMobileDesign .officeSection{min-width:0}.veyloOfficeMobileDesign .officeHero .inlineForm{width:100%}}
