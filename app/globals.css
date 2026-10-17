@@ -4340,3 +4340,14 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #4bc8
 .veyloOfficeMobileDesign .officeSection input,.veyloOfficeMobileDesign .officeHero input{background:rgba(11,25,43,.92);border-color:rgba(101,163,224,.28);border-radius:12px}
 .veyloOfficeMobileDesign .officeSection button:not(.active):hover{box-shadow:0 0 14px rgba(30,154,255,.18)}
 @media(prefers-reduced-motion:reduce){.veyloOfficeStats button{transition:none}}
+
+/* Global premium glass treatment across Veylo pages */
+.glass,.navButton,.mobileBottomTab,.fieldLabel input,.fieldLabel textarea{border-color:rgba(74,157,247,.25)}
+.glass{background:linear-gradient(145deg,rgba(11,31,55,.9),rgba(5,14,28,.94));box-shadow:inset 0 1px rgba(188,223,255,.06),0 8px 30px rgba(0,0,0,.13);backdrop-filter:blur(14px)}
+.navButton.active,.mobileBottomTab.active{color:#38caff!important;text-shadow:0 0 12px rgba(20,170,255,.46)}
+.mobileBottomTab svg{width:25px;height:25px;stroke-width:1.85;filter:drop-shadow(0 0 0 transparent);transition:filter .2s ease,transform .2s ease}
+.mobileBottomTab.active svg{filter:drop-shadow(0 0 6px rgba(10,180,255,.85));transform:translateY(-1px)}
+.mobileBottomTab.active::after{background:linear-gradient(90deg,transparent,#16c5ff,transparent)}
+.navButton:hover,.mobileBottomTab:hover{background:rgba(28,109,197,.14)}
+.glass button:not(:disabled):hover{border-color:rgba(71,178,255,.55)}
+@media(prefers-reduced-motion:reduce){.mobileBottomTab svg{transition:none}}
