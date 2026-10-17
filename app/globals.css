@@ -4184,3 +4184,15 @@ body .veyloChatInbox .veyloChatSelectCheck{flex:0 0 19px!important;width:19px!im
 .veyloOfficeWelcomeCard{position:relative}
 body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow{position:absolute!important;top:17px!important;left:18px!important;display:flex!important;align-items:center!important;justify-content:center!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;padding:0!important;margin:0!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#a9c4d7!important;font-size:27px!important;line-height:1!important;box-shadow:none!important;cursor:pointer}
 body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow:hover{background:rgba(90,174,224,.12)!important;color:#fff!important}
+
+/* Cinematic Veylo loading experience */
+.veyloCinematicLoading{position:fixed;inset:0;z-index:99999;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#02060b;padding:0;color:white}
+.veyloLoadingArtwork{position:absolute;inset:0;background-image:url('/veylo-network-loading.svg');background-size:cover;background-position:center;animation:veyloLoadingBreathe 5s ease-in-out infinite alternate;pointer-events:none}
+.veyloCinematicLoading::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),transparent 35%,rgba(0,0,0,.12));pointer-events:none}
+.veyloLoadingCenter{position:relative;z-index:1;width:min(76vw,440px);display:flex;flex-direction:column;align-items:center;gap:48px;transform:translateY(4vh)}
+.veyloCinematicLogo{display:block;width:min(70vw,400px);max-width:100%;height:auto;filter:drop-shadow(0 0 16px rgba(0,136,255,.42));animation:veyloLogoGlow 3s ease-in-out infinite alternate}
+.veyloLoadingTrack{width:100%;height:7px;border:1px solid rgba(67,173,255,.55);border-radius:999px;background:rgba(0,10,26,.82);box-shadow:0 0 12px rgba(0,115,255,.24);overflow:hidden}
+.veyloLoadingFill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0861ff,#0ea9ff,#68e7ff);box-shadow:0 0 18px #20bfff;transition:width .12s linear}
+@keyframes veyloLoadingBreathe{from{transform:scale(1);filter:brightness(.85)}to{transform:scale(1.045);filter:brightness(1.15)}}
+@keyframes veyloLogoGlow{from{filter:drop-shadow(0 0 7px rgba(0,125,255,.3))}to{filter:drop-shadow(0 0 23px rgba(0,145,255,.75))}}
+@media(prefers-reduced-motion:reduce){.veyloLoadingArtwork,.veyloCinematicLogo{animation:none}.veyloLoadingFill{transition:none}}
