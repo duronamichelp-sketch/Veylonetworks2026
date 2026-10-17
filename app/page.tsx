@@ -2589,58 +2589,11 @@ export default function Home() {
               ) : (
                 <div className="peopleGrid">
                   {filteredPeople.map((member) => (
-                    <article className="glass personCard" key={member.id}>
-                      <div className="memberHeader">
-                        <Avatar member={member} />
-
-                        <div className="memberText">
-                          <strong>{member.fullName}</strong>
-
-                          <span>{member.headline || 'Veylo Member'}</span>
-                        </div>
-                      </div>
-
-                      <MemberCode code={member.memberCode} />
-
-                      <p className="memberFollowCounts compact">
-                        <span><strong>{getFollowerCount(member.id)}</strong> followers</span>
-                        <span><strong>{getFollowingCount(member.id)}</strong> following</span>
-                      </p>
-
-                      <ExpandableText
-                        className="personBio muted"
-                        text={member.bio}
-                        maxCharacters={145}
-                        emptyText="No bio added yet."
-                      />
-
-                      <div className="cardActions">
-                        <button
-                          className="secondary"
-                          onClick={() => openMemberProfile(member)}
-                        >
-                          Profile
-                        </button>
-
-                        <button
-                          className="primary"
-                          onClick={() => startDirectChat(member)}
-                        >
-                          Message
-                        </button>
-                        <button
-                          type="button"
-                          className={followingMemberIds.has(member.id) ? 'secondary followButton isFollowing' : 'secondary followButton'}
-                          disabled={followBusyId === member.id}
-                          aria-pressed={followingMemberIds.has(member.id)}
-                          onClick={() => toggleFollow(member)}
-                        >
-                          {followBusyId === member.id
-                            ? 'Saving...'
-                            : followingMemberIds.has(member.id) ? 'Following ✓' : '+ Follow'}
-                        </button>
-                      </div>
-                    </article>
+                    <button type="button" className="glass veyloPeopleCompactCard" key={member.id} onClick={() => startDirectChat(member)} aria-label={'Message ' + member.fullName}>
+                      <Avatar member={member} />
+                      <strong>{member.fullName}</strong>
+                      <span className="veyloPeopleMessageIcon" aria-hidden="true">↗</span>
+                    </button>
                   ))}
                 </div>
               )}
