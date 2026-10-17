@@ -169,6 +169,8 @@ export default function Home() {
   const [viewedMemberId, setViewedMemberId] = useState('');
 
   const [posts, setPosts] = useState<NetworkPost[]>([]);
+  const [postSaves,setPostSaves]=useState<string[]>([]);
+  const [postComments,setPostComments]=useState<{id:string;post_id:string;user_id:string;content:string}[]>([]);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [readReceipts, setReadReceipts] = useState<Record<string, string>>({});
@@ -529,8 +531,11 @@ export default function Home() {
 
         const localPosts: NetworkPost[] = storedPosts ? JSON.parse(storedPosts) : [];
         const { data: remotePosts } = await supabase.from('network_posts').select('*').order('created_at', { ascending: false });
+        const [{data:remoteLikes},{data:remoteSaves},{data:remoteComments}]=await Promise.all([supabase.from('network_post_likes').select('post_id,user_id'),supabase.from('network_post_saves').select('post_id,user_id'),supabase.from('network_post_comments').select('id,post_id,user_id,content')]);
+        setPostSaves((remoteSaves||[]).filter(x=>x.user_id===user?.id).map(x=>x.post_id));
+        setPostComments(remoteComments||[]);
         setPosts([...(remotePosts || []).map((p): NetworkPost => ({
-          id: p.id, memberId: p.member_id, content: p.content, likes: [], createdAt: p.created_at,
+          id: p.id, memberId: p.member_id, content: p.content, likes: (remoteLikes||[]).filter(x=>x.post_id===p.id).map(x=>x.user_id), createdAt: p.created_at,
           attachmentPath: p.attachment_path || undefined, attachmentName: p.attachment_name || undefined,
           attachmentType: p.attachment_type || undefined,
         })), ...localPosts.filter(p => !(remotePosts || []).some(r => r.id === p.id))]);
@@ -1462,26 +1467,27 @@ export default function Home() {
     } finally { setPosting(false); }
   }
 
-  function toggleLike(postId: string) {
+  async function toggleLike(postId: string) {
     if (!currentMember) return;
-
-    setPosts((current) =>
-      current.map((post) => {
-        if (post.id !== postId) {
-          return post;
-        }
-
-        const liked = post.likes.includes(currentMember.id);
-
-        return {
-          ...post,
-
-          likes: liked
-            ? post.likes.filter((memberId) => memberId !== currentMember.id)
-            : [...post.likes, currentMember.id],
-        };
-      })
-    );
+    const liked=posts.find(p=>p.id===postId)?.likes.includes(currentMember.id);
+    const result=liked?await supabase.from('network_post_likes').delete().eq('post_id',postId).eq('user_id',currentMember.id):await supabase.from('network_post_likes').insert({post_id:postId,user_id:currentMember.id});
+    if(result.error){alert('Could not save like: '+result.error.message);return;}
+    setPosts(old=>old.map(p=>p.id!==postId?p:{...p,likes:liked?p.likes.filter(id=>id!==currentMember.id):[...p.likes,currentMember.id]}));
+  }
+  async function togglePostSave(postId:string){
+    if(!currentMember)return;
+    const saved=postSaves.includes(postId);
+    const result=saved?await supabase.from('network_post_saves').delete().eq('post_id',postId).eq('user_id',currentMember.id):await supabase.from('network_post_saves').insert({post_id:postId,user_id:currentMember.id});
+    if(result.error){alert('Could not save post: '+result.error.message);return;}
+    setPostSaves(old=>saved?old.filter(id=>id!==postId):[...old,postId]);
+  }
+  async function commentOnPost(postId:string){
+    if(!currentMember)return;
+    const content=window.prompt('Write a comment');
+    if(!content?.trim())return;
+    const {data,error}=await supabase.from('network_post_comments').insert({post_id:postId,user_id:currentMember.id,content:content.trim()}).select('id,post_id,user_id,content').single();
+    if(error){alert('Could not post comment: '+error.message);return;}
+    setPostComments(old=>[...old,data]);
   }
 
   /* =====================================================
@@ -2557,7 +2563,8 @@ export default function Home() {
 
                       <div className="veyloSocialActionBar">
                         <button type="button" className={liked ? 'likeButton liked' : 'likeButton'} onClick={() => toggleLike(post.id)} aria-label={liked?'Unlike post':'Like post'}>♥ <span>{post.likes.length}</span></button>
-                        <button type="button" onClick={() => { const el=document.querySelector('.veyloNetworkShortcuts'); el?.scrollIntoView({behavior:'smooth',block:'start'}); }} aria-label="Go to network feed">⌂</button>
+                        <button type="button" onClick={() => void commentOnPost(post.id)} aria-label="Comment on post">◯ {postComments.filter(c=>c.post_id===post.id).length}</button>
+                        <button type="button" onClick={() => void togglePostSave(post.id)} aria-label="Save post">{postSaves.includes(post.id)?'▣':'▢'}</button>
                         <button type="button" onClick={() => { const url=window.location.origin+'/?post='+encodeURIComponent(post.id); if(navigator.share)void navigator.share({title:'Veylo Networks',url}).catch(()=>{});else if(navigator.clipboard)void navigator.clipboard.writeText(url).then(()=>alert('Post link copied'));else window.prompt('Copy link',url); }} aria-label="Share post">↗</button>
                       </div>
                     </article>
