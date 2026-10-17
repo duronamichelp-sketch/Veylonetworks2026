@@ -4041,3 +4041,47 @@ a {
 @keyframes veyloOfficeFade{from{opacity:0}to{opacity:1}}
 @keyframes veyloOfficeRise{from{opacity:0;transform:translateY(30px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.veyloOfficeWelcomeOverlay,.veyloOfficeWelcomeCard{animation:none}}
+
+/* Veylo Chats premium inbox */
+.veyloChatInbox{position:relative!important;background:#0c111a!important;border:1px solid #1b2838!important;border-radius:22px!important;padding:18px!important;min-height:460px}
+.veyloChatInboxHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.veyloChatInboxHeader .eyebrow{font-size:9px;letter-spacing:2px;color:#7e9fbc}
+.veyloChatInboxHeader h2{font-size:27px;letter-spacing:-.8px;color:#f4f7fd;margin:4px 0 0}
+.veyloChatInboxHeader h2 span{color:#20b9ff}
+.veyloChatHeaderAction{width:40px;height:40px;border-radius:12px;background:#182b3b;border:1px solid #315675;color:#49c5ff;font-size:24px}
+.veyloChatSearch{display:flex;align-items:center;gap:10px;background:#151e29;border:1px solid #2a394a;border-radius:15px;padding:7px 12px;margin-bottom:14px;color:#9fbbd2}
+.veyloChatSearch>span{font-size:25px}
+.veyloChatSearch input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#f5f8fc;font-size:13px}
+.veyloChatSearch button{border:0;background:transparent;color:#34baff;font-size:23px}
+.veyloChatFilters{display:flex;gap:7px;overflow-x:auto;padding:0 0 16px}
+.veyloChatFilters button{white-space:nowrap;border:1px solid #273647;border-radius:24px;background:#19232e;color:#c4d0dc;padding:9px 13px;font-size:12px;font-weight:700}
+.veyloChatFilters button.active{background:#20b7f5;color:#071523;border-color:#20b7f5}
+.veyloChatFilters button span{background:#43c5ff;color:#061622;border-radius:50px;padding:1px 5px;margin-left:4px}
+.veyloChatConversationList{display:flex;flex-direction:column;gap:4px;padding-bottom:58px}
+.veyloChatConversation{display:flex;align-items:center;position:relative;border-bottom:1px solid #223040;border-radius:10px}
+.veyloChatConversation.active,.veyloChatConversation:hover{background:#162331}
+.veyloChatConversationMain{flex:1;display:flex;align-items:center;gap:11px;min-width:0;padding:12px 0;border:0;background:transparent;color:#eaf2f9;text-align:left}
+.veyloChatConversationAvatar{flex:0 0 46px;width:46px;height:46px;border-radius:50%;background:#223a50;display:grid;place-items:center;font-size:22px}
+.veyloChatConversationAvatar .avatar{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.veyloChatConversationCopy{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.veyloChatConversationCopy strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.veyloChatConversationCopy>span{color:#96aabc;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.veyloChatVerified{display:inline-grid;place-items:center;background:#1db7fa;color:#041626;border-radius:50%;width:15px;height:15px;font-size:10px;margin-left:5px}
+.veyloChatConversationMeta{display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex:0 0 auto;padding-right:4px}
+.veyloChatConversationMeta time{font-size:10px;color:#8ba1b6}
+.veyloChatConversationMeta b{font-size:10px;border-radius:50px;background:#16b7fa;color:#041523;padding:3px 7px}
+.veyloChatPin{border:0;background:transparent;color:#647c93;font-size:16px;padding:5px}
+.veyloChatPin.pinned{color:#3bc5ff}
+.veyloChatFloatingNew{position:absolute;right:17px;bottom:17px;border:0;background:#078ef2;color:white;border-radius:50%;width:52px;height:52px;font-size:31px;box-shadow:0 8px 25px #008bfa66}
+.veyloChatGroupForm{display:flex;gap:8px;margin:0 0 12px}
+.veyloChatGroupForm .field{flex:1;min-width:0}
+.veyloChatComposeShade{position:fixed;inset:0;z-index:9999;display:flex;justify-content:center;align-items:flex-end;background:#030811ba;backdrop-filter:blur(7px)}
+.veyloChatComposeSheet{width:min(100%,500px);max-height:85vh;overflow-y:auto;background:#101a27;border:1px solid #304256;border-radius:24px 24px 0 0;padding:22px}
+.veyloChatComposeTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:19px}
+.veyloChatComposeTitle button{border:0;background:transparent;color:#bdcddd;font-size:25px}
+.veyloChatComposePeople{display:flex;flex-direction:column;max-height:45vh;overflow-y:auto;margin:15px 0}
+.veyloChatComposePeople button{display:flex;align-items:center;gap:11px;text-align:left;border:0;border-bottom:1px solid #27394a;background:transparent;color:#f4f8fd;padding:11px 0}
+.veyloChatComposePeople .avatar{width:39px;height:39px;border-radius:50%}
+.veyloChatComposePeople button>span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:4px}
+.veyloChatComposePeople small{font-size:11px;color:#a6b7c8}
+@media(max-width:768px){.mobileConversationList.veyloChatInbox{padding:15px!important}.veyloChatInboxHeader h2{font-size:27px!important}.veyloChatConversationMain{padding:12px 0!important}.veyloChatConversationCopy strong{font-size:14px!important}.veyloChatFilters button{padding:8px 12px!important}.veyloChatComposeSheet{padding-bottom:35px}}
