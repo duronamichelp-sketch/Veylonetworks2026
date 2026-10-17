@@ -2758,7 +2758,7 @@ export default function Home() {
               <aside className="glass panel mobileConversationList">
                 <h3>Messages</h3>
 
-                <div className="stack">
+                <details className="veyloCreateDisclosure"><summary>＋ New group</summary><div className="stack">
                   <input
                     className="field"
                     placeholder="Group name"
@@ -2769,7 +2769,7 @@ export default function Home() {
                   <button className="primary full" onClick={createGroup}>
                     Create Group
                   </button>
-                </div>
+                </div></details>
 
                 {visibleConversations.length === 0 && (
                   <div className="mobileListEmpty">
@@ -2982,7 +2982,7 @@ export default function Home() {
               <aside className="glass panel mobileOfficeList">
                 <h3>Internal Offices</h3>
 
-                <div className="stack">
+                <details className="veyloCreateDisclosure"><summary>＋ New office</summary><div className="stack">
                   <input
                     className="field"
                     placeholder="Office / project name"
@@ -3002,7 +3002,7 @@ export default function Home() {
                   <button className="primary full" onClick={createOffice}>
                     Create Office
                   </button>
-                </div>
+                </div></details>
 
                 {visibleOffices.length === 0 && (
                   <p className="mobileListEmpty">Create your first office to manage projects and collaborate with colleagues.</p>
