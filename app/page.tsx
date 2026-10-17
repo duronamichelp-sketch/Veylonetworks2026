@@ -269,6 +269,7 @@ export default function Home() {
   /* OFFICES */
 
   const [selectedOfficeId, setSelectedOfficeId] = useState('');
+  const [officeMobileTab, setOfficeMobileTab] = useState<'overview' | 'tasks' | 'meetings' | 'members' | 'notes'>('overview');
   const [officeWelcomeOpen, setOfficeWelcomeOpen] = useState(false);
   const [officeWelcomeDismissed, setOfficeWelcomeDismissed] = useState(false);
   function enterVeyloOffice(id: string) {
@@ -2991,6 +2992,7 @@ export default function Home() {
                   />
                 ) : (
                   <>
+                    <div className="veyloOfficeMobileDesign">
                     <section className="glass officeHero">
                       <div>
                         <span className="eyebrow">INTERNAL OFFICE</span>
@@ -3019,8 +3021,23 @@ export default function Home() {
                       </div>
                     </section>
 
-                    <div className="officeGrid">
-                      <section className="glass officeSection">
+
+                      <div className="veyloOfficeTabs" role="tablist" aria-label="Office sections">
+                        {(['overview','tasks','meetings','members','notes'] as const).map(tab => (
+                          <button type="button" role="tab" aria-selected={officeMobileTab === tab} key={tab} className={officeMobileTab === tab ? 'active' : ''} onClick={() => setOfficeMobileTab(tab)}>{tab === 'overview' ? 'Overview' : tab[0].toUpperCase() + tab.slice(1)}</button>
+                        ))}
+                      </div>
+                      {officeMobileTab === 'overview' && <div className="veyloOfficeOverview">
+                        <div className="veyloOfficeStats">
+                          <button onClick={() => setOfficeMobileTab('tasks')}><span>◉</span><strong>{selectedOffice.tasks.filter(task => !task.complete).length}</strong><small>Open Tasks</small></button>
+                          <button onClick={() => setOfficeMobileTab('meetings')}><span>▣</span><strong>{selectedOffice.meetings.length}</strong><small>Meetings</small></button>
+                          <button onClick={() => setOfficeMobileTab('members')}><span>♙</span><strong>{selectedOffice.members.length}</strong><small>Members</small></button>
+                          <button onClick={() => setOfficeMobileTab('notes')}><span>▤</span><strong>{selectedOffice.notes.length}</strong><small>Notes</small></button>
+                        </div>
+                        <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Tasks</h3><button onClick={() => setOfficeMobileTab('tasks')}>View all →</button></div><div className="officeItems">{selectedOffice.tasks.slice(0,3).map(task => <button key={task.id} className={task.complete ? 'task complete' : 'task'} onClick={() => toggleOfficeTask(task.id)}><span>{task.complete ? '✓' : '○'}</span>{task.title}</button>)}{selectedOffice.tasks.length === 0 && <p className="muted">No tasks yet</p>}</div></section>
+                        <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Upcoming Meetings</h3><button onClick={() => setOfficeMobileTab('meetings')}>View all →</button></div><div className="officeItems">{selectedOffice.meetings.slice(0,3).map(meeting => <article className="meeting" key={meeting.id}><strong>{meeting.title}</strong><span className="muted small">{meeting.date} at {meeting.time}</span></article>)}{selectedOffice.meetings.length === 0 && <p className="muted">No meetings scheduled</p>}</div></section>
+                      </div>}
+                      {officeMobileTab === 'tasks' && <div className="officeGrid">                      <section className="glass officeSection">
                         <h3>Tasks</h3>
 
                         <div className="inlineForm">
@@ -3053,7 +3070,8 @@ export default function Home() {
                         </div>
                       </section>
 
-                      <section className="glass officeSection">
+</div>}
+                      {officeMobileTab === 'meetings' && <div className="officeGrid">                      <section className="glass officeSection">
                         <h3>Meetings</h3>
 
                         <div className="stack">
@@ -3093,7 +3111,8 @@ export default function Home() {
                         </div>
                       </section>
 
-                      <section className="glass officeSection officeNotes">
+</div>}
+                      {officeMobileTab === 'notes' && <div className="officeGrid">                      <section className="glass officeSection officeNotes">
                         <h3>Office Notes</h3>
 
                         <textarea
@@ -3115,6 +3134,8 @@ export default function Home() {
                           ))}
                         </div>
                       </section>
+</div>}
+                      {officeMobileTab === 'members' && <section className="glass officeSection"><h3>Office Members</h3><div className="officeItems">{selectedOffice.members.map(id => { const member = members.find(m => m.id === id); return <div className="veyloOfficeMember" key={id}><span className="veyloOfficeMemberAvatar">{(member?.fullName || '?').charAt(0).toUpperCase()}</span><div><strong>{member?.fullName || 'Office member'}</strong><small>{member?.memberCode || ''}</small></div>{id === selectedOffice.ownerId && <span className="veyloOfficeOwner">Owner</span>}</div> })}</div></section>}
                     </div>
                   </>
                 )}
