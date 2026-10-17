@@ -220,20 +220,6 @@ export default function Home() {
 
   /* MESSAGES */
 
-  const [loadingProgress, setLoadingProgress] = useState(5);
-  const [loadingIntroDone, setLoadingIntroDone] = useState(false);
-  useEffect(() => {
-    const started = Date.now();
-    const timer = window.setInterval(() => {
-      const elapsed = Date.now() - started;
-      setLoadingProgress(previous => Math.min(95, Math.max(previous, Math.round(5 + 90 * (1 - Math.exp(-elapsed / 1600))))));
-    }, 85);
-    const intro = window.setTimeout(() => setLoadingIntroDone(true), 3000);
-    return () => { window.clearInterval(timer); window.clearTimeout(intro); };
-  }, []);
-  useEffect(() => {
-    if (ready) setLoadingProgress(100);
-  }, [ready]);
   const [selectedConversationId, setSelectedConversationId] = useState('');
 
   const [messageText, setMessageText] = useState('');
@@ -2142,16 +2128,31 @@ export default function Home() {
      LOADING
   ===================================================== */
 
-  if (!ready || !loadingIntroDone) {
+  if (!ready) {
     return (
       <main className="loadingScreen veyloCinematicLoading" role="status" aria-label="Loading Veylo Networks">
         <div className="veyloLoadingArtwork" aria-hidden="true" />
-        <div className="veyloLoadingCenter">
-          <span className="sr-only">Veylo Networks</span>
-          <div className="veyloLoadingTrack" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadingProgress} aria-label="Loading progress">
-            <div className="veyloLoadingFill" style={{width: loadingProgress + '%'}} />
-          </div>
+        <div className="veyloNetworkMotion" aria-hidden="true">
+          <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="veyloBeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#1e9bff" stopOpacity="0"/><stop offset=".5" stopColor="#72e8ff" stopOpacity=".9"/><stop offset="1" stopColor="#1e9bff" stopOpacity="0"/></linearGradient></defs>
+            <g className="veyloOrbitMotion">
+              <path d="M-55 390 Q195 50 445 390" />
+              <path d="M-60 460 Q195 155 455 460" />
+              <path d="M20 260 Q270 560 405 285" />
+              <path d="M15 515 Q180 175 390 525" />
+              <path d="M55 225 Q350 370 295 605" />
+            </g>
+            <g className="veyloPulseNodes">
+              <circle cx="55" cy="390" r="3"/><circle cx="320" cy="285" r="3"/><circle cx="245" cy="235" r="3"/><circle cx="350" cy="475" r="3"/><circle cx="80" cy="530" r="3"/><circle cx="195" cy="630" r="3"/>
+            </g>
+            <g className="veyloOrbitBeams">
+              <path d="M-55 390 Q195 50 445 390" />
+              <path d="M-60 460 Q195 155 455 460" />
+              <path d="M20 260 Q270 560 405 285" />
+            </g>
+          </svg>
         </div>
+        <span className="sr-only">Loading Veylo Networks</span>
       </main>
     );
   }
