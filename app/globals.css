@@ -4220,3 +4220,11 @@ body .veyloOfficeWelcomeCard .veyloOfficeWelcomeBackArrow:hover{background:rgba(
 @keyframes veyloNodePulse{0%,100%{opacity:.25;transform:scale(.65)}50%{opacity:1;transform:scale(1.9)}}
 @keyframes veyloBackgroundBreath{from{filter:brightness(.85);transform:scale(1)}to{filter:brightness(1.15);transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){.veyloCinematicLoading .veyloLoadingArtwork,.veyloOrbitMotion path,.veyloPulseNodes circle,.veyloOrbitBeams path{animation:none!important}}
+
+/* Genuine startup progress on artwork without baked-in progress graphics */
+.veyloCinematicLoading .veyloLoadingArtwork{background-image:url('/veylo-clean-loading.svg')!important}
+.veyloRealLoading{position:absolute;z-index:3;left:50%;top:61%;transform:translateX(-50%);width:min(73vw,390px);display:flex;flex-direction:column;gap:9px;align-items:flex-end}
+.veyloRealLoadingTrack{position:relative;width:100%;height:6px;overflow:hidden;border-radius:999px;border:1px solid rgba(64,156,243,.58);background:rgba(1,12,30,.8);box-shadow:0 0 20px rgba(0,129,255,.19),inset 0 0 5px rgba(9,91,165,.22)}
+.veyloRealLoadingFill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0354ed 0%,#00a9f8 65%,#9bf5ff 100%);box-shadow:0 0 15px rgba(57,210,255,.8);transition:width .32s ease-out}
+.veyloRealLoadingPercent{color:#9ccce8;font-size:11px;font-weight:600;letter-spacing:.08em;font-variant-numeric:tabular-nums;text-shadow:0 0 9px #004e97}
+@media(prefers-reduced-motion:reduce){.veyloRealLoadingFill{transition:none}}
