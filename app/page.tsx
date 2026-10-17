@@ -2970,11 +2970,25 @@ export default function Home() {
 
           {/* OFFICES */}
 
+          {page === 'offices' && officeWelcomeOpen && !officeWelcomeDismissed && (
+            {officeWelcomeOpen && !officeWelcomeDismissed && (
+                  <div className="veyloOfficeWelcomeOverlay" role="dialog" aria-modal="true" aria-label="Welcome to office">
+                    <div className="veyloOfficeWelcomeCard">
+                      <div className="veyloOfficeWelcomeLogo">V</div>
+                      <span className="eyebrow">VEYLO NETWORKS • OFFICES</span>
+                      <h2>Welcome, {officePreferredTitle ? officePreferredTitle + ' ' : ''}{currentMember.fullName.trim().split(' ').filter(Boolean).slice(-1)[0]}.</h2>
+                      <p>Your projects await.</p>
+                      <div className="veyloOfficeTitleChoice"><label htmlFor="veylo-office-title">Preferred title</label><select id="veylo-office-title" value={officePreferredTitle} onChange={e=>setOfficePreferredTitle(e.target.value)}><option value="">No title</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mx.">Mx.</option></select></div>
+                      <button type="button" className="veyloOfficeEnterButton" onClick={()=>{setOfficeWelcomeDismissed(true);setOfficeWelcomeOpen(false);}}>Enter Offices <span aria-hidden="true">→</span></button>
+                    </div>
+                  </div>
+                )}
+          )}
+
           {page === 'offices' && (
             <div className="twoColumnLayout mobileOfficeLayout" data-mobile-view={selectedOffice ? 'detail' : 'list'}>
               <aside className="glass panel mobileOfficeList">
                 <div className="veyloOfficeDirectoryHeading"><span className="eyebrow">THE BUSINESS COMMUNITY</span><h2>Offices<span style={{color:'#2db7ff'}}>.</span></h2><p>Discover your workspace and collaborate with your team.</p></div>
-                <div className="veyloOfficeFeature"><span className="veyloOfficeFeatureTag">✦ YOUR WORKSPACE</span><div className="veyloOfficeFeatureSymbol">V</div><h3>Welcome to Veylo Offices</h3><p>Where your ideas become projects, and your projects become progress.</p><span className="veyloOfficeFeatureHint">Select an office below to enter →</span></div>
                 <h3 className="veyloOfficeListHeading">My Offices <span>{visibleOffices.length}</span></h3>
 
                 <details className="veyloCreateDisclosure"><summary>＋ New office</summary><div className="stack">
@@ -3022,18 +3036,6 @@ export default function Home() {
               </aside>
 
               <section className="officeMain">
-                {officeWelcomeOpen && !officeWelcomeDismissed && (
-                  <div className="veyloOfficeWelcomeOverlay" role="dialog" aria-modal="true" aria-label="Welcome to office">
-                    <div className="veyloOfficeWelcomeCard">
-                      <div className="veyloOfficeWelcomeLogo">V</div>
-                      <span className="eyebrow">VEYLO NETWORKS • OFFICES</span>
-                      <h2>Welcome, {officePreferredTitle ? officePreferredTitle + ' ' : ''}{currentMember.fullName.trim().split(' ').filter(Boolean).slice(-1)[0]}.</h2>
-                      <p>Your projects await.</p>
-                      <div className="veyloOfficeTitleChoice"><label htmlFor="veylo-office-title">Preferred title</label><select id="veylo-office-title" value={officePreferredTitle} onChange={e=>setOfficePreferredTitle(e.target.value)}><option value="">No title</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mx.">Mx.</option></select></div>
-                      <button type="button" className="veyloOfficeEnterButton" onClick={()=>{setOfficeWelcomeDismissed(true);setOfficeWelcomeOpen(false);}}>Enter Offices <span aria-hidden="true">→</span></button>
-                    </div>
-                  </div>
-                )}
                 {selectedOffice && (
                   <button
                     type="button"
