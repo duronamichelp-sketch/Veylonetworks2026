@@ -3946,3 +3946,29 @@ a {
  .profileEditor .veyloProfileSettingsControl{margin-bottom:22px!important}
  #veylo-edit-profile-fields{scroll-margin-top:85px}
 }
+
+/* Veylo premium mobile Network feed - reference layout */
+@media(max-width:768px){
+ .veyloCleanFeed{width:100%!important;max-width:100%!important;gap:17px!important;padding-bottom:90px}
+ .veyloCleanFeed .veyloNetworkShortcuts{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin:0 0 4px!important}
+ .veyloCleanFeed .veyloNetworkTitle{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important}
+ .veyloCleanFeed .veyloNetworkKicker{font-size:10px!important;letter-spacing:3px!important;color:#8194b3!important;font-weight:700!important}
+ .veyloCleanFeed .veyloNetworkTitle strong{font-size:31px!important;line-height:1.1!important;letter-spacing:-1px!important;color:#f7f9fd!important}
+ .veyloCleanFeed .veyloNetworkShortcuts>button{background:#171d26!important;border:1px solid #303b4c!important;border-radius:15px!important;min-height:54px!important;padding:0 17px!important;color:#9cdbff!important;font-weight:800!important;box-shadow:none!important}
+ .veyloCleanFeed .composer,.veyloCleanFeed .postCard{background:#171c24!important;border:1px solid #2d3645!important;border-radius:22px!important;box-shadow:none!important;overflow:hidden}
+ .veyloCleanFeed .composer{padding:18px!important}
+ .veyloCleanFeed .composer textarea{background:transparent!important;border:0!important;box-shadow:none!important;resize:none!important;min-height:66px!important;padding:8px 2px!important;font-size:15px!important;color:#eef4fa!important}
+ .veyloCleanFeed .composer .primary{background:#31b5f5!important;color:#061724!important;border:0!important;border-radius:15px!important;min-height:45px!important;min-width:94px!important;font-weight:800!important}
+ .veyloCleanFeed .postCard{padding:18px!important;margin:0!important}
+ .veyloCleanFeed .postCard .memberHeader{margin-bottom:15px!important}
+ .veyloCleanFeed .postCard .memberNameButton{font-weight:800!important;font-size:17px!important}
+ .veyloCleanFeed .postCard .postContent{line-height:1.6!important}
+ .veyloCleanFeed .postCard img,.veyloCleanFeed .postCard video{max-width:100%}
+ .veyloCleanFeed .veyloEngagementActions{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;border-top:1px solid #2c3542!important;margin-top:19px!important;padding:16px 0 0!important;align-items:stretch!important}
+ .veyloCleanFeed .veyloEngagementActions button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-width:0!important;min-height:57px!important;padding:4px 0!important;border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;color:#a9b9ca!important;font-size:13px!important;font-weight:500!important}
+ .veyloCleanFeed .veyloEngagementActions button svg{width:25px!important;height:25px!important;display:block!important;flex-shrink:0!important}
+ .veyloCleanFeed .veyloEngagementActions button span{font-size:12px!important;line-height:1!important}
+ .veyloCleanFeed .veyloEngagementActions button small{font-size:11px!important;font-weight:500!important;line-height:1.1!important;color:#aebccc!important}
+ .veyloCleanFeed .veyloEngagementActions button.liked{color:#ff5a72!important}
+ .veyloCleanFeed .veyloEngagementActions button.isSaved{color:#3ab7f6!important}
+}
