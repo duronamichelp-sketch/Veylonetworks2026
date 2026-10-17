@@ -2946,6 +2946,7 @@ export default function Home() {
                       <h2>Welcome, {currentMember.fullName.trim().split(/\s+/).filter(Boolean)[0]?.replace(/^./, letter => letter.toLocaleUpperCase()) || 'there'}.</h2>
                       <p>Your projects await.</p>
                       <button type="button" className="veyloOfficeEnterButton" onClick={()=>{setOfficeWelcomeDismissed(true);setOfficeWelcomeOpen(false);}}>Enter Offices <span aria-hidden="true">→</span></button>
+                      <button type="button" className="veyloOfficeWelcomeBack" onClick={()=>{setOfficeWelcomeOpen(false);setOfficeWelcomeDismissed(true);setPage('network');}}>← Back to Network</button>
                     </div>
                   </div>
           )}
