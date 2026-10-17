@@ -3925,3 +3925,24 @@ a {
  .veyloNavPosition-bottom .mobileBottomTab svg{display:block!important;margin:0 auto!important}
  .veyloNavPosition-bottom .mobileBottomTab>span:last-child{display:block!important;width:100%!important;text-align:center!important}
 }
+
+
+/* Veylo identity: profile inspired by modern social apps, not a clone */
+@media(max-width:768px){
+ .profileEditor{background:#0e1219!important;border:1px solid #222c39!important;padding:18px 15px!important}
+ .profileEditor .profileHero{display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;padding:24px 4px 8px!important;gap:12px!important}
+ .profileEditor .profileHero>.avatar,.profileEditor .profileHero>.avatarWrap,.profileEditor .profileHero>img{width:100px!important;height:100px!important;border-radius:28px!important;object-fit:cover!important;border:2px solid #3a9bdf!important;box-shadow:0 0 0 5px rgba(34,151,242,.09)}
+ .profileEditor .profileHero .eyebrow{color:#6fa4c9!important;letter-spacing:2.2px!important;font-size:9px!important}
+ .profileEditor .profileHero h2{font-size:26px!important;line-height:1.2!important;font-weight:800!important;letter-spacing:-.7px!important}
+ .profileEditor .profileHero .veyloProfileTagline{max-width:285px!important;font-size:12px!important;line-height:1.55!important;color:#a5b4c3!important;margin:8px auto 0!important}
+ .veyloProfileQuickStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:min(100%,370px);gap:3px;margin:17px auto 8px!important;padding:14px 0;border-top:1px solid #273240;border-bottom:1px solid #273240}
+ .veyloProfileQuickStats>div{display:flex;flex-direction:column;gap:5px;align-items:center;min-width:0}
+ .veyloProfileQuickStats strong{font-size:18px;color:#f2f6fa;line-height:1}
+ .veyloProfileQuickStats span{font-size:10px;color:#8f9faf;letter-spacing:.1px}
+ .profileEditor .profileHero .memberFollowCounts{display:none!important}
+ .veyloProfileHeroActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 15px}
+ .veyloProfileHeroActions button{min-height:42px;border-radius:12px;border:1px solid #344152;background:#202833;color:#eef4f8;font-weight:700;font-size:13px}
+ .veyloProfileHeroActions button:first-child{background:#e5f4ff;color:#101b27;border-color:#e5f4ff}
+ .profileEditor .veyloProfileSettingsControl{margin-bottom:22px!important}
+ #veylo-edit-profile-fields{scroll-margin-top:85px}
+}
