@@ -31,7 +31,6 @@ const MOBILE_TABS: Array<{ id: Page; label: string; icon: MobileIconName }> = [
   { id: 'people', label: 'People', icon: 'people' },
   { id: 'messages', label: 'Chats', icon: 'messages' },
   { id: 'offices', label: 'Offices', icon: 'offices' },
-  { id: 'vbn', label: 'VBN', icon: 'vbn' },
   { id: 'profile', label: 'Profile', icon: 'profile' },
 ];
 
@@ -2459,12 +2458,16 @@ export default function Home() {
           {/* NETWORK */}
 
           {page === 'network' && (
-            <section className="networkColumn">
+            <section className="networkColumn veyloCleanFeed">
+              <div className="veyloNetworkShortcuts">
+                <strong>Your Network</strong>
+                <button type="button" onClick={() => setPage('vbn')}>▤ VBN News <span aria-hidden="true">›</span></button>
+              </div>
               <div className="glass composer">
                 <textarea
                   value={postText}
                   onChange={(event) => setPostText(event.target.value)}
-                  placeholder="Share something with the Veylo network..."
+                  placeholder="Share an idea or update..."
                 />
 
                 <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e => setPostFile(e.target.files?.[0] || null)} />
