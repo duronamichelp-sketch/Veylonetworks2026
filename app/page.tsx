@@ -237,11 +237,11 @@ export default function Home() {
   const [chatSelectionMode, setChatSelectionMode] = useState(false);
   const [selectedChatIds, setSelectedChatIds] = useState<string[]>([]);
   function removeSelectedChats() {
-    if (!currentMember || !selectedChatIds.length) return;
+    if (!currentMemberId || !selectedChatIds.length) return;
     if (!window.confirm('Remove ' + selectedChatIds.length + ' selected conversation(s) from your list? Other members and their messages will not be deleted.')) return;
     const next = [...new Set([...hiddenChatIds, ...selectedChatIds])];
     setHiddenChatIds(next);
-    localStorage.setItem('veylo-hidden-conversations-' + currentMember.id, JSON.stringify(next));
+    localStorage.setItem('veylo-hidden-conversations-' + currentMemberId, JSON.stringify(next));
     if (selectedChatIds.includes(selectedConversationId)) setSelectedConversationId('');
     setSelectedChatIds([]);
     setChatSelectionMode(false);
@@ -249,17 +249,17 @@ export default function Home() {
 
   const chatSwipeStart = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => {
-    if (!currentMember?.id) return;
+    if (!currentMemberId) return;
     try {
-      const saved = JSON.parse(localStorage.getItem('veylo-hidden-conversations-' + currentMember.id) || '[]');
+      const saved = JSON.parse(localStorage.getItem('veylo-hidden-conversations-' + currentMemberId) || '[]');
       setHiddenChatIds(Array.isArray(saved) ? saved : []);
     } catch { setHiddenChatIds([]); }
-  }, [currentMember?.id]);
+  }, [currentMemberId]);
   function removeChatFromList(id: string) {
-    if (!currentMember) return;
+    if (!currentMemberId) return;
     const next = [...new Set([...hiddenChatIds, id])];
     setHiddenChatIds(next);
-    localStorage.setItem('veylo-hidden-conversations-' + currentMember.id, JSON.stringify(next));
+    localStorage.setItem('veylo-hidden-conversations-' + currentMemberId, JSON.stringify(next));
     setSwipedChatId('');
     if (selectedConversationId === id) setSelectedConversationId('');
   }
