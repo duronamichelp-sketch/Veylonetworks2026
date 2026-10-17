@@ -3820,3 +3820,25 @@ a {
 .veyloCommentComposer{display:flex;gap:8px;margin-top:12px}
 .veyloCommentComposer input{flex:1;min-width:0;border-radius:13px;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:white;font-size:13px}
 .veyloCommentComposer button{border:0;border-radius:12px;background:#167bdb;color:white;padding:0 15px;font-weight:700}
+
+
+/* Premium minimal mobile Network refresh */
+.veyloNetworkShortcuts{display:none}
+@media(max-width:768px){
+ .veyloCleanFeed{gap:13px!important}
+ .veyloNetworkShortcuts{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px 0}
+ .veyloNetworkShortcuts strong{font-size:16px;letter-spacing:-.35px;color:#eef6ff;font-weight:750}
+ .veyloNetworkShortcuts button{border:1px solid rgba(95,172,255,.22);background:rgba(49,112,176,.10);color:#8bcaff;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:650;white-space:nowrap}
+ .veyloNetworkShortcuts button span{font-size:17px;margin-left:5px;vertical-align:-1px}
+ .veyloCleanFeed .composer{padding:13px 14px!important;border-radius:19px!important;box-shadow:none!important;background:linear-gradient(145deg,#17273d,#101c2d)!important;border:1px solid rgba(128,174,223,.18)!important}
+ .veyloCleanFeed .composer textarea{min-height:48px!important;height:52px!important;resize:vertical!important;padding:10px 8px!important;font-size:14px!important;line-height:1.45!important;background:transparent!important}
+ .veyloCleanFeed .composer:focus-within textarea{height:110px!important}
+ .veyloCleanFeed .composerFooter{padding-top:8px!important;margin-top:5px!important;gap:10px!important}
+ .veyloCleanFeed .networkToolsTrigger{width:36px!important;height:36px!important;border-radius:11px!important}
+ .veyloCleanFeed .composerFooter>.primary{min-height:36px!important;padding:8px 19px!important;border-radius:12px!important;font-size:13px!important}
+ .veyloCleanFeed .postCard{padding:16px!important;border-radius:20px!important;background:#142137!important;border:1px solid rgba(140,178,222,.13)!important;box-shadow:none!important}
+ .veyloCleanFeed .postCard .memberHeader{margin-bottom:12px}
+ .veyloCleanFeed .postCard .postContent{line-height:1.55!important}
+ .mobileBottomNav .veyloNavItems{justify-content:space-around!important}
+ .mobileBottomNav .mobileBottomTab{flex:1!important;min-width:0!important}
+}
