@@ -4151,3 +4151,12 @@ a {
 .peopleGrid .veyloPeopleCompactCard strong{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .peopleGrid .veyloPeopleCompactCard .veyloPeopleMessageIcon{font-size:19px;color:#51bffc}
 @media(max-width:768px){body .peopleGrid{display:flex!important;flex-direction:column!important;gap:10px!important}body .peopleGrid .veyloPeopleCompactCard{display:flex!important;flex-direction:row!important;align-items:center!important;min-height:66px!important;padding:10px 13px!important}body .peopleGrid .veyloPeopleCompactCard .avatar{width:42px!important;height:42px!important;min-width:42px!important}}
+
+/* Smooth network post photo loading: reserve image space before download */
+.veyloPostMediaFrame{position:relative;width:100%;aspect-ratio:1 / 1;max-height:440px;margin:12px 0;border-radius:14px;overflow:hidden;background:#141d29}
+.veyloPostMediaSkeleton{position:absolute;inset:0;border-radius:14px;background:linear-gradient(110deg,#17212d 8%,#26384b 20%,#17212d 34%);background-size:240% 100%;animation:veyloMediaShimmer 1.6s ease-in-out infinite}
+.veyloPostMediaImage{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .38s ease}
+.veyloPostMediaImage.isReady{opacity:1}
+.veyloPostMediaLoading{position:relative;min-height:130px;margin:12px 0}
+@keyframes veyloMediaShimmer{0%{background-position:110% 0}100%{background-position:-110% 0}}
+@media(prefers-reduced-motion:reduce){.veyloPostMediaSkeleton{animation:none}.veyloPostMediaImage{transition:none}}
