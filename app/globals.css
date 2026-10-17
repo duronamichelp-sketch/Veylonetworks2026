@@ -4144,3 +4144,10 @@ a {
  input:not([type="checkbox"]):not([type="radio"]),textarea,select{font-size:16px!important}
  input[type="date"],input[type="time"],input[type="datetime-local"],input[type="search"],input[type="email"],input[type="password"],input[type="tel"],input[type="number"],input[type="text"],input[type="url"]{font-size:16px!important}
 }
+
+/* People directory: compact tap-to-message rows */
+.peopleGrid .veyloPeopleCompactCard{display:flex;align-items:center;gap:13px;width:100%;min-width:0;min-height:68px;margin:0;padding:12px 15px;border:1px solid #293543;border-radius:16px;background:#161c26;color:#f5f7fc;text-align:left;cursor:pointer}
+.peopleGrid .veyloPeopleCompactCard .avatar{width:43px;height:43px;min-width:43px;border-radius:50%;object-fit:cover}
+.peopleGrid .veyloPeopleCompactCard strong{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peopleGrid .veyloPeopleCompactCard .veyloPeopleMessageIcon{font-size:19px;color:#51bffc}
+@media(max-width:768px){body .peopleGrid{display:flex!important;flex-direction:column!important;gap:10px!important}body .peopleGrid .veyloPeopleCompactCard{display:flex!important;flex-direction:row!important;align-items:center!important;min-height:66px!important;padding:10px 13px!important}body .peopleGrid .veyloPeopleCompactCard .avatar{width:42px!important;height:42px!important;min-width:42px!important}}
