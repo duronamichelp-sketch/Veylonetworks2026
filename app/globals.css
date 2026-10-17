@@ -4351,3 +4351,35 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #4bc8
 .navButton:hover,.mobileBottomTab:hover{background:rgba(28,109,197,.14)}
 .glass button:not(:disabled):hover{border-color:rgba(71,178,255,.55)}
 @media(prefers-reduced-motion:reduce){.mobileBottomTab svg{transition:none}}
+
+/* Veylo Networks 2026 — consistent polished mobile and desktop visual language */
+:root{color-scheme:dark;--vxl-surface:#07182b;--vxl-panel:#091d34;--vxl-line:rgba(49,141,232,.31);--vxl-blue:#16bdff;--vxl-text:#f4f8ff}
+.sidebar{background:linear-gradient(180deg,#06152b 0%,#030b19 100%);border-right:1px solid rgba(41,144,244,.24)}
+.sidebar .navButton{border:1px solid transparent;border-radius:12px}
+.sidebar .navButton.active{background:linear-gradient(100deg,rgba(0,136,255,.25),rgba(0,77,185,.14));border-color:rgba(29,167,255,.4);box-shadow:inset 3px 0 #08c4ff,0 0 18px rgba(0,124,255,.13)}
+.main{background:radial-gradient(ellipse at 55% -10%,rgba(8,56,122,.14),transparent 55%),#030a15}
+.topbar{background:linear-gradient(100deg,rgba(8,25,47,.93),rgba(5,16,32,.94));border-bottom:1px solid rgba(54,132,222,.22);backdrop-filter:blur(18px)}
+.content{color:#f2f7ff}
+.glass,.panel,.postCard,.composer,.searchPanel,.projectCard,.officeSection,.authCard{border:1px solid var(--vxl-line);background:linear-gradient(148deg,rgba(10,29,53,.96),rgba(5,15,30,.97));border-radius:18px;box-shadow:inset 0 1px rgba(185,226,255,.055),0 12px 34px rgba(0,0,0,.14)}
+.glass:hover,.projectCard:hover{border-color:rgba(44,170,255,.47)}
+.primary{background:linear-gradient(115deg,#008deb,#1252d8 62%,#6747e9);border:1px solid rgba(95,209,255,.58);box-shadow:0 0 17px rgba(0,123,255,.22),inset 0 1px rgba(255,255,255,.19);color:white}
+.primary:hover{box-shadow:0 0 25px rgba(11,153,255,.42);filter:brightness(1.1)}
+.secondary{background:rgba(14,36,65,.84);border:1px solid rgba(70,143,218,.32);color:#d4e9ff}
+.field,input,textarea,select{accent-color:#16bfff}
+input,textarea,select{border-color:rgba(88,156,229,.33)}
+input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36baff;box-shadow:0 0 0 3px rgba(0,158,255,.12)}
+.pill{border-color:rgba(56,165,255,.4);background:rgba(0,119,226,.14);color:#74d5ff}
+.avatar,.avatarLarge{border:1px solid rgba(68,173,255,.44);box-shadow:0 0 0 2px rgba(0,133,255,.06)}
+.mobileBottomNav{background:rgba(4,14,29,.97);border-top:1px solid rgba(42,147,245,.28);backdrop-filter:blur(20px)}
+.mobileBottomTab{position:relative;color:#8fa9ca}
+.mobileBottomTab.active{background:radial-gradient(ellipse at 50% 65%,rgba(0,145,255,.14),transparent 70%)}
+.mobileBottomTab.active svg{stroke:#18c8ff}
+.veyloOfficeStats button span svg{display:block;width:29px;height:29px}
+.veyloOfficeSectionHead button{color:#38c6ff;font-weight:700}
+@media(max-width:700px){
+ .content{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+ .glass,.panel,.postCard,.composer,.officeSection{border-radius:17px}
+ .veyloOfficeStats button{min-height:84px}
+ .mobileBottomTab svg{width:24px;height:24px}
+}
+@media(prefers-reduced-motion:reduce){.primary,.glass,.mobileBottomTab{transition:none!important}}
