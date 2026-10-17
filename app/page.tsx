@@ -2144,21 +2144,22 @@ export default function Home() {
   if (!ready) {
     return (
       <main className="loadingScreen veyloCinematicLoading" role="status" aria-label="Loading Veylo Networks">
-        <div className="veyloLoadingArtwork" aria-hidden="true" />
-        <div className="veyloNetworkMotion" aria-hidden="true">
-          <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
-            <g className="veyloOrbitMotion">
-              <path d="M-45 350 Q195 90 440 350" />
-              <path d="M-40 430 Q195 170 435 430" />
-              <path d="M25 250 Q195 510 375 250" />
-            </g>
-            <g className="veyloPulseNodes">
-              <circle cx="40" cy="350" r="2.4" />
-              <circle cx="335" cy="335" r="2.4" />
-              <circle cx="195" cy="202" r="2.4" />
-              <circle cx="340" cy="465" r="2.4" />
-            </g>
-          </svg>
+        <div className="veyloNextBackdrop" aria-hidden="true">
+          <div className="veyloNextHalo" />
+          <div className="veyloNextOrb">
+            <div className="veyloNextOrbCore" />
+            <div className="veyloNextOrbit veyloNextOrbitOne" />
+            <div className="veyloNextOrbit veyloNextOrbitTwo" />
+            <div className="veyloNextOrbit veyloNextOrbitThree" />
+            <div className="veyloNextOrbit veyloNextOrbitFour" />
+            <span className="veyloNextDot veyloNextDotOne" />
+            <span className="veyloNextDot veyloNextDotTwo" />
+            <span className="veyloNextDot veyloNextDotThree" />
+            <span className="veyloNextDot veyloNextDotFour" />
+          </div>
+          <div className="veyloNextHorizon" />
+          <div className="veyloNextStreak veyloNextStreakOne" />
+          <div className="veyloNextStreak veyloNextStreakTwo" />
         </div>
         <div className="veyloPremiumBrand">
           <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" className="veyloPremiumLogo" />
