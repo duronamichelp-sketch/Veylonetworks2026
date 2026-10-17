@@ -2144,25 +2144,12 @@ export default function Home() {
   if (!ready) {
     return (
       <main className="loadingScreen veyloCinematicLoading" role="status" aria-label="Loading Veylo Networks">
-        <div className="veyloNextBackdrop" aria-hidden="true">
-          <div className="veyloNextHalo" />
-          <div className="veyloNextOrb">
-            <div className="veyloNextOrbCore" />
-            <div className="veyloNextOrbit veyloNextOrbitOne" />
-            <div className="veyloNextOrbit veyloNextOrbitTwo" />
-            <div className="veyloNextOrbit veyloNextOrbitThree" />
-            <div className="veyloNextOrbit veyloNextOrbitFour" />
-            <span className="veyloNextDot veyloNextDotOne" />
-            <span className="veyloNextDot veyloNextDotTwo" />
-            <span className="veyloNextDot veyloNextDotThree" />
-            <span className="veyloNextDot veyloNextDotFour" />
-          </div>
-          <div className="veyloNextHorizon" />
-          <div className="veyloNextStreak veyloNextStreakOne" />
-          <div className="veyloNextStreak veyloNextStreakTwo" />
-        </div>
-        <div className="veyloPremiumBrand">
-          <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" className="veyloPremiumLogo" />
+        <div className="veyloCinemaBackdrop" aria-hidden="true">
+          <div className="veyloCinemaImage" />
+          <div className="veyloCinemaSweep" />
+          <div className="veyloCinemaSpark veyloCinemaSparkOne" />
+          <div className="veyloCinemaSpark veyloCinemaSparkTwo" />
+          <div className="veyloCinemaSpark veyloCinemaSparkThree" />
         </div>
         <div className="veyloRealLoading" aria-label="Veylo startup progress">
           <div className="veyloRealLoadingTrack" role="progressbar" aria-label="Loading Veylo Networks" aria-valuemin={0} aria-valuemax={100} aria-valuenow={startupProgress}>
