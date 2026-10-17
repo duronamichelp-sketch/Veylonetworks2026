@@ -220,6 +220,20 @@ export default function Home() {
 
   /* MESSAGES */
 
+  const [loadingProgress, setLoadingProgress] = useState(5);
+  const [loadingIntroDone, setLoadingIntroDone] = useState(false);
+  useEffect(() => {
+    const started = Date.now();
+    const timer = window.setInterval(() => {
+      const elapsed = Date.now() - started;
+      setLoadingProgress(previous => Math.min(95, Math.max(previous, Math.round(5 + 90 * (1 - Math.exp(-elapsed / 1600))))));
+    }, 85);
+    const intro = window.setTimeout(() => setLoadingIntroDone(true), 3000);
+    return () => { window.clearInterval(timer); window.clearTimeout(intro); };
+  }, []);
+  useEffect(() => {
+    if (ready) setLoadingProgress(100);
+  }, [ready]);
   const [selectedConversationId, setSelectedConversationId] = useState('');
 
   const [messageText, setMessageText] = useState('');
@@ -2128,16 +2142,16 @@ export default function Home() {
      LOADING
   ===================================================== */
 
-  if (!ready) {
+  if (!ready || !loadingIntroDone) {
     return (
-      <main className="loadingScreen">
-        <img
-          src="/Veylo_Networks_White_Transparent.png"
-          alt="Veylo Networks"
-          className="loadingLogo"
-        />
-
-        <span>Loading Veylo Networks</span>
+      <main className="loadingScreen veyloCinematicLoading" role="status" aria-label="Loading Veylo Networks">
+        <div className="veyloLoadingArtwork" aria-hidden="true" />
+        <div className="veyloLoadingCenter">
+          <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" className="loadingLogo veyloCinematicLogo" />
+          <div className="veyloLoadingTrack" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadingProgress} aria-label="Loading progress">
+            <div className="veyloLoadingFill" style={{width: loadingProgress + '%'}} />
+          </div>
+        </div>
       </main>
     );
   }
