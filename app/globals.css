@@ -4012,3 +4012,32 @@ a {
  .veyloCleanFeed .veyloComposerFooter>.primary{min-width:85px!important;padding:8px!important}
 }
 @media(prefers-reduced-motion:reduce){.veyloClipToggle,.veyloClipToggle svg,.veyloComposerToolGroup .veyloComposerTools,.veyloComposerToolGroup .veyloComposerTools .veyloComposerTool{transition:none!important}}
+
+/* Veylo Offices - cinematic discovery and personalised entrance */
+.veyloOfficeDirectoryHeading{margin:0 0 20px}
+.veyloOfficeDirectoryHeading .eyebrow{color:#88a5bf;letter-spacing:2.8px;font-size:10px}
+.veyloOfficeDirectoryHeading h2{font-size:31px;letter-spacing:-1px;margin:7px 0 6px;color:#f5f9ff}
+.veyloOfficeDirectoryHeading p{color:#9caebe;font-size:13px;line-height:1.5;margin:0}
+.veyloOfficeFeature{position:relative;isolation:isolate;overflow:hidden;min-height:230px;padding:21px;border:1px solid #236c99;border-radius:20px;background:radial-gradient(ellipse at 83% 17%,#126091 0%,transparent 45%),linear-gradient(135deg,#09121f,#152a3e 60%,#07111e);box-shadow:0 12px 30px #0005;margin:0 0 22px}
+.veyloOfficeFeature:after{content:"";position:absolute;right:-35px;bottom:-90px;width:240px;height:240px;border:1px solid #2e9ed85e;transform:rotate(45deg);border-radius:34px;pointer-events:none}
+.veyloOfficeFeatureTag{display:inline-block;font-size:10px;letter-spacing:1.3px;color:#7ed0ff;background:#122f46;border:1px solid #286184;padding:7px 10px;border-radius:20px}
+.veyloOfficeFeatureSymbol{font-size:60px;font-weight:900;font-style:italic;letter-spacing:-8px;line-height:1;color:#27adff;text-shadow:0 0 28px #16a7ff90;margin:17px 0 8px}
+.veyloOfficeFeature h3{font-size:20px;color:#fff;margin:5px 0}
+.veyloOfficeFeature p{font-size:12px;color:#c0d1e0;max-width:300px;line-height:1.55}
+.veyloOfficeFeatureHint{font-size:12px;color:#4bc3ff;font-weight:700}
+.veyloOfficeListHeading{display:flex;align-items:center;gap:9px;margin:0 0 14px;font-size:19px}
+.veyloOfficeListHeading span{font-size:11px;background:#1e3445;border-radius:50px;padding:3px 8px;color:#78caff}
+.veyloOfficeWelcomeOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,7,14,.84);backdrop-filter:blur(14px);animation:veyloOfficeFade .35s ease both}
+.veyloOfficeWelcomeCard{position:relative;overflow:hidden;width:min(100%,440px);padding:42px 26px 31px;text-align:center;border-radius:25px;border:1px solid #288dc6;background:radial-gradient(ellipse at top,#153a59 0%,#101b2a 45%,#0a111d 100%);box-shadow:0 0 65px #079efb29,0 20px 90px #0009;animation:veyloOfficeRise .6s cubic-bezier(.2,.8,.2,1) both}
+.veyloOfficeWelcomeLogo{font-size:70px;font-style:italic;font-weight:900;line-height:1;color:#24b5ff;text-shadow:0 0 36px #12aeff80;margin-bottom:20px}
+.veyloOfficeWelcomeCard .eyebrow{font-size:10px;letter-spacing:2.1px;color:#95b8d2}
+.veyloOfficeWelcomeCard h2{color:#f4faff;font-size:clamp(23px,5.5vw,32px);line-height:1.2;letter-spacing:-.7px;margin:18px 0 10px}
+.veyloOfficeWelcomeCard>p{font-size:17px;color:#a9c2d8;margin:0 0 24px}
+.veyloOfficeTitleChoice{display:flex;justify-content:center;align-items:center;gap:10px;margin:0 0 23px;color:#a5c0d4;font-size:12px}
+.veyloOfficeTitleChoice select{border:1px solid #36536a;background:#12283b;color:#eaf7ff;border-radius:9px;padding:7px 10px}
+.veyloOfficeEnterButton{width:100%;border:0;border-radius:13px;padding:15px 22px;background:#24b8fc;color:#061625;font-weight:800;font-size:15px;box-shadow:0 0 25px #009fff35;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.veyloOfficeEnterButton:hover{transform:translateY(-2px);box-shadow:0 0 35px #009fff65}
+.veyloOfficeEnterButton span{margin-left:9px;font-size:20px}
+@keyframes veyloOfficeFade{from{opacity:0}to{opacity:1}}
+@keyframes veyloOfficeRise{from{opacity:0;transform:translateY(30px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.veyloOfficeWelcomeOverlay,.veyloOfficeWelcomeCard{animation:none}}
