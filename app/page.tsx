@@ -2746,7 +2746,7 @@ export default function Home() {
                   const unread=conversation.messages.filter(m=>m.senderId!==currentMember.id&&Date.parse(m.createdAt)>read).length;
                   return <div key={conversation.id} className={'veyloChatConversation'+(selectedConversationId===conversation.id?' active':'')}>
                     <button type="button" className="veyloChatConversationMain" onClick={()=>setSelectedConversationId(conversation.id)}>
-                      <div className="veyloChatConversationAvatar">{conversation.type==='direct'&&other?<Avatar member={other}/>:<span>♙</span>}</div>
+                      <div className="veyloChatConversationAvatar">{conversation.type==='direct'&&other?<Avatar member={other}/>:<span><OfficeMetricIcon name="members" /></span>}</div>
                       <div className="veyloChatConversationCopy"><strong>{displayName}{other?.isVerified?<span className="veyloChatVerified">✓</span>:null}</strong><span>{last?(last.senderId===currentMember.id?'You: ':'')+(last.attachmentName||last.content):conversation.type==='group'?conversation.members.length+' members':'Start a conversation'}</span></div>
                       <div className="veyloChatConversationMeta">{last&&<time>{new Date(last.createdAt).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</time>}{unread>0&&<b>{unread>99?'99+':unread}</b>}</div>
                     </button>
@@ -3029,10 +3029,10 @@ export default function Home() {
                       </div>
                       {officeMobileTab === 'overview' && <div className="veyloOfficeOverview">
                         <div className="veyloOfficeStats">
-                          <button onClick={() => setOfficeMobileTab('tasks')}><span>◉</span><strong>{selectedOffice.tasks.filter(task => !task.complete).length}</strong><small>Open Tasks</small></button>
-                          <button onClick={() => setOfficeMobileTab('meetings')}><span>▣</span><strong>{selectedOffice.meetings.length}</strong><small>Meetings</small></button>
+                          <button onClick={() => setOfficeMobileTab('tasks')}><span><OfficeMetricIcon name="tasks" /></span><strong>{selectedOffice.tasks.filter(task => !task.complete).length}</strong><small>Open Tasks</small></button>
+                          <button onClick={() => setOfficeMobileTab('meetings')}><span><OfficeMetricIcon name="meetings" /></span><strong>{selectedOffice.meetings.length}</strong><small>Meetings</small></button>
                           <button onClick={() => setOfficeMobileTab('members')}><span>♙</span><strong>{selectedOffice.members.length}</strong><small>Members</small></button>
-                          <button onClick={() => setOfficeMobileTab('notes')}><span>▤</span><strong>{selectedOffice.notes.length}</strong><small>Notes</small></button>
+                          <button onClick={() => setOfficeMobileTab('notes')}><span><OfficeMetricIcon name="notes" /></span><strong>{selectedOffice.notes.length}</strong><small>Notes</small></button>
                         </div>
                         <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Tasks</h3><button onClick={() => setOfficeMobileTab('tasks')}>View all →</button></div><div className="officeItems">{selectedOffice.tasks.slice(0,3).map(task => <button key={task.id} className={task.complete ? 'task complete' : 'task'} onClick={() => toggleOfficeTask(task.id)}><span>{task.complete ? '✓' : '○'}</span>{task.title}</button>)}{selectedOffice.tasks.length === 0 && <p className="muted">No tasks yet</p>}</div></section>
                         <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Upcoming Meetings</h3><button onClick={() => setOfficeMobileTab('meetings')}>View all →</button></div><div className="officeItems">{selectedOffice.meetings.slice(0,3).map(meeting => <article className="meeting" key={meeting.id}><strong>{meeting.title}</strong><span className="muted small">{meeting.date} at {meeting.time}</span></article>)}{selectedOffice.meetings.length === 0 && <p className="muted">No meetings scheduled</p>}</div></section>
@@ -3623,6 +3623,15 @@ export default function Home() {
 /* =========================================================
    COMPONENTS
 ========================================================= */
+
+function OfficeMetricIcon({ name }: { name: 'tasks' | 'meetings' | 'members' | 'notes' }) {
+  return <svg aria-hidden="true" viewBox="0 0 24 24" width="29" height="29" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+    {name === 'tasks' && <><circle cx="12" cy="12" r="9"/><path d="m7.8 12.1 2.8 2.8 5.8-6"/></>}
+    {name === 'meetings' && <><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M14 14h2M8 18h3"/></>}
+    {name === 'members' && <><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 4 5v1"/></>}
+    {name === 'notes' && <><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/></>}
+  </svg>;
+}
 
 function MobileNavIcon({ name }: { name: MobileIconName }) {
   return (
