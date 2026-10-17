@@ -2147,7 +2147,7 @@ export default function Home() {
       <main className="loadingScreen veyloCinematicLoading" role="status" aria-label="Loading Veylo Networks">
         <div className="veyloLoadingArtwork" aria-hidden="true" />
         <div className="veyloLoadingCenter">
-          <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" className="loadingLogo veyloCinematicLogo" />
+          <span className="sr-only">Veylo Networks</span>
           <div className="veyloLoadingTrack" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadingProgress} aria-label="Loading progress">
             <div className="veyloLoadingFill" style={{width: loadingProgress + '%'}} />
           </div>
