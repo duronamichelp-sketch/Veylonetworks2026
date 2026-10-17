@@ -4133,3 +4133,8 @@ a {
  body .veyloSocialActionBar.veyloEngagementActions>button span{font-size:11px!important;line-height:1.2!important}
  body .veyloSocialActionBar.veyloEngagementActions>button small{font-size:10px!important;line-height:1.2!important}
 }
+
+@media(max-width:768px){
+ body .veyloSocialActionBar.veyloEngagementActions>button svg{width:15px!important;height:15px!important;min-width:15px!important;min-height:15px!important;max-width:15px!important;max-height:15px!important;flex:0 0 15px!important}
+ body .veyloSocialActionBar.veyloEngagementActions>button{min-height:42px!important;padding:5px 2px!important;gap:3px!important}
+}
