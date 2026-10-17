@@ -3200,7 +3200,8 @@ export default function Home() {
 
                     <MemberCode code={currentMember.memberCode} larger />
 
-                    <p className="muted small">Permanent Veylo member ID.</p>
+                    <p className="muted small veyloProfileTagline">{currentMember.headline || 'Building meaningful business connections'}{currentMember.location ? ' · ' + currentMember.location : ''}</p>
+                    <div className="veyloProfileQuickStats"><div><strong>{posts.filter(post => post.memberId === currentMember.id).length}</strong><span>Posts</span></div><div><strong>{currentMember.projects.length}</strong><span>Projects</span></div><div><strong>{getFollowerCount(currentMember.id)}</strong><span>Followers</span></div><div><strong>{getFollowingCount(currentMember.id)}</strong><span>Following</span></div></div>
                     <div className="memberFollowCounts">
                       <span><strong>{getFollowerCount(currentMember.id)}</strong> followers</span>
                       <span><strong>{getFollowingCount(currentMember.id)}</strong> following</span>
@@ -3208,6 +3209,7 @@ export default function Home() {
                   </div>
                 </div>
 
+                <div className="veyloProfileHeroActions"><button type="button" onClick={() => document.getElementById('veylo-edit-profile-fields')?.scrollIntoView({behavior:'smooth',block:'start'})}>Edit profile</button><button type="button" onClick={() => setPage('network')}>View Network ↗</button></div>
                 <div className="veyloProfileSettingsControl">
                   <button type="button" className={'veyloSettingsButton' + (profileSettingsOpen ? ' open' : '')}
                     aria-expanded={profileSettingsOpen} aria-controls="veylo-profile-settings"
@@ -3255,7 +3257,7 @@ export default function Home() {
                   </p>
                 )}
 
-                <div className="stack">
+                <div className="stack" id="veylo-edit-profile-fields">
                   <FieldLabel label="Full name">
                     <input
                       className="field"
