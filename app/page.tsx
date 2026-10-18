@@ -2514,7 +2514,7 @@ export default function Home() {
             <section className="networkColumn veyloCleanFeed">
               <div className="veyloNetworkShortcuts">
                 <div className="veyloNetworkTitle"><span className="veyloNetworkKicker">THE BUSINESS COMMUNITY</span><strong>Network<span className="veyloBluePeriod">.</span></strong></div>
-                <button type="button" onClick={() => setPage('vbn')}>VBN <span aria-hidden="true">↗</span></button>
+                <button type="button" onClick={() => setPage('vbn')}>VBN <VeyloExternalArrow /></button>
               </div>
               <div className="glass composer veyloReferenceComposer">
                 <div className="veyloComposerEntry"><Avatar member={currentMember} /><textarea value={postText} onChange={event=>setPostText(event.target.value)} placeholder="Share an idea or update..." /></div>
@@ -2621,7 +2621,7 @@ export default function Home() {
                     <button type="button" className="glass veyloPeopleCompactCard" key={member.id} onClick={() => startDirectChat(member)} aria-label={'Message ' + member.fullName}>
                       <Avatar member={member} />
                       <strong>{member.fullName}</strong>
-                      <span className="veyloPeopleMessageIcon" aria-hidden="true">↗</span>
+                      <VeyloExternalArrow />
                     </button>
                   ))}
                 </div>
@@ -2721,7 +2721,7 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Visit business website ↗
+                        Visit business website <VeyloExternalArrow />
                       </a>
                     )}
                   </article>
@@ -3186,7 +3186,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="veyloProfileHeroActions"><button type="button" onClick={() => document.getElementById('veylo-edit-profile-fields')?.scrollIntoView({behavior:'smooth',block:'start'})}>Edit profile</button><button type="button" onClick={() => setPage('network')}>View Network ↗</button></div>
+                <div className="veyloProfileHeroActions"><button type="button" onClick={() => document.getElementById('veylo-edit-profile-fields')?.scrollIntoView({behavior:'smooth',block:'start'})}>Edit profile</button><button type="button" onClick={() => setPage('network')}>View Network <VeyloExternalArrow /></button></div>
                 <div className="veyloProfileSettingsControl">
                   <button type="button" className={'veyloSettingsButton' + (profileSettingsOpen ? ' open' : '')}
                     aria-expanded={profileSettingsOpen} aria-controls="veylo-profile-settings"
@@ -3483,7 +3483,7 @@ export default function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Visit business website ↗
+                            Visit business website <VeyloExternalArrow />
                           </a>
                         )}
                         <div className="veyloWebsiteEditor">
@@ -3639,6 +3639,10 @@ function OfficeMetricIcon({ name }: { name: 'tasks' | 'meetings' | 'members' | '
     {name === 'members' && <><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 4 5v1"/></>}
     {name === 'notes' && <><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/></>}
   </svg>;
+}
+
+function VeyloExternalArrow() {
+  return <span className="veyloDualArrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5h7v7M19 5l-10 10"/><path d="M18 15v4H5V6h5"/></svg></span>;
 }
 
 function MobileNavIcon({ name }: { name: MobileIconName }) {
