@@ -2513,11 +2513,11 @@ export default function Home() {
           {page === 'network' && (
             <section className="networkColumn veyloCleanFeed">
               <div className="veyloNetworkShortcuts">
-                <div className="veyloNetworkTitle"><span className="veyloNetworkKicker">THE BUSINESS COMMUNITY</span><strong>Network<span className="veyloBluePeriod">.</span></strong></div>
+                <div className="veyloNetworkTitle"><span className="veyloNetworkKicker">THE BUSINESS COMMUNITY</span><strong>Network<span className="veyloBluePeriod">.</span></strong><span className="veyloNetworkTagline">Ideas. People. Opportunities.</span></div>
                 <button type="button" onClick={() => setPage('vbn')}>VBN <VeyloExternalArrow /></button>
               </div>
               <div className="glass composer veyloReferenceComposer">
-                <div className="veyloComposerEntry"><Avatar member={currentMember} /><textarea value={postText} onChange={event=>setPostText(event.target.value)} placeholder="Share an idea or update..." /></div>
+                <div className="veyloComposerEntry"><Avatar member={currentMember} /><textarea value={postText} onChange={event=>setPostText(event.target.value)} placeholder="Share an idea, update or question..." /></div>
                 <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e=>setPostFile(e.target.files?.[0]||null)} />
                 {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={()=>{setPostFile(null);if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
                 <div className="composerFooter veyloComposerFooter">
@@ -2552,8 +2552,8 @@ export default function Home() {
                   const liked = post.likes.includes(currentMember.id);
 
                   return (
-                    <article className="glass postCard" key={post.id}>
-                      <div className="memberHeader">
+                    <article className="glass postCard veyloFeedPost" key={post.id}>
+                      <div className="memberHeader veyloFeedAuthorHeader">
                         <button
                           className="avatarButton"
                           onClick={() => openMemberProfile(author)}
