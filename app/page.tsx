@@ -2164,7 +2164,9 @@ export default function Home() {
           <div className="veyloHorizonGlow" />
         </div>
         <div className="veyloHorizonBrand">
-          <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" />
+          <div className="veyloHorizonMark" aria-hidden="true"><img src="/Veylo_Networks_White_Transparent.png" alt="" /></div>
+          <div className="veyloHorizonWordmark">Veylo</div>
+          <div className="veyloHorizonNetworks">NETWORKS</div>
         </div>
         <div className="veyloHorizonTagline">NETWORKING <span>•</span> NEWS <span>•</span> PROGRESSION <span>•</span> VISION</div>
         <div className="veyloRealLoading" aria-label="Veylo startup progress">
