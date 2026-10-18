@@ -4743,3 +4743,10 @@ a:hover .veyloDualArrow,button:hover .veyloDualArrow{transform:translateY(-1px);
 .veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonNetworks{font-size:clamp(9px,2.4vw,13px)!important;letter-spacing:.46em!important;margin-top:5px!important}
 .veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoading{top:45.5%!important;width:min(69vw,360px)!important;z-index:6!important}
 .veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonTagline{bottom:max(29px,env(safe-area-inset-bottom))!important}
+
+/* Final simplified reference: white Veylo wordmark, night Earth, functional progress */
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonBrand{top:39%!important;width:min(70vw,330px)!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonWordmark{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(52px,12vw,76px)!important;font-weight:800!important;letter-spacing:-.055em!important;color:#fff!important;text-shadow:0 0 14px rgba(113,174,255,.1)!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoading{top:48%!important;width:min(72vw,360px)!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonPlanet{top:61%!important;animation:none!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonBackdrop::before{background-image:radial-gradient(#9ccaff .5px,transparent 1.2px),radial-gradient(#1675d7 .7px,transparent 1.5px),radial-gradient(ellipse at 60% 15%,rgba(0,86,219,.24),transparent 32%)!important;background-size:31px 41px,71px 83px,100% 100%!important;opacity:.68!important}
