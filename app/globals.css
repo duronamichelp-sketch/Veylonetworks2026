@@ -4797,3 +4797,14 @@ mask-image:linear-gradient(180deg,transparent 5%,#000 24%,transparent 40%,transp
 }
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{content:none!important;display:none!important;background:none!important}
+
+/* Premium photographic starfield: blue Milky Way, no artificial star dots */
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop{
+background-image:linear-gradient(180deg,rgba(0,3,17,.25),rgba(0,4,19,.12) 38%,rgba(0,3,17,.3)),url("https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=2000&q=95")!important;
+background-color:#020716!important;
+background-size:cover!important;
+background-position:center center!important;
+background-repeat:no-repeat!important;
+}
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{display:none!important;content:none!important}
