@@ -260,8 +260,8 @@ export default function VbnNewsroom({
   return (
     <section className="vbnNewsroom" aria-label="Veylo Business News">
       <div className="vbnReferenceMobile">
-        <div className="vbnRefTop"><div className="vbnRefIdentity"><span className="vbnRefLogo">V<span>.</span></span><div><strong>VEYLO <em>BUSINESS NEWS</em></strong><small>THE FOUNDER'S EDGE</small></div></div><button aria-label="Refresh news" type="button" onClick={onRefresh} disabled={loading}>↻</button></div>
-        <div className="vbnRefBanner"><div className="vbnRefHalo" aria-hidden="true">◎</div><span className="vbnRefOverline">◉ LIVE GLOBAL BRIEFING</span><h2>Know what's next<span>.</span></h2><p>Ideas. Markets. Opportunities.<br/>Everything moving business forward.</p><div className="vbnRefBannerBottom"><span>VBN / 01</span><span>GLOBAL COVERAGE ↗</span></div></div>
+        <div className="vbnRefTop"><div className="vbnRefIdentity"><span className="vbnRefLogo">V<span>.</span></span><div><strong>VEYLO <em>BUSINESS NEWS</em></strong><small>THE FOUNDER&apos;S EDGE</small></div></div><button aria-label="Refresh news" type="button" onClick={onRefresh} disabled={loading}>↻</button></div>
+        <div className="vbnRefBanner"><div className="vbnRefHalo" aria-hidden="true">◎</div><span className="vbnRefOverline">◉ LIVE GLOBAL BRIEFING</span><h2>Know what&apos;s next<span>.</span></h2><p>Ideas. Markets. Opportunities.<br/>Everything moving business forward.</p><div className="vbnRefBannerBottom"><span>VBN / 01</span><span>GLOBAL COVERAGE ↗</span></div></div>
         <div className="vbnRefTopicRail" aria-label="News categories">{TOPICS.map(topic=><button type="button" key={topic} className={activeTopic===topic?'selected':''} onClick={()=>{setActiveTopic(topic);setSearch('');setMoreVisible(false)}}>{topic}</button>)}</div>
         <div className="vbnRefSectionTitle"><div><small>YOUR DAILY BRIEFING</small><h3>Top Stories <span>↗</span></h3></div><button type="button" onClick={onRefresh} disabled={loading}>{loading?'Updating':'Refresh ↻'}</button></div>
         {message&&<p className="vbnRefNotice" role="status">{message}</p>}
