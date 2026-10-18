@@ -4688,3 +4688,21 @@ a:hover .veyloDualArrow,button:hover .veyloDualArrow{transform:translateY(-1px);
 @keyframes veyloHorizonBreathe{from{opacity:.72;filter:brightness(.87)}to{opacity:1;filter:brightness(1.1)}}
 @media(min-width:800px){.veyloHorizonPlanet{top:85%;width:125vw}.veyloHorizonGlow{top:85%}.veyloHorizonBrand{top:40%}.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoading{top:57%}}
 @media(prefers-reduced-motion:reduce){.veyloHorizonPlanet,.veyloHorizonGlow{animation:none}}
+
+/* Option 2: realistic rotating night Earth, centered vertical Veylo splash */
+.veyloCinematicLoading:has(.veyloHorizonBackdrop){background:#01040c!important;isolation:isolate}
+.veyloCinematicLoading .veyloHorizonBackdrop{background:radial-gradient(ellipse at 60% 35%,#061429 0%,#01050d 57%,#01040b 100%)!important}
+.veyloCinematicLoading .veyloHorizonBackdrop::before{content:"";position:absolute;inset:0;background-image:radial-gradient(#4ca9ff .7px,transparent 1.3px);background-size:53px 71px;opacity:.14}
+.veyloCinematicLoading .veyloHorizonPlanet{position:absolute!important;top:60%!important;left:50%!important;width:145vw!important;min-width:560px!important;max-width:1050px!important;aspect-ratio:1!important;transform:translateX(-50%)!important;border-radius:50%!important;overflow:hidden!important;background:radial-gradient(circle at 46% 22%,transparent 0%,rgba(0,7,20,.12) 45%,rgba(0,2,11,.75) 87%),url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1400&q=85') 50% 50%/auto 110% repeat-x,#07182d!important;box-shadow:0 -2px 3px #c3efff,0 -7px 17px rgba(45,160,255,.75),0 -30px 85px rgba(0,108,255,.34),inset 0 0 85px #000a1a!important;animation:veyloEarthTurn 55s linear infinite!important}
+.veyloCinematicLoading .veyloHorizonPlanet::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 50% 8%,transparent 12%,rgba(0,5,18,.17) 55%,rgba(0,4,14,.8) 95%);pointer-events:none}
+.veyloCinematicLoading .veyloHorizonGlow{top:60%!important;width:62vw!important;opacity:.5!important}
+.veyloCinematicLoading .veyloHorizonBrand{top:33%!important;left:50%!important;width:min(70vw,340px)!important;transform:translate(-50%,-50%)!important;display:flex!important;flex-direction:column!important;gap:0!important;z-index:5!important}
+.veyloHorizonMark{width:min(40vw,190px);height:min(33vw,155px);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.veyloHorizonMark img{position:absolute!important;width:310%!important;max-width:none!important;height:auto!important;left:-12%!important;top:50%!important;transform:translateY(-50%)!important;object-fit:initial!important;filter:drop-shadow(0 0 12px rgba(0,123,255,.35))}
+.veyloHorizonWordmark{font-size:clamp(46px,13vw,78px);font-weight:850;line-height:1;letter-spacing:-.055em;color:#edf5ff;text-shadow:0 2px 18px rgba(76,133,202,.28)}
+.veyloHorizonNetworks{margin-top:8px;font-size:clamp(12px,3vw,18px);font-weight:600;letter-spacing:.55em;color:#168bff;padding-left:.55em}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoading{top:49%!important;width:min(70vw,350px)!important;z-index:6!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoadingTrack{height:5px!important}
+.veyloCinematicLoading .veyloHorizonTagline{z-index:6!important}
+@keyframes veyloEarthTurn{0%{background-position:50% 50%}50%{background-position:85% 50%}100%{background-position:50% 50%}}
+@media(prefers-reduced-motion:reduce){.veyloCinematicLoading .veyloHorizonPlanet{animation:none!important}}
