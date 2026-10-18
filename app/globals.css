@@ -4730,3 +4730,16 @@ a:hover .veyloDualArrow,button:hover .veyloDualArrow{transform:translateY(-1px);
 .veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonBrand{top:31%!important}
 .veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoading{top:46%!important;width:min(69vw,350px)!important}
 .veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonTagline{font-size:clamp(7px,1.5vw,10px)!important;bottom:max(31px,env(safe-area-inset-bottom))!important}
+
+/* Reference composition lock: clear centered branding, starfield, one Earth, no extra elements */
+.veyloCinematicLoading:has(.veyloHorizonBackdrop){background:#00040e!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonBackdrop{background:radial-gradient(ellipse at 50% 55%,rgba(0,28,67,.4),transparent 52%),#00040e!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonBackdrop::before{content:"";position:absolute;inset:0;opacity:.68!important;background-image:radial-gradient(ellipse at 68% 19%,rgba(0,88,213,.23),transparent 28%),radial-gradient(ellipse at 16% 27%,rgba(0,82,205,.21),transparent 24%),radial-gradient(#6cbaff .65px,transparent 1.5px),radial-gradient(#0a5fbb .6px,transparent 1.5px)!important;background-size:100% 100%,100% 100%,31px 43px,67px 59px!important;transform:rotate(-8deg) scale(1.2)}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonPlanet{top:58%!important;width:165vw!important;min-width:650px!important;max-width:1150px!important;animation:none!important;background-image:linear-gradient(180deg,rgba(0,5,20,.02),rgba(0,2,13,.44)),url('https://eoimages.gsfc.nasa.gov/images/imagerecords/79000/79765/dnb_land_ocean_ice.2012.3600x1800.jpg')!important;background-position:center,49% center!important;background-size:100% 100%,auto 100%!important;background-repeat:no-repeat,repeat-x!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonBrand{top:32%!important;width:min(60vw,280px)!important;gap:0!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonMark{width:94px!important;height:77px!important;overflow:hidden!important;margin:0 auto 1px!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonMark img{width:218px!important;max-width:none!important;height:auto!important;left:-3px!important;top:50%!important;transform:translateY(-50%)!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonWordmark{font-size:clamp(39px,9vw,59px)!important;letter-spacing:-.055em!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonNetworks{font-size:clamp(9px,2.4vw,13px)!important;letter-spacing:.46em!important;margin-top:5px!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloRealLoading{top:45.5%!important;width:min(69vw,360px)!important;z-index:6!important}
+.veyloCinematicLoading:has(.veyloHorizonBackdrop) .veyloHorizonTagline{bottom:max(29px,env(safe-area-inset-bottom))!important}
