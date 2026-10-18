@@ -4786,3 +4786,14 @@ mask-image:linear-gradient(180deg,transparent 5%,#000 24%,transparent 40%,transp
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloRealLoadingPercent{align-self:flex-end!important;font-size:14px!important;letter-spacing:.06em!important;color:#e0ebff!important}
 @media(max-width:500px){.veyloGalaxyLogo{top:43%!important;width:78vw!important}.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloRealLoading{top:53%!important;width:78vw!important}}
 @media(prefers-reduced-motion:reduce){.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloRealLoadingFill{transition:none!important}}
+
+/* Real photographic starfield — replaces the artificial dotted CSS galaxy */
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop{
+  background-image:linear-gradient(180deg,rgba(0,3,13,.33),rgba(0,5,19,.37)),url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1600&q=90")!important;
+  background-color:#010510!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+}
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{content:none!important;display:none!important;background:none!important}
