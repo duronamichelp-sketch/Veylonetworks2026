@@ -2159,13 +2159,14 @@ export default function Home() {
   if (!ready) {
     return (
       <main className="loadingScreen veyloCinematicLoading" role="status" aria-label="Loading Veylo Networks">
-        <div className="veyloCinemaBackdrop" aria-hidden="true">
-          <div className="veyloCinemaImage" />
-          <div className="veyloCinemaSweep" />
-          <div className="veyloCinemaSpark veyloCinemaSparkOne" />
-          <div className="veyloCinemaSpark veyloCinemaSparkTwo" />
-          <div className="veyloCinemaSpark veyloCinemaSparkThree" />
+        <div className="veyloHorizonBackdrop" aria-hidden="true">
+          <div className="veyloHorizonPlanet" />
+          <div className="veyloHorizonGlow" />
         </div>
+        <div className="veyloHorizonBrand">
+          <img src="/Veylo_Networks_White_Transparent.png" alt="Veylo Networks" />
+        </div>
+        <div className="veyloHorizonTagline">NETWORKING <span>•</span> NEWS <span>•</span> PROGRESSION <span>•</span> VISION</div>
         <div className="veyloRealLoading" aria-label="Veylo startup progress">
           <div className="veyloRealLoadingTrack" role="progressbar" aria-label="Loading Veylo Networks" aria-valuemin={0} aria-valuemax={100} aria-valuenow={startupProgress}>
             <div className="veyloRealLoadingFill" style={{width: startupProgress + '%'}} />
