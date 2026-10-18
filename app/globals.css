@@ -4666,3 +4666,8 @@ a:hover .veyloDualArrow,button:hover .veyloDualArrow{transform:translateY(-1px);
 .veyloCommentInputRow button{width:40px;height:40px;flex:none;display:grid;place-items:center;border:1px solid #2688e8!important;border-radius:50%!important;background:#0a315c!important;color:#4bb9ff!important;font-size:20px!important}
 .veyloCommentInputRow button:disabled{opacity:.4}
 @media(min-width:769px){.veyloCommentsSheet{height:min(78vh,720px);border-radius:26px;margin-bottom:3vh;border-bottom:1px solid #253c58}}
+
+/* Refined compact comment hearts approved for Veylo */
+.veyloCommentsSheet .veyloCommentHeart{font-size:19px!important;width:30px!important;height:34px!important;min-width:30px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;padding:0!important;opacity:.9!important}
+.veyloCommentsSheet .veyloCommentHeart.liked{color:#ff557d!important;opacity:1!important}
+@media(max-width:768px){.veyloCommentsSheet .veyloCommentHeart{font-size:18px!important;width:28px!important;min-width:28px!important;height:32px!important}}
