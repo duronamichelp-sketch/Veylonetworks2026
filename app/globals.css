@@ -4469,3 +4469,27 @@ input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36ba
 .app .mobileBottomTab.active svg{transform:translateY(-2px)}
 @media(max-width:700px){.app .content .panel,.app .content .postCard,.app .content .profileHero,.app .content .officeHero,.app .content .chatPanel,.app .content .veyloChatInbox,.app .content .veyloChatConversationMain{border-radius:17px}.app .content .primary:hover{transform:none}}
 @media(prefers-reduced-motion:reduce){.app .sidebar nav .navButton,.app .veyloDesktopNavIcon svg,.app .mobileBottomTab,.app .mobileBottomTab svg,.app .content .primary,.app .content .secondary{transition:none!important}.app .mobileBottomTab.active svg{transform:none}}
+
+
+/* VBN mobile concept: electric-blue editorial interface */
+.vbnMobileConceptIntro{display:none}
+@media(max-width:700px){
+.app.veyloPage-vbn .vbnNewsroom{background:linear-gradient(155deg,#07132a 0%,#030914 64%,#08142b 100%);color:#f0f7ff;border-radius:22px;padding:14px 12px 100px;overflow:hidden}
+.app.veyloPage-vbn .vbnNewsroomHeader{border:1px solid rgba(65,142,255,.23);border-radius:20px;background:linear-gradient(130deg,rgba(19,46,90,.75),rgba(5,14,31,.95));padding:16px}
+.app.veyloPage-vbn .vbnMobileConceptIntro{display:block;position:relative;isolation:isolate;overflow:hidden;margin:14px 0 18px;padding:28px 18px 22px;min-height:240px;border:1px solid rgba(61,139,255,.36);border-radius:20px;background:radial-gradient(ellipse at 80% 15%,rgba(0,119,255,.34),transparent 55%),linear-gradient(145deg,#10234a,#061225 75%);box-shadow:0 12px 40px rgba(0,68,190,.17)}
+.app.veyloPage-vbn .vbnConceptOrbit{position:absolute;right:-52px;top:-44px;width:230px;height:230px;border:1px solid rgba(83,177,255,.35);border-radius:50%;box-shadow:0 0 0 18px rgba(38,109,242,.045),0 0 0 45px rgba(38,109,242,.045),inset 0 0 55px rgba(0,125,255,.17);animation:vbnOrbitPulse 6s ease-in-out infinite;z-index:-1}
+.app.veyloPage-vbn .vbnConceptGlobe{position:absolute;top:35px;left:45px;font-size:120px;line-height:1;color:rgba(65,168,255,.38);text-shadow:0 0 28px rgba(19,122,255,.7)}
+.app.veyloPage-vbn .vbnConceptEyebrow{font-size:9px;letter-spacing:2px;font-weight:800;color:#75c7ff}
+.app.veyloPage-vbn .vbnMobileConceptIntro h2{font-size:clamp(29px,9vw,42px);line-height:1.06;letter-spacing:-1.3px;margin:24px 0 12px;font-weight:850}
+.app.veyloPage-vbn .vbnMobileConceptIntro h2 span{color:#54baff}
+.app.veyloPage-vbn .vbnMobileConceptIntro p{font-size:12px;line-height:1.6;color:#bed2ec;max-width:245px}
+.app.veyloPage-vbn .vbnConceptPills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.app.veyloPage-vbn .vbnConceptPills span{padding:7px 10px;border:1px solid rgba(65,151,255,.36);border-radius:999px;background:rgba(4,35,80,.7);color:#a7d7ff;font-size:9px;letter-spacing:1px;font-weight:700}
+.app.veyloPage-vbn .vbnLeadStory,.app.veyloPage-vbn .vbnSpotlight,.app.veyloPage-vbn .vbnLatestPanel,.app.veyloPage-vbn .vbnMoreCard{border:1px solid rgba(67,140,246,.22);border-radius:17px;background:linear-gradient(145deg,rgba(17,40,79,.93),rgba(6,16,34,.96));box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.app.veyloPage-vbn .vbnFilter{border-radius:999px}
+.app.veyloPage-vbn .vbnFilter.active{background:linear-gradient(120deg,#1268e9,#19a4ff);color:white;box-shadow:0 0 18px rgba(22,120,255,.3)}
+.app.veyloPage-vbn .vbnSearchLabel{border-radius:13px}
+.app.veyloPage-vbn .vbnDeskHeading h2{color:#f4f9ff}
+}
+@keyframes vbnOrbitPulse{50%{filter:brightness(1.45);transform:scale(1.045)}}
+@media(prefers-reduced-motion:reduce){.vbnConceptOrbit{animation:none!important}}
