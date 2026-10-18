@@ -4824,3 +4824,14 @@ background-repeat:no-repeat!important;
 }
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{content:none!important;display:none!important}
+
+/* Approved user-uploaded Milky Way photo: live splash screen */
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop{
+ background-image:linear-gradient(180deg,rgba(1,4,14,.12),rgba(1,4,14,.19)),url("/56117346-1B19-47B9-9E59-8C284021A575.png")!important;
+ background-color:#020613!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+}
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{display:none!important;content:none!important}
