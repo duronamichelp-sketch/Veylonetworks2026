@@ -4816,3 +4816,11 @@ background-repeat:no-repeat!important;
 }
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{display:none!important;content:none!important}
+
+/* Reliable photographic Milky Way with bundled starfield fallback */
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop{
+ background-image:linear-gradient(180deg,rgba(1,5,17,.17),rgba(1,5,17,.23)),url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1800&q=90"),url("/veylo-milkyway-fallback.svg")!important;
+ background-color:#020613!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;
+}
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
+.veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{content:none!important;display:none!important}
