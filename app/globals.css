@@ -4599,3 +4599,35 @@ a:hover .veyloDualArrow,button:hover .veyloDualArrow{transform:translateY(-1px);
 .vbnRefSectionTitle h3 .veyloDualArrow svg{width:14px!important;height:14px!important}
 .vbnRefLatestRow .veyloDualArrow,.vbnRefBannerBottom .veyloDualArrow{width:20px;height:20px;min-width:20px;border-radius:6px}
 .vbnRefLatestRow .veyloDualArrow svg,.vbnRefBannerBottom .veyloDualArrow svg{width:12px!important;height:12px!important}
+
+
+/* Veylo Network reference design: clean premium mobile feed */
+@media(max-width:768px){
+ .app.veyloPage-network .networkColumn.veyloCleanFeed{display:flex;flex-direction:column;gap:16px;padding:0 2px 115px}
+ .app.veyloPage-network .veyloNetworkShortcuts{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 0 0;padding:5px 3px 0}
+ .app.veyloPage-network .veyloNetworkTitle{display:flex;flex-direction:column;gap:5px;min-width:0}
+ .app.veyloPage-network .veyloNetworkKicker{font-size:10px;letter-spacing:2.6px;color:#98b3d4;font-weight:700}
+ .app.veyloPage-network .veyloNetworkTitle>strong{font-size:clamp(29px,8vw,40px);line-height:1.1;letter-spacing:-1.3px;color:#f6f9ff}
+ .app.veyloPage-network .veyloNetworkTagline{display:block;font-size:12px;color:#9eb6d5;letter-spacing:.15px;margin-top:1px}
+ .app.veyloPage-network .veyloNetworkShortcuts>button{flex:none;display:inline-flex;align-items:center;gap:10px;border:1px solid #21548a;border-radius:17px;padding:13px 15px;background:linear-gradient(140deg,#0c2441,#06152c);color:#a8dcff;font-size:13px;font-weight:750}
+ .app.veyloPage-network .veyloReferenceComposer{margin:0!important;padding:15px!important;border:1px solid #087dc5!important;border-radius:20px!important;background:linear-gradient(140deg,#101f36,#081526)!important;box-shadow:0 0 0 1px #0098f01c!important}
+ .app.veyloPage-network .veyloComposerEntry{display:flex;align-items:flex-start;gap:12px;min-height:75px}
+ .app.veyloPage-network .veyloComposerEntry .avatar{width:45px;height:45px;flex-shrink:0;border-radius:50%;object-fit:cover}
+ .app.veyloPage-network .veyloComposerEntry textarea{min-height:65px!important;padding:12px 0!important;background:transparent!important;border:0!important;box-shadow:none!important;color:#eaf5ff!important;font-size:14px!important;resize:vertical}
+ .app.veyloPage-network .veyloComposerFooter{margin-top:8px;padding-top:11px;border-top:1px solid #29425b;display:flex;align-items:center;justify-content:space-between}
+ .app.veyloPage-network .veyloComposerFooter button[type="submit"]{border-radius:12px!important;background:linear-gradient(115deg,#34c4fa,#087bf7)!important;color:#04172c!important;font-weight:800!important;box-shadow:0 0 17px #0789f733}
+ .app.veyloPage-network .veyloFeedPost{margin:0!important;padding:17px 15px!important;border:1px solid #1c5589!important;border-radius:21px!important;background:linear-gradient(145deg,#0d1d32,#071525)!important;box-shadow:0 7px 22px #0005!important}
+ .app.veyloPage-network .veyloFeedAuthorHeader{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 13px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+ .app.veyloPage-network .veyloFeedAuthorHeader .avatarButton{flex-shrink:0;padding:0!important;background:none!important;border:0!important}
+ .app.veyloPage-network .veyloFeedAuthorHeader .avatar{width:48px!important;height:48px!important;border-radius:50%!important;object-fit:cover!important;border:1px solid #289ff3!important}
+ .app.veyloPage-network .veyloFeedAuthorHeader>div:last-child{display:flex!important;flex-direction:column!important;gap:2px!important;min-width:0}
+ .app.veyloPage-network .veyloFeedAuthorHeader .memberNameButton{font-size:17px!important;font-weight:800!important;line-height:1.25!important;text-align:left!important;color:#f5f9ff!important}
+ .app.veyloPage-network .veyloFeedAuthorHeader .muted.small{font-size:11px!important;color:#a8c0db!important}
+ .app.veyloPage-network .veyloFeedAuthorHeader .memberCode{font-size:10px!important;color:#6d8dab!important;letter-spacing:1px}
+ .app.veyloPage-network .veyloFeedPost .postContent{margin:10px 0 14px!important;font-size:14px!important;line-height:1.6!important;color:#edf5ff!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions{border-top:1px solid #29415a!important;margin-top:14px!important;padding-top:12px!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions button{min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;background:none!important;border:0!important;padding:5px 1px!important;font-size:11px!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions svg{width:22px!important;height:22px!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions small{font-size:11px!important;color:#a8bdd8!important}
+ .app.veyloPage-network .veyloFeedPost img{max-width:100%;height:auto}
+}
