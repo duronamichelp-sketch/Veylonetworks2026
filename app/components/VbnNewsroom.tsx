@@ -278,6 +278,13 @@ export default function VbnNewsroom({
         </div>
       </header>
 
+      <div className="vbnMobileConceptIntro" aria-label="Veylo business news introduction">
+        <div className="vbnConceptOrbit" aria-hidden="true"><span className="vbnConceptGlobe">◎</span></div>
+        <div className="vbnConceptEyebrow"><span className="vbnStoryDot" /> GLOBAL BUSINESS INTELLIGENCE</div>
+        <h2>Business moves.<br /><span>Stay ahead.</span></h2>
+        <p>The latest startup, technology and global business stories in one place.</p>
+        <div className="vbnConceptPills"><span>● LIVE UPDATES</span><span>STARTUP FIRST</span></div>
+      </div>
       {message && <p className="vbnStatus" role="status">{message}</p>}
 
       {articles.length > 0 && (
