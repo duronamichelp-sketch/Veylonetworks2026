@@ -4493,3 +4493,62 @@ input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36ba
 }
 @keyframes vbnOrbitPulse{50%{filter:brightness(1.45);transform:scale(1.045)}}
 @media(prefers-reduced-motion:reduce){.vbnConceptOrbit{animation:none!important}}
+
+
+/* Reference-inspired VBN mobile rebuild, desktop remains unchanged */
+.vbnReferenceMobile{display:none}
+@media(max-width:700px){
+.app.veyloPage-vbn .vbnNewsroom{padding:0 12px 105px!important;background:#050c19!important;border-radius:0!important;color:#f3f8ff!important}
+.app.veyloPage-vbn .vbnReferenceMobile{display:block}
+.app.veyloPage-vbn .vbnNewsroomHeader,.app.veyloPage-vbn .vbnMobileConceptIntro,.app.veyloPage-vbn .vbnNewsroom>.vbnStatus,.app.veyloPage-vbn .vbnHeadlineStrip,.app.veyloPage-vbn .vbnBrowseBar,.app.veyloPage-vbn .vbnIssueLine,.app.veyloPage-vbn .vbnLoading,.app.veyloPage-vbn .vbnTopNewsLayout,.app.veyloPage-vbn .vbnDeskSection,.app.veyloPage-vbn .vbnNewsroomFooter{display:none!important}
+.app.veyloPage-vbn .vbnRefTop{display:flex;align-items:center;justify-content:space-between;padding:18px 2px 20px}
+.app.veyloPage-vbn .vbnRefIdentity{display:flex;align-items:center;gap:10px}
+.app.veyloPage-vbn .vbnRefLogo{display:grid;place-items:center;width:42px;height:42px;border:1px solid #3088ee;border-radius:12px;background:linear-gradient(135deg,#173f84,#081832);font-size:27px;font-weight:900;box-shadow:0 0 23px #1363e544}
+.app.veyloPage-vbn .vbnRefLogo span{color:#38b8ff}
+.app.veyloPage-vbn .vbnRefIdentity strong{display:block;font-size:12px;letter-spacing:1.3px}
+.app.veyloPage-vbn .vbnRefIdentity em{font-style:normal;color:#5fb9ff}
+.app.veyloPage-vbn .vbnRefIdentity small{display:block;margin-top:4px;color:#7594b8;font-size:9px;letter-spacing:2px}
+.app.veyloPage-vbn .vbnRefTop>button{width:36px;height:36px;border:1px solid #234574;border-radius:11px;background:#102345;color:#bde6ff;font-size:22px}
+.app.veyloPage-vbn .vbnRefBanner{position:relative;overflow:hidden;min-height:220px;padding:25px 20px 17px;border:1px solid #245ba3;border-radius:19px;background:radial-gradient(circle at 86% 40%,#1660bb80,transparent 44%),linear-gradient(125deg,#132e60,#06142d 72%);box-shadow:0 12px 38px #0009}
+.app.veyloPage-vbn .vbnRefHalo{position:absolute;right:-26px;top:-20px;font-size:220px;line-height:1;color:#208dff36;text-shadow:0 0 35px #0789ff55;pointer-events:none}
+.app.veyloPage-vbn .vbnRefOverline{position:relative;font-size:9px;letter-spacing:2px;font-weight:800;color:#76ceff}
+.app.veyloPage-vbn .vbnRefBanner h2{position:relative;margin:26px 0 10px;font-size:clamp(25px,8vw,37px);letter-spacing:-1.4px;line-height:1.05;font-weight:850;color:white}
+.app.veyloPage-vbn .vbnRefBanner h2 span{color:#49baff}
+.app.veyloPage-vbn .vbnRefBanner p{position:relative;font-size:12px;line-height:1.6;color:#c2d8f3}
+.app.veyloPage-vbn .vbnRefBannerBottom{position:relative;display:flex;justify-content:space-between;margin-top:22px;color:#79baf4;font-size:9px;letter-spacing:1.4px}
+.app.veyloPage-vbn .vbnRefTopicRail{display:flex;gap:8px;overflow-x:auto;padding:20px 0 12px;scrollbar-width:none}
+.app.veyloPage-vbn .vbnRefTopicRail button{flex-shrink:0;border:1px solid #254268;border-radius:999px;padding:10px 15px;background:#0c1c34;color:#a4bdd9;font-size:11px;font-weight:700}
+.app.veyloPage-vbn .vbnRefTopicRail button.selected{background:linear-gradient(120deg,#1674ed,#35b9ff);color:white;border-color:#5ebfff;box-shadow:0 0 16px #1674ed66}
+.app.veyloPage-vbn .vbnRefSectionTitle{display:flex;align-items:end;justify-content:space-between;margin:19px 0 14px}
+.app.veyloPage-vbn .vbnRefSectionTitle small{color:#51aefc;font-size:9px;font-weight:800;letter-spacing:2px}
+.app.veyloPage-vbn .vbnRefSectionTitle h3{margin:6px 0 0;color:#f3f8ff;font-size:22px;letter-spacing:-.5px}
+.app.veyloPage-vbn .vbnRefSectionTitle h3 span{color:#46baff}
+.app.veyloPage-vbn .vbnRefSectionTitle button{background:none;border:0;color:#8bbce9;font-size:11px}
+.app.veyloPage-vbn .vbnRefFeature{position:relative;display:block;overflow:hidden;min-height:300px;border-radius:18px;border:1px solid #2c5383;background:#132644;color:white;text-decoration:none}
+.app.veyloPage-vbn .vbnRefFeature>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.app.veyloPage-vbn .vbnRefPlaceholder{position:absolute;inset:0;display:grid;place-items:center;font-size:80px;font-weight:900;color:#1e68b7}
+.app.veyloPage-vbn .vbnRefFeatureShade{position:absolute;inset:0;background:linear-gradient(0deg,#020914 0%,#06132dd9 42%,#0712250a 100%)}
+.app.veyloPage-vbn .vbnRefFeatureBody{position:absolute;bottom:0;left:0;right:0;padding:20px}
+.app.veyloPage-vbn .vbnRefCategory{display:inline-block;background:#1269d9;color:white;border-radius:6px;padding:7px 9px;font-size:9px;font-weight:800;letter-spacing:1px}
+.app.veyloPage-vbn .vbnRefFeatureBody h3{font-size:21px;line-height:1.22;letter-spacing:-.5px;margin:13px 0;color:white}
+.app.veyloPage-vbn .vbnRefFeatureBody .vbnPublisherMeta{color:#b8cee9;font-size:11px}
+.app.veyloPage-vbn .vbnRefSmallStories{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.app.veyloPage-vbn .vbnRefSmallStory{overflow:hidden;display:block;border:1px solid #213d65;border-radius:14px;background:#0d1c32;text-decoration:none;color:white}
+.app.veyloPage-vbn .vbnRefSmallStory>img,.app.veyloPage-vbn .vbnRefSmallFallback{display:block;width:100%;height:95px;object-fit:cover;background:#183a70}
+.app.veyloPage-vbn .vbnRefSmallFallback{display:grid;place-items:center;color:#59a7f5;font-weight:900;font-size:25px}
+.app.veyloPage-vbn .vbnRefSmallStory>div{padding:10px}
+.app.veyloPage-vbn .vbnRefSmallStory small,.app.veyloPage-vbn .vbnRefLatestRow small{display:block;color:#52b4ff;font-size:9px;font-weight:800;letter-spacing:.6px}
+.app.veyloPage-vbn .vbnRefSmallStory strong{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.4;margin:7px 0}
+.app.veyloPage-vbn .vbnRefSmallStory .vbnPublisherMeta{font-size:9px;color:#9eb2cf;flex-wrap:wrap}
+.app.veyloPage-vbn .vbnRefLatestTitle{margin-top:30px}
+.app.veyloPage-vbn .vbnRefLatest{display:grid;gap:10px}
+.app.veyloPage-vbn .vbnRefLatestRow{display:flex;justify-content:space-between;gap:12px;padding:14px;border:1px solid #1e395e;border-radius:14px;background:#0c1a30;color:white;text-decoration:none}
+.app.veyloPage-vbn .vbnRefLatestRow>div{min-width:0;display:flex;flex-direction:column;gap:7px}
+.app.veyloPage-vbn .vbnRefLatestRow strong{font-size:13px;line-height:1.35}
+.app.veyloPage-vbn .vbnRefLatestRow span{color:#819fc0;font-size:10px}
+.app.veyloPage-vbn .vbnRefLatestRow img{width:86px;height:80px;object-fit:cover;border-radius:9px;flex-shrink:0}
+.app.veyloPage-vbn .vbnRefMore{display:block;width:100%;padding:14px;margin-top:14px;border:1px solid #25538b;border-radius:12px;background:#0b254b;color:#9ed6ff;font-weight:800;font-size:11px;letter-spacing:1px}
+.app.veyloPage-vbn .vbnRefFooter{margin-top:34px;text-align:center;color:#4fa7f7;font-size:10px;font-weight:800;letter-spacing:1px}
+.app.veyloPage-vbn .vbnRefFooter span{display:block;margin-top:8px;color:#657f9d;font-size:8px;letter-spacing:1px}
+.app.veyloPage-vbn .vbnRefNotice,.app.veyloPage-vbn .vbnRefEmpty{padding:18px;color:#a9c9e8;font-size:12px}
+}
