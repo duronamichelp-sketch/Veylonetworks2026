@@ -4572,3 +4572,19 @@ input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36ba
  .app .content{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
 }
 @media(max-width:380px){.app .mobileBottomNav .mobileBottomTab{width:40px!important;height:40px!important}.app .mobileBottomNav .mobileBottomTab svg{width:21px!important;height:21px!important}}
+
+
+/* Keep the News glyph visible when the neon navigation item is selected */
+@media(max-width:768px){
+ .app .mobileBottomNav .mobileBottomTab.veyloTab-vbn svg,
+ .app .mobileBottomNav .mobileBottomTab.veyloTab-vbn.active svg{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  width:23px!important;height:23px!important;flex-shrink:0!important;
+  color:#77d4ff!important;stroke:#77d4ff!important;fill:none!important;
+  filter:drop-shadow(0 0 4px rgba(36,175,255,.65))!important;
+  position:relative!important;z-index:2!important;
+ }
+ .app .mobileBottomNav .mobileBottomTab.veyloTab-vbn.active{
+  color:#77d4ff!important;
+ }
+}
