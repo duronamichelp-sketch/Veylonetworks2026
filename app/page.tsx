@@ -2662,7 +2662,7 @@ export default function Home() {
               ) : (
                 <div className="peopleGrid">
                   {filteredPeople.map((member) => (
-                    <button type="button" className="glass veyloPeopleCompactCard" key={member.id} onClick={() => startDirectChat(member)} aria-label={'Message ' + member.fullName}>
+                    <button type="button" className="glass veyloPeopleCompactCard" key={member.id} onClick={() => openMemberProfile(member)} aria-label={'View profile of ' + member.fullName}>
                       <Avatar member={member} />
                       <strong>{member.fullName}</strong>
                       <VeyloExternalArrow />
