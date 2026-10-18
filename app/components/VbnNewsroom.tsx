@@ -57,6 +57,10 @@ function relativeDate(value: string): string {
   return days < 8 ? days + 'd ago' : articleDate(value);
 }
 
+function VbnExternalArrow() {
+  return <span className="veyloDualArrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5h7v7M19 5l-10 10"/><path d="M18 15v4H5V6h5"/></svg></span>;
+}
+
 function PublisherMeta({ article }: { article: VbnArticle }) {
   return (
     <div className="vbnPublisherMeta">
@@ -115,7 +119,7 @@ function LeadStory({ article }: { article: VbnArticle }) {
         {article.summary && <p className="vbnLeadExcerpt">{article.summary}</p>}
         <PublisherMeta article={article} />
         <StoryLink className="vbnReadStory" article={article}>
-          Read full report <span aria-hidden="true">↗</span>
+          Read full report <VbnExternalArrow />
         </StoryLink>
       </div>
     </article>
@@ -261,14 +265,14 @@ export default function VbnNewsroom({
     <section className="vbnNewsroom" aria-label="Veylo Business News">
       <div className="vbnReferenceMobile">
         <div className="vbnRefTop"><div className="vbnRefIdentity"><span className="vbnRefLogo">V<span>.</span></span><div><strong>VEYLO <em>BUSINESS NEWS</em></strong><small>THE FOUNDER&apos;S EDGE</small></div></div><button aria-label="Refresh news" type="button" onClick={onRefresh} disabled={loading}>↻</button></div>
-        <div className="vbnRefBanner"><div className="vbnRefHalo" aria-hidden="true">◎</div><span className="vbnRefOverline">◉ LIVE GLOBAL BRIEFING</span><h2>Know what&apos;s next<span>.</span></h2><p>Ideas. Markets. Opportunities.<br/>Everything moving business forward.</p><div className="vbnRefBannerBottom"><span>VBN / 01</span><span>GLOBAL COVERAGE ↗</span></div></div>
+        <div className="vbnRefBanner"><div className="vbnRefHalo" aria-hidden="true">◎</div><span className="vbnRefOverline">◉ LIVE GLOBAL BRIEFING</span><h2>Know what&apos;s next<span>.</span></h2><p>Ideas. Markets. Opportunities.<br/>Everything moving business forward.</p><div className="vbnRefBannerBottom"><span>VBN / 01</span><span>GLOBAL COVERAGE <VbnExternalArrow /></span></div></div>
         <div className="vbnRefTopicRail" aria-label="News categories">{TOPICS.map(topic=><button type="button" key={topic} className={activeTopic===topic?'selected':''} onClick={()=>{setActiveTopic(topic);setSearch('');setMoreVisible(false)}}>{topic}</button>)}</div>
-        <div className="vbnRefSectionTitle"><div><small>YOUR DAILY BRIEFING</small><h3>Top Stories <span>↗</span></h3></div><button type="button" onClick={onRefresh} disabled={loading}>{loading?'Updating':'Refresh ↻'}</button></div>
+        <div className="vbnRefSectionTitle"><div><small>YOUR DAILY BRIEFING</small><h3>Top Stories <VbnExternalArrow /></h3></div><button type="button" onClick={onRefresh} disabled={loading}>{loading?'Updating':'Refresh ↻'}</button></div>
         {message&&<p className="vbnRefNotice" role="status">{message}</p>}
         {lead?<StoryLink article={lead} className="vbnRefFeature">{lead.imageUrl?<img src={lead.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer"/>:<div className="vbnRefPlaceholder">VBN</div>}<div className="vbnRefFeatureShade"/><div className="vbnRefFeatureBody"><span className="vbnRefCategory">● {lead.category||'BUSINESS'} / FEATURED</span><h3>{lead.title}</h3><PublisherMeta article={lead}/></div></StoryLink>:<div className="vbnRefEmpty">{loading?'Loading your briefing…':'No headlines available. Try another category or refresh.'}</div>}
         {secondary.length>0&&<div className="vbnRefSmallStories">{secondary.map(article=><StoryLink article={article} key={article.id} className="vbnRefSmallStory">{article.imageUrl?<img src={article.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer"/>:<span className="vbnRefSmallFallback">VBN</span>}<div><small>{article.category||'BUSINESS'}</small><strong>{article.title}</strong><PublisherMeta article={article}/></div></StoryLink>)}</div>}
-        <div className="vbnRefSectionTitle vbnRefLatestTitle"><div><small>THE WORLD IN MOTION</small><h3>Latest News <span>↗</span></h3></div></div>
-        <div className="vbnRefLatest">{[...latest,...deskPool].slice(0,moreVisible?30:8).map(article=><StoryLink article={article} key={article.id} className="vbnRefLatestRow"><div><small>{article.category||'NEWS'} · {relativeDate(article.publishedAt)}</small><strong>{article.title}</strong><span>{article.source} ↗</span></div>{article.imageUrl&&<img src={article.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer"/>}</StoryLink>)}</div>
+        <div className="vbnRefSectionTitle vbnRefLatestTitle"><div><small>THE WORLD IN MOTION</small><h3>Latest News <VbnExternalArrow /></h3></div></div>
+        <div className="vbnRefLatest">{[...latest,...deskPool].slice(0,moreVisible?30:8).map(article=><StoryLink article={article} key={article.id} className="vbnRefLatestRow"><div><small>{article.category||'NEWS'} · {relativeDate(article.publishedAt)}</small><strong>{article.title}</strong><span>{article.source} <VbnExternalArrow /></span></div>{article.imageUrl&&<img src={article.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer"/>}</StoryLink>)}</div>
         {filtered.length>11&&!moreVisible&&<button className="vbnRefMore" type="button" onClick={()=>setMoreVisible(true)}>EXPLORE MORE STORIES ↓</button>}
         <div className="vbnRefFooter">VEYLO BUSINESS NEWS <span>NETWORKING · NEWS · PROGRESSION · VISION</span></div>
       </div>
