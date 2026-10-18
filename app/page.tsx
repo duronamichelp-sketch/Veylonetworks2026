@@ -31,6 +31,7 @@ const MOBILE_TABS: Array<{ id: Page; label: string; icon: MobileIconName }> = [
   { id: 'people', label: 'People', icon: 'people' },
   { id: 'messages', label: 'Chats', icon: 'messages' },
   { id: 'offices', label: 'Offices', icon: 'offices' },
+  { id: 'vbn', label: 'News', icon: 'vbn' },
   { id: 'profile', label: 'Profile', icon: 'profile' },
 ];
 
