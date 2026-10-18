@@ -4588,3 +4588,14 @@ input:focus,textarea:focus,select:focus{outline-color:#35baff;border-color:#36ba
   color:#77d4ff!important;
  }
 }
+
+
+/* Shared Option 8 dual-tone external-link icon */
+.veyloDualArrow{display:inline-flex!important;vertical-align:middle;align-items:center;justify-content:center;flex:none;width:28px;height:28px;min-width:28px;border-radius:9px;border:1.5px solid transparent;background:linear-gradient(#071c3c,#071c3c) padding-box,linear-gradient(135deg,#18f2ff 5%,#1688ff 52%,#e13dff 100%) border-box;box-shadow:0 0 10px rgba(0,158,255,.35),inset 0 0 10px rgba(34,104,230,.23);color:#e5f7ff!important;line-height:1!important;transition:transform .18s ease,box-shadow .18s ease}
+.veyloDualArrow svg{display:block!important;width:17px!important;height:17px!important;stroke:#d9f4ff!important;fill:none!important;filter:drop-shadow(0 0 3px #35aaff);opacity:1!important;visibility:visible!important}
+a:hover .veyloDualArrow,button:hover .veyloDualArrow{transform:translateY(-1px);box-shadow:0 0 17px rgba(15,173,255,.65),0 0 9px rgba(192,46,255,.35)}
+.veyloPeopleCompactCard>.veyloDualArrow{margin-left:auto}
+.vbnRefSectionTitle h3 .veyloDualArrow{width:24px;height:24px;min-width:24px;border-radius:7px}
+.vbnRefSectionTitle h3 .veyloDualArrow svg{width:14px!important;height:14px!important}
+.vbnRefLatestRow .veyloDualArrow,.vbnRefBannerBottom .veyloDualArrow{width:20px;height:20px;min-width:20px;border-radius:6px}
+.vbnRefLatestRow .veyloDualArrow svg,.vbnRefBannerBottom .veyloDualArrow svg{width:12px!important;height:12px!important}
