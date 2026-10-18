@@ -173,6 +173,11 @@ export default function Home() {
   const [posts, setPosts] = useState<NetworkPost[]>([]);
   const [postSaves,setPostSaves]=useState<string[]>([]);
   const [postComments,setPostComments]=useState<{id:string;post_id:string;user_id:string;content:string}[]>([]);
+  const [activeCommentsPostId,setActiveCommentsPostId]=useState<string|null>(null);
+  const [commentDraft,setCommentDraft]=useState('');
+  const [commentReplyTo,setCommentReplyTo]=useState<{id:string;name:string}|null>(null);
+  const [commentSending,setCommentSending]=useState(false);
+  const [commentLikedIds,setCommentLikedIds]=useState<string[]>([]);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [readReceipts, setReadReceipts] = useState<Record<string, string>>({});
@@ -1515,12 +1520,20 @@ export default function Home() {
     setPostSaves(old=>saved?old.filter(id=>id!==postId):[...old,postId]);
   }
   async function commentOnPost(postId:string){
-    if(!currentMember)return;
-    const content=window.prompt('Write a comment');
-    if(!content?.trim())return;
-    const {data,error}=await supabase.from('network_post_comments').insert({post_id:postId,user_id:currentMember.id,content:content.trim()}).select('id,post_id,user_id,content').single();
+    setActiveCommentsPostId(postId);
+    setCommentDraft('');
+    setCommentReplyTo(null);
+  }
+  async function submitNetworkComment(){
+    if(!currentMember||!activeCommentsPostId||!commentDraft.trim()||commentSending)return;
+    setCommentSending(true);
+    const content=(commentReplyTo?'@'+commentReplyTo.name+' ':'')+commentDraft.trim();
+    const {data,error}=await supabase.from('network_post_comments').insert({post_id:activeCommentsPostId,user_id:currentMember.id,content}).select('id,post_id,user_id,content').single();
+    setCommentSending(false);
     if(error){alert('Could not post comment: '+error.message);return;}
     setPostComments(old=>[...old,data]);
+    setCommentDraft('');
+    setCommentReplyTo(null);
   }
 
   /* =====================================================
@@ -2591,6 +2604,37 @@ export default function Home() {
                 })
               )}
             </section>
+          )}
+
+          {activeCommentsPostId && currentMember && (
+            <div className="veyloCommentsBackdrop" onClick={()=>setActiveCommentsPostId(null)}>
+              <section className="veyloCommentsSheet" role="dialog" aria-modal="true" aria-label="Post comments" onClick={event=>event.stopPropagation()}>
+                <div className="veyloCommentsHandle" aria-hidden="true" />
+                <header className="veyloCommentsHeading"><h2>Comments <span>{postComments.filter(c=>c.post_id===activeCommentsPostId).length}</span></h2><button type="button" onClick={()=>setActiveCommentsPostId(null)} aria-label="Close comments">×</button></header>
+                <div className="veyloCommentsScroll">
+                  {postComments.filter(c=>c.post_id===activeCommentsPostId).length===0 && <p className="veyloCommentsEmpty">No comments yet. Start the conversation.</p>}
+                  {postComments.filter(c=>c.post_id===activeCommentsPostId).map(comment=>{
+                    const author=members.find(member=>member.id===comment.user_id);
+                    const post=posts.find(item=>item.id===activeCommentsPostId);
+                    const isAuthor=post?.memberId===comment.user_id;
+                    return <article className="veyloCommentItem" key={comment.id}>
+                      <div className="veyloCommentAvatar">{author?<Avatar member={author}/>:<span>V</span>}</div>
+                      <div className="veyloCommentBody"><div className="veyloCommentName"><strong>{author?.fullName||'Veylo member'}</strong>{isAuthor&&<span className="veyloCommentAuthorTag">Author</span>}</div><p>{comment.content}</p><button type="button" className="veyloCommentReply" onClick={()=>{setCommentReplyTo({id:comment.id,name:author?.fullName||'member'});}}>Reply</button></div>
+                      <button type="button" className={'veyloCommentHeart'+(commentLikedIds.includes(comment.id)?' liked':'')} aria-label={commentLikedIds.includes(comment.id)?'Unlike comment':'Like comment'} onClick={()=>setCommentLikedIds(old=>old.includes(comment.id)?old.filter(id=>id!==comment.id):[...old,comment.id])}>♡</button>
+                    </article>
+                  })}
+                </div>
+                <div className="veyloCommentsComposer">
+                  <div className="veyloCommentEmojis">{['❤️','🙌','🔥','👏','😂','😍','👍'].map(emoji=><button type="button" key={emoji} onClick={()=>setCommentDraft(old=>old+emoji)}>{emoji}</button>)}</div>
+                  {commentReplyTo&&<div className="veyloCommentReplying">Replying to {commentReplyTo.name}<button type="button" onClick={()=>setCommentReplyTo(null)}>×</button></div>}
+                  <form className="veyloCommentInputRow" onSubmit={event=>{event.preventDefault();void submitNetworkComment();}}>
+                    <div className="veyloCommentSelfAvatar"><Avatar member={currentMember}/></div>
+                    <input aria-label="Add a comment" placeholder="Add a comment..." value={commentDraft} onChange={event=>setCommentDraft(event.target.value)} maxLength={1500}/>
+                    <button type="submit" disabled={!commentDraft.trim()||commentSending} aria-label="Send comment">➤</button>
+                  </form>
+                </div>
+              </section>
+            </div>
           )}
 
           {/* PEOPLE */}
