@@ -660,6 +660,94 @@ export default function Home() {
     loadVeyloData();
   }, []);
 
+  /* Mobile pull-to-refresh plus live Office synchronisation. */
+  const [pullDistance, setPullDistance] = useState(0);
+  const pullStartY = useRef<number | null>(null);
+  const pulling = useRef(false);
+  const officeRefreshBusy = useRef(false);
+
+  useEffect(() => {
+    if (!ready || !currentMemberId) return;
+    let stopped = false;
+    const refreshOffices = async () => {
+      if (officeRefreshBusy.current || document.visibilityState !== 'visible') return;
+      officeRefreshBusy.current = true;
+      try {
+        const { data: memberships, error: membershipError } = await supabase
+          .from('office_members').select('office_id').eq('user_id', currentMemberId);
+        if (membershipError || stopped) return;
+        const ids = (memberships || []).map(row => row.office_id);
+        if (!ids.length) { setOffices([]); return; }
+        const [officeResult, memberResult] = await Promise.all([
+          supabase.from('offices').select('*').in('id', ids),
+          supabase.from('office_members').select('*').in('office_id', ids)
+        ]);
+        if (stopped || officeResult.error || memberResult.error) return;
+        setOffices((officeResult.data || []).map(office => ({
+          id: office.id,
+          name: office.name,
+          description: office.description || '',
+          ownerId: office.owner_id,
+          members: (memberResult.data || []).filter(row => row.office_id === office.id).map(row => row.user_id),
+          tasks: office.tasks || [],
+          notes: office.notes || [],
+          meetings: office.meetings || [],
+          createdAt: office.created_at,
+        })));
+      } finally {
+        officeRefreshBusy.current = false;
+      }
+    };
+    // Database events provide immediate updates if Supabase Realtime is enabled
+    // for the offices table. Polling is a fallback if publication isn't enabled.
+    const channel = supabase.channel('veylo:office-sync:' + currentMemberId)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'offices' }, () => { void refreshOffices(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'office_members' }, () => { void refreshOffices(); })
+      .subscribe();
+    const poll = window.setInterval(() => { void refreshOffices(); }, 8000);
+    const onReturn = () => { if (document.visibilityState === 'visible') void refreshOffices(); };
+    window.addEventListener('focus', onReturn);
+    document.addEventListener('visibilitychange', onReturn);
+    return () => {
+      stopped = true;
+      window.clearInterval(poll);
+      window.removeEventListener('focus', onReturn);
+      document.removeEventListener('visibilitychange', onReturn);
+      void supabase.removeChannel(channel);
+    };
+  }, [ready, currentMemberId]);
+
+  useEffect(() => {
+    const onStart = (event: TouchEvent) => {
+      if (window.innerWidth > 768 || window.scrollY > 2 || event.touches.length !== 1) return;
+      const target = event.target as HTMLElement;
+      if (target.closest('textarea,input,select,[contenteditable="true"],.officeItems,.veyloCommentsScroll,.messageArea')) return;
+      pullStartY.current = event.touches[0].clientY;
+      pulling.current = true;
+    };
+    const onMove = (event: TouchEvent) => {
+      if (!pulling.current || pullStartY.current === null) return;
+      const delta = event.touches[0].clientY - pullStartY.current;
+      setPullDistance(delta > 0 && window.scrollY <= 2 ? Math.min(95, delta * .45) : 0);
+    };
+    const onEnd = (event: TouchEvent) => {
+      if (!pulling.current || pullStartY.current === null) return;
+      const travelled = (event.changedTouches[0]?.clientY || 0) - pullStartY.current;
+      pulling.current = false;
+      pullStartY.current = null;
+      setPullDistance(0);
+      if (travelled >= 160 && window.scrollY <= 2) window.location.reload();
+    };
+    window.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onEnd, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', onStart);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
+    };
+  }, []);
+
   useEffect(() => {
     knownConversationIdsRef.current = new Set(conversations.map((chat) => chat.id));
   }, [conversations]);
@@ -2425,6 +2513,7 @@ export default function Home() {
 
   return (
     <main className={'app veyloPage-' + page + ' veyloNavPosition-' + mobileNavPosition + (mobileNavCollapsed ? ' veyloNavCollapsed' : '')}>
+      {pullDistance > 0 && <div className="veyloPullIndicator" style={{ transform: 'translateX(-50%) translateY(' + Math.min(pullDistance, 68) + 'px)' }} aria-live="polite">{pullDistance > 55 ? 'Release to refresh' : '↓ Pull to refresh'}</div>}
       <aside className="sidebar">
         <div>
           <img
