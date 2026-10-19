@@ -5231,3 +5231,31 @@ background-repeat:no-repeat!important;
     overflow: visible !important;
   }
 }
+
+
+/* Native label-based uploads: both mobile and desktop */
+.app.veyloPage-network .veyloComposerToolGroup .veyloComposerTools label.veyloComposerTool {
+  display: grid !important;
+  place-items: center !important;
+  width: 39px;
+  height: 39px;
+  flex: 0 0 39px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid rgba(var(--veylo-accent-rgb),.27);
+  border-radius: 12px;
+  background: rgba(11,37,67,.7);
+  color: var(--veylo-accent);
+  cursor: pointer;
+  user-select: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+.app.veyloPage-network .veyloComposerToolGroup .veyloComposerTools label.veyloComposerTool svg { display: block; width: 21px; height: 21px; pointer-events: none; }
+@media(max-width:768px) {
+  .veyloCleanFeed .veyloComposerToolGroup .veyloComposerTools label.veyloComposerTool {
+    width: 34px !important;
+    height: 36px !important;
+    flex: 0 0 34px !important;
+  }
+}
