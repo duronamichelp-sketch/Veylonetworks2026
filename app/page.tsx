@@ -3414,10 +3414,6 @@ export default function Home() {
 
                     <p className="muted small veyloProfileTagline">{currentMember.headline || 'Building meaningful business connections'}{currentMember.location ? ' · ' + currentMember.location : ''}</p>
                     <div className="veyloProfileQuickStats"><div><strong>{posts.filter(post => post.memberId === currentMember.id).length}</strong><span>Posts</span></div><div><strong>{currentMember.projects.length}</strong><span>Projects</span></div><div><strong>{getFollowerCount(currentMember.id)}</strong><span>Followers</span></div><div><strong>{getFollowingCount(currentMember.id)}</strong><span>Following</span></div></div>
-                    <div className="memberFollowCounts">
-                      <span><strong>{getFollowerCount(currentMember.id)}</strong> followers</span>
-                      <span><strong>{getFollowingCount(currentMember.id)}</strong> following</span>
-                    </div>
                   </div>
                 </div>
 
