@@ -3639,6 +3639,56 @@ export default function Home() {
                   title="Advanced Office Tools"
                   text="Whiteboards, files, live collaboration and deeper project management."
                 />
+
+                <ComingCard
+                  title="Business Opportunities Hub"
+                  text="Discover tenders, contracts, supplier requests and commercial partnerships. Submit and manage proposals in one place."
+                />
+
+                <ComingCard
+                  title="Executive Networking"
+                  text="Verified CEO, founder, director and investor connections, with executive communities and private discussions."
+                />
+
+                <ComingCard
+                  title="Investor Connect"
+                  text="Present funding opportunities, find potential investors and arrange introductions and pitch meetings."
+                />
+
+                <ComingCard
+                  title="Veylo CRM"
+                  text="Track leads, clients, conversations, deal stages, follow-ups and business relationships."
+                />
+
+                <ComingCard
+                  title="Veylo AI Business Assistant"
+                  text="Draft proposals, research businesses, summarise meetings and help manage everyday business workflows."
+                />
+
+                <ComingCard
+                  title="International Expansion Network"
+                  text="Connect with international distributors, manufacturers, suppliers and local business partners."
+                />
+
+                <ComingCard
+                  title="Contracts & E-Signatures"
+                  text="Prepare, securely share, electronically sign and organise contracts and NDAs with audit trails."
+                />
+
+                <ComingCard
+                  title="Business Events & Conferences"
+                  text="Host professional networking events, investor presentations, executive roundtables and virtual conferences."
+                />
+
+                <ComingCard
+                  title="Executive Talent Search"
+                  text="Find experienced senior leaders, specialists, advisers and co-founders through professional profiles."
+                />
+
+                <ComingCard
+                  title="Private Deal Mode for Offices"
+                  text="Turn an existing Internal Office into a confidential deal space with access controls, NDAs and secure document sharing."
+                />
               </div>
             </>
           )}
