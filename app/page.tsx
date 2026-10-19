@@ -106,6 +106,8 @@ type OfficeNote = {
   id: string;
   content: string;
   createdAt: string;
+  starred?: boolean;
+  highlight?: 'blue' | 'purple' | 'green' | 'orange' | null;
 };
 
 type OfficeMeeting = {
@@ -193,6 +195,7 @@ export default function Home() {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const [offices, setOffices] = useState<Office[]>([]);
+  const [openOfficeNoteMenu, setOpenOfficeNoteMenu] = useState<string | null>(null);
   const [officeUndo, setOfficeUndo] = useState<{ officeId: string; kind: 'task' | 'note'; item: OfficeTask | OfficeNote; index: number } | null>(null);
   const officeUndoRef = useRef<{ officeId: string; kind: 'task' | 'note'; item: OfficeTask | OfficeNote; index: number } | null>(null);
   const officeUndoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -2073,6 +2076,12 @@ export default function Home() {
     return true;
   }
 
+  async function changeOfficeNoteStyle(noteId: string, update: Partial<Pick<OfficeNote, 'starred' | 'highlight'>>) {
+    if (!selectedOffice) return;
+    const notes = selectedOffice.notes.map(note => note.id === noteId ? { ...note, ...update } : note);
+    if (await saveOfficeNotes(selectedOffice.id, notes)) setOpenOfficeNoteMenu(null);
+  }
+
   async function deleteOfficeTask(taskId: string) {
     if (!selectedOffice) return;
     const index = selectedOffice.tasks.findIndex(task => task.id === taskId);
@@ -3259,9 +3268,20 @@ export default function Home() {
 
                         <div className="officeItems">
                           {selectedOffice.notes.map((note) => (
-                            <article className="note veyloOfficeNoteRow" key={note.id}>
-                              <span>{note.content}</span>
-                              <button type="button" className="veyloOfficeTaskDelete" onClick={() => void deleteOfficeNote(note.id)} aria-label="Delete note" title="Delete note">×</button>
+                            <article className={'note veyloOfficeNoteRow' + (note.highlight ? ' veyloNoteHighlight-' + note.highlight : '')} key={note.id}>
+                              <span className="veyloNoteContent">{note.starred && <span className="veyloNoteStar" aria-label="Starred note">★ </span>}{note.content}</span>
+                              <div className="veyloNoteMenuWrap">
+                                <button type="button" className="veyloNoteMenuTrigger" aria-label={'Options for note: ' + note.content.slice(0,40)} aria-expanded={openOfficeNoteMenu === note.id} onClick={() => setOpenOfficeNoteMenu(id => id === note.id ? null : note.id)}>☰</button>
+                                {openOfficeNoteMenu === note.id && <div className="veyloNoteOptions" role="group" aria-label="Note options">
+                                  <button type="button" onClick={() => void changeOfficeNoteStyle(note.id, { starred: !note.starred })}>{note.starred ? '☆ Remove star' : '★ Star note'}</button>
+                                  <div className="veyloNoteColourLabel">Neon highlight</div>
+                                  <div className="veyloNoteColours">
+                                    {(['blue','purple','green','orange'] as const).map(colour => <button key={colour} type="button" className={'veyloNoteColour veyloNoteColour-' + colour} aria-label={'Highlight ' + colour} title={colour} onClick={() => void changeOfficeNoteStyle(note.id, { highlight: note.highlight === colour ? null : colour })}>{note.highlight === colour ? '✓' : ''}</button>)}
+                                  </div>
+                                  {note.highlight && <button type="button" onClick={() => void changeOfficeNoteStyle(note.id, { highlight: null })}>Remove highlight</button>}
+                                  <button type="button" className="veyloNoteDeleteOption" onClick={() => { setOpenOfficeNoteMenu(null); void deleteOfficeNote(note.id); }}>Delete note</button>
+                                </div>}
+                              </div>
                             </article>
                           ))}
                         </div>
