@@ -5650,3 +5650,28 @@ background-repeat:no-repeat!important;
   }
   .app.veyloPage-people .searchPanel .field { box-sizing: border-box !important; width: 100% !important; min-width: 0 !important; }
 }
+
+/* Network attachments: size the media area to the actual uploaded content. */
+.app.veyloPage-network .veyloPostMediaFrame {
+  aspect-ratio: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  background: transparent !important;
+}
+.app.veyloPage-network .veyloPostMediaFrame .veyloPostMediaImage,
+.app.veyloPage-network .veyloPostMediaFrame .veyloPostMediaImage.isReady {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: 440px !important;
+  object-fit: contain !important;
+}
+.app.veyloPage-network .veyloPostMediaFrame:has(.veyloPostMediaImage.isReady) .veyloPostMediaSkeleton {
+  display: none !important;
+}
+.app.veyloPage-network .veyloPostMediaFrame:not(:has(.veyloPostMediaImage.isReady)) {
+  min-height: 130px !important;
+}
