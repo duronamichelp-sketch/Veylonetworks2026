@@ -308,6 +308,7 @@ export default function Home() {
 
   const [officeInviteCode, setOfficeInviteCode] = useState('');
   const [officeInviteBusy, setOfficeInviteBusy] = useState(false);
+  const [officeRemoveMemberId, setOfficeRemoveMemberId] = useState<string | null>(null);
   const [officeInviteNotice, setOfficeInviteNotice] = useState('');
 
   const [newTask, setNewTask] = useState('');
@@ -2102,13 +2103,14 @@ export default function Home() {
   async function removeOfficeMember(memberId: string) {
     if (!selectedOffice || !currentMember || selectedOffice.ownerId !== currentMember.id || memberId === selectedOffice.ownerId || officeInviteBusy) return;
     const member = members.find(person => person.id === memberId);
-    if (!window.confirm('Remove ' + (member?.fullName || 'this member') + ' from ' + selectedOffice.name + '?')) return;
+
     setOfficeInviteBusy(true);
     try {
       const { data, error } = await supabase.from('office_members').delete().eq('office_id', selectedOffice.id).eq('user_id', memberId).select('user_id');
       if (error) throw error;
       if (!data?.length) throw new Error('Member was not removed. Check office permissions.');
       setOffices(current => current.map(office => office.id === selectedOffice.id ? {...office, members: office.members.filter(id => id !== memberId)} : office));
+      setOfficeRemoveMemberId(null);
       setOfficeInviteNotice((member?.fullName || 'Member') + ' removed from office.');
     } catch (error) {
       setOfficeInviteNotice('Could not remove member: ' + (error instanceof Error ? error.message : 'Please try again.'));
@@ -3427,7 +3429,18 @@ export default function Home() {
                         </div>
                       </section>
 </div>}
-                      {officeMobileTab === 'members' && <section className="glass officeSection"><h3>Office Members</h3><div className="officeItems">{selectedOffice.members.map(id => { const member = members.find(m => m.id === id); return <div className="veyloOfficeMember" key={id}><span className="veyloOfficeMemberAvatar">{(member?.fullName || '?').charAt(0).toUpperCase()}</span><div><strong>{member?.fullName || 'Office member'}</strong><small>{member?.memberCode || ''}</small></div>{id === selectedOffice.ownerId && <span className="veyloOfficeOwner">Owner</span>}{currentMember?.id === selectedOffice.ownerId && id !== selectedOffice.ownerId && <button type="button" className="secondary" disabled={officeInviteBusy} onClick={() => void removeOfficeMember(id)} aria-label={"Remove " + (member?.fullName || "member") + " from office"} style={{marginLeft:"auto",color:"#ff9d9d"}}>Remove</button>}</div> })}</div></section>}
+                      {officeRemoveMemberId && selectedOffice.members.includes(officeRemoveMemberId) && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !officeInviteBusy) setOfficeRemoveMemberId(null); }} style={{position:'fixed',inset:0,zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:20,background:'rgba(0,5,18,.76)',backdropFilter:'blur(9px)'}}>
+                        <div role="alertdialog" aria-modal="true" aria-labelledby="veylo-remove-title" aria-describedby="veylo-remove-desc" style={{width:'100%',maxWidth:390,border:'1px solid rgba(102,180,245,.3)',borderRadius:24,background:'linear-gradient(145deg,#11243c,#081326)',boxShadow:'0 25px 100px rgba(0,0,0,.65)',padding:26,color:'#e8f4ff'}}>
+                          <div style={{width:48,height:48,borderRadius:16,background:'rgba(255,107,122,.12)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,color:'#ff8c9a',marginBottom:18}}>×</div>
+                          <h3 id="veylo-remove-title" style={{fontSize:21,margin:'0 0 10px',fontWeight:750}}>Remove team member?</h3>
+                          <p id="veylo-remove-desc" style={{fontSize:14,lineHeight:1.6,color:'#a9bdd4',margin:'0 0 23px'}}>Remove <strong style={{color:'#fff'}}>{members.find(member => member.id === officeRemoveMemberId)?.fullName || 'this member'}</strong> from <strong style={{color:'#fff'}}>{selectedOffice.name}</strong>? They'll lose access to this office. You can add them again later.</p>
+                          <div style={{display:'flex',gap:10}}>
+                            <button type="button" disabled={officeInviteBusy} onClick={() => setOfficeRemoveMemberId(null)} style={{flex:1,padding:'12px 16px',borderRadius:12,background:'rgba(140,171,210,.12)',border:'1px solid rgba(140,171,210,.23)',color:'#e8f4ff',fontWeight:600}}>Cancel</button>
+                            <button type="button" disabled={officeInviteBusy} onClick={() => void removeOfficeMember(officeRemoveMemberId)} style={{flex:1,padding:'12px 16px',borderRadius:12,background:'linear-gradient(130deg,#ff6477,#d74058)',border:0,color:'#fff',fontWeight:700}}>{officeInviteBusy ? 'Removing...' : 'Remove member'}</button>
+                          </div>
+                        </div>
+                      </div>}
+                      {officeMobileTab === 'members' && <section className="glass officeSection"><h3>Office Members</h3><div className="officeItems">{selectedOffice.members.map(id => { const member = members.find(m => m.id === id); return <div className="veyloOfficeMember" key={id}><span className="veyloOfficeMemberAvatar">{(member?.fullName || '?').charAt(0).toUpperCase()}</span><div><strong>{member?.fullName || 'Office member'}</strong><small>{member?.memberCode || ''}</small></div>{id === selectedOffice.ownerId && <span className="veyloOfficeOwner">Owner</span>}{currentMember?.id === selectedOffice.ownerId && id !== selectedOffice.ownerId && <button type="button" className="secondary" disabled={officeInviteBusy} onClick={() => setOfficeRemoveMemberId(id)} aria-label={"Remove " + (member?.fullName || "member") + " from office"} style={{marginLeft:"auto",color:"#ff9d9d"}}>Remove</button>}</div> })}</div></section>}
                     </div>
                   </>
                 )}
