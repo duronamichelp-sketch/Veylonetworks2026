@@ -41,6 +41,8 @@ type Project = {
   title: string;
   role: string;
   year: string;
+  endYear?: string;
+  ongoing?: boolean;
   description: string;
   website?: string;
 };
@@ -273,6 +275,8 @@ export default function Home() {
     title: '',
     role: '',
     year: '',
+    endYear: '',
+    ongoing: true,
     description: '',
     website: '',
   });
@@ -1507,18 +1511,27 @@ export default function Home() {
       return;
     }
 
+    const start = Number(projectDraft.year);
+    const end = Number(projectDraft.endYear);
+    if (!/^\d{4}$/.test(projectDraft.year) || start < 1900 || start > new Date().getFullYear() || (!projectDraft.ongoing && (!/^\d{4}$/.test(projectDraft.endYear) || end < start || end > new Date().getFullYear()))) {
+      setProjectLinkNotice('Enter a valid start year and finish year, or select Ongoing.');
+      return;
+    }
+
     const project: Project = {
       id: crypto.randomUUID(),
       title: projectDraft.title.trim(),
       role: projectDraft.role.trim(),
       year: projectDraft.year.trim(),
+      endYear: projectDraft.ongoing ? '' : projectDraft.endYear.trim(),
+      ongoing: projectDraft.ongoing,
       description: projectDraft.description.trim(),
       website,
     };
 
     try {
       await persistProjects([...currentMember.projects, project]);
-      setProjectDraft({ title: '', role: '', year: '', description: '', website: '' });
+      setProjectDraft({ title: '', role: '', year: '', endYear: '', ongoing: true, description: '', website: '' });
       setProjectLinkNotice('Project saved to your Veylo profile.');
     } catch (error) {
       console.error('Could not add Veylo project:', error);
@@ -2932,7 +2945,7 @@ export default function Home() {
                     <span className="muted small">
                       {project.role}
 
-                      {project.year ? ` • ${project.year}` : ''}
+                      {project.year ? ` • ${project.year}${project.ongoing ? ' – Present' : project.endYear ? ' – ' + project.endYear : ''}` : ''}
                     </span>
 
                     <ExpandableText
@@ -3663,7 +3676,10 @@ export default function Home() {
 
                   <input
                     className="field"
-                    placeholder="Year"
+                    placeholder="Start year (e.g. 2015)"
+                    type="number"
+                    min="1900"
+                    max={new Date().getFullYear()}
                     value={projectDraft.year}
                     onChange={(event) =>
                       setProjectDraft((current) => ({
@@ -3673,6 +3689,9 @@ export default function Home() {
                       }))
                     }
                   />
+
+                  <label className="muted small" style={{display:'flex',alignItems:'center',gap:10,margin:'8px 0'}}><input type="checkbox" checked={projectDraft.ongoing} onChange={event => setProjectDraft(current => ({...current,ongoing:event.target.checked}))} /> Currently working on this project (Present)</label>
+                  {!projectDraft.ongoing && <input className="field" type="number" min={projectDraft.year || '1900'} max={new Date().getFullYear()} placeholder="Finish year (e.g. 2023)" value={projectDraft.endYear} onChange={event => setProjectDraft(current => ({...current,endYear:event.target.value}))} />}
 
                   <input
                     className="field projectWebsiteField"
@@ -3717,7 +3736,7 @@ export default function Home() {
                         <strong>{project.title}</strong>
                         <span className="muted small">
                           {project.role}
-                          {project.year ? ` • ${project.year}` : ''}
+                          {project.year ? ` • ${project.year}${project.ongoing ? ' – Present' : project.endYear ? ' – ' + project.endYear : ''}` : ''}
                         </span>
                         <ExpandableText
                           className="muted"
