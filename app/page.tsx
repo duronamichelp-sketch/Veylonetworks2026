@@ -2099,6 +2099,24 @@ export default function Home() {
     }
   }
 
+  async function removeOfficeMember(memberId: string) {
+    if (!selectedOffice || !currentMember || selectedOffice.ownerId !== currentMember.id || memberId === selectedOffice.ownerId || officeInviteBusy) return;
+    const member = members.find(person => person.id === memberId);
+    if (!window.confirm('Remove ' + (member?.fullName || 'this member') + ' from ' + selectedOffice.name + '?')) return;
+    setOfficeInviteBusy(true);
+    try {
+      const { data, error } = await supabase.from('office_members').delete().eq('office_id', selectedOffice.id).eq('user_id', memberId).select('user_id');
+      if (error) throw error;
+      if (!data?.length) throw new Error('Member was not removed. Check office permissions.');
+      setOffices(current => current.map(office => office.id === selectedOffice.id ? {...office, members: office.members.filter(id => id !== memberId)} : office));
+      setOfficeInviteNotice((member?.fullName || 'Member') + ' removed from office.');
+    } catch (error) {
+      setOfficeInviteNotice('Could not remove member: ' + (error instanceof Error ? error.message : 'Please try again.'));
+    } finally {
+      setOfficeInviteBusy(false);
+    }
+  }
+
   async function addOfficeTask() {
     if (!selectedOffice || !newTask.trim()) {
       return;
@@ -3409,7 +3427,7 @@ export default function Home() {
                         </div>
                       </section>
 </div>}
-                      {officeMobileTab === 'members' && <section className="glass officeSection"><h3>Office Members</h3><div className="officeItems">{selectedOffice.members.map(id => { const member = members.find(m => m.id === id); return <div className="veyloOfficeMember" key={id}><span className="veyloOfficeMemberAvatar">{(member?.fullName || '?').charAt(0).toUpperCase()}</span><div><strong>{member?.fullName || 'Office member'}</strong><small>{member?.memberCode || ''}</small></div>{id === selectedOffice.ownerId && <span className="veyloOfficeOwner">Owner</span>}</div> })}</div></section>}
+                      {officeMobileTab === 'members' && <section className="glass officeSection"><h3>Office Members</h3><div className="officeItems">{selectedOffice.members.map(id => { const member = members.find(m => m.id === id); return <div className="veyloOfficeMember" key={id}><span className="veyloOfficeMemberAvatar">{(member?.fullName || '?').charAt(0).toUpperCase()}</span><div><strong>{member?.fullName || 'Office member'}</strong><small>{member?.memberCode || ''}</small></div>{id === selectedOffice.ownerId && <span className="veyloOfficeOwner">Owner</span>}{currentMember?.id === selectedOffice.ownerId && id !== selectedOffice.ownerId && <button type="button" className="secondary" disabled={officeInviteBusy} onClick={() => void removeOfficeMember(id)} aria-label={"Remove " + (member?.fullName || "member") + " from office"} style={{marginLeft:"auto",color:"#ff9d9d"}}>Remove</button>}</div> })}</div></section>}
                     </div>
                   </>
                 )}
