@@ -33,6 +33,151 @@ const tables:Record<string,Row[]>={
  offices:[{id:'demo-office-1',name:'Apex Startup Studio',description:'Product launch and business planning.',owner_id:guest,created_at:now,tasks:[{id:'t1',title:'Review investor pitch',complete:false},{id:'t2',title:'Approve landing page',complete:true}],notes:[{id:'n1',content:'Review the partner proposal before Friday.',createdAt:now}],meetings:[{id:'meet1',title:'Project catch-up',date:'2026-10-22',time:'10:00'}]},{id:'demo-office-2',name:'Northstar Digital Project',description:'Collaborating on the new platform design.',owner_id:guest,created_at:now,tasks:[{id:'t3',title:'Review prototype',complete:false}],notes:[],meetings:[]}],
  office_members:[{office_id:'demo-office-1',user_id:guest},{office_id:'demo-office-1',user_id:alex},{office_id:'demo-office-1',user_id:emma},{office_id:'demo-office-2',user_id:guest},{office_id:'demo-office-2',user_id:sophie}]
 };
+
+/* Additional fictional activity. Deterministic seed data; never connects to production. */
+const demoPeople = [
+ ['Amelia Foster','Founder · Oakline Ventures','Ireland'],
+ ['Noah Carter','Founder · Northstar AI','United Kingdom'],
+ ['Isabella Chen','Co-founder · Pixel Foundry','Singapore'],
+ ['Ethan Rivera','Operations · Meridian Labs','United States'],
+ ['Ava Thompson','Founder · Kindred Market','Canada'],
+ ['Liam OConnor','Founder · Atlantic Works','Ireland'],
+ ['Zara Ahmed','Creative Lead · Zest Studio','United Kingdom'],
+ ['Leo Martin','Founder · Greenbridge','France'],
+ ['Nina Rossi','Growth Lead · Studio Alto','Italy'],
+ ['Theo Walker','Founder · Fieldnote','Australia'],
+ ['Hana Kim','Product Manager · Orbit Labs','South Korea'],
+ ['Mateo Silva','Founder · Nova Commerce','Portugal'],
+ ['Grace Murphy','Founder · Harbour Social','Ireland'],
+ ['Arjun Mehta','Founder · Foundry Finance','India'],
+ ['Ella Wilson','Founder · Sunday Studio','United States'],
+ ['Oscar Jensen','Founder · Nordic Growth','Denmark'],
+ ['Ruby Scott','Brand Designer · Loop Creative','New Zealand'],
+ ['Samir Haddad','Founder · BridgeTech','United Arab Emirates'],
+ ['Freya Collins','Founder · Willow & Co','United Kingdom'],
+ ['Benjamin Reed','Founder · Sparkline','Germany']
+] as const;
+const extraIds:string[]=[];
+demoPeople.forEach(([name,headline,location],i)=>{
+ const n=i+11;
+ const id='00000000-0000-4000-8000-'+String(n).padStart(12,'0');
+ extraIds.push(id);
+ tables.profiles.push({...profile(id,n,name,headline,'Building new connections, sharing progress and collaborating with founders across the world.'),member_code:'00-00-'+String(n).padStart(4,'0'),location,avatar:'https://i.pravatar.cc/160?img='+(20+i)});
+});
+const demoAuthors=[alex,emma,daniel,sophie,maya,oliver,priya,lucas,chloe,...extraIds];
+const demoUpdates=[
+ 'Monday momentum: we just finished our first customer interviews. The feedback completely changed our priorities.',
+ 'Looking for a freelance designer to collaborate on a small startup launch. Any recommendations?',
+ 'Our team is testing a new onboarding flow today. Simple beats complicated every time.',
+ 'Just booked three introductory calls through founder networking. Never underestimate a genuine conversation.',
+ 'Big milestone: our fictional brand concept is ready for its first public preview.',
+ 'Question for other founders: how do you organise tasks when your team is spread across different time zones?',
+ 'We are preparing our first investor update. What metrics do you think matter most at the early stage?',
+ 'Sharing a lesson from this week: customer feedback is more valuable than guessing what people want.',
+ 'We are expanding our demo team and looking for people passionate about product and community.',
+ 'A quick reminder: your first ten customers can teach you more than a hundred assumptions.',
+ 'Just finished a productive brainstorm with two founders in different countries. Collaboration makes a difference.',
+ 'Our latest brand moodboard is coming together. Really enjoying this stage of the creative process.',
+ 'Who else is building in public? It has been a great way to meet like-minded people.',
+ 'Our team shipped a small feature today. Not glamorous, but one step closer to launch.',
+ 'Founder question: do you prefer email, messaging or a shared office when coordinating projects?',
+ 'Proud of our progress this week. We finally have a clear plan for the next sprint.',
+ 'Looking to connect with people working in e-commerce, community and digital products.',
+ 'The best business conversations this week started with someone simply asking how they could help.',
+ 'Planning a virtual meetup for early-stage founders. What topics would you want covered?',
+ 'Today we reviewed our prototype with a small group of potential users. Lots to improve, lots to learn.',
+ 'Small business owners: what is the one repetitive task you would love to automate?',
+ 'We are getting our pitch deck ready. Keeping it focused on the problem and the people we serve.',
+ 'Really useful chat today about pricing and customer value. So much to learn from other founders.',
+ 'Celebrating our first sample order! Tiny milestone, massive motivation.',
+ 'Our team is trialling a new weekly planning system to keep everyone aligned.',
+ 'What are your favourite ways to build trust with new business connections?',
+ 'We are sharing a first look at our startup idea soon. Excited and nervous in equal measure.',
+ 'A lesson from our first launch: make it easy for people to tell you what is confusing.',
+ 'New week, new opportunities. Who is looking for a business collaborator?',
+ 'Just wrapped up a cross-border founder call. Amazing how much you can learn in thirty minutes.',
+ 'Working on a cleaner product experience. Every extra click is something worth questioning.',
+ 'Any startup founders here building something in sustainability or circular products?',
+ 'Our fictional marketing campaign is ready for testing. Curious which message resonates most.',
+ 'A great reminder that building a company is a team sport. Grateful for helpful collaborators.',
+ 'We are planning our first online workshop for founders. Would you attend?',
+ 'Just completed our quarterly goals review and simplified the roadmap.',
+ 'One thing I wish I had done earlier: write down every customer question.',
+ 'Anyone interested in a founder accountability group? Weekly check-ins could be useful.',
+ 'We are exploring new partnerships with independent creative businesses.',
+ 'Another productive day building, testing and learning. What did your team accomplish today?'
+];
+const demoResponses=[
+ 'Great progress. Thanks for sharing this!',
+ 'We are working through something similar at our startup.',
+ 'Would love to connect and exchange ideas.',
+ 'That is a really useful insight.',
+ 'Congratulations! Looking forward to seeing what comes next.',
+ 'This is exactly the sort of conversation founders need.',
+ 'Interesting question. We use a shared task board.',
+ 'I would be happy to chat about a collaboration.',
+ 'Love seeing founders support one another.',
+ 'Please keep us posted on the next milestone.'
+];
+demoUpdates.forEach((content,i)=>{
+ const id='demo-community-post-'+(i+1);
+ const author=demoAuthors[(i*7+3)%demoAuthors.length];
+ const created_at=new Date(Date.UTC(2026,9,19-Math.floor(i/6),15-(i%6),i%4*11)).toISOString();
+ tables.network_posts.push({id,member_id:author,content,created_at});
+ for(let j=0;j<5+(i%9);j++){
+  const user=demoAuthors[(i+j*3+1)%demoAuthors.length];
+  if(user!==author&&!tables.network_post_likes.some(x=>x.post_id===id&&x.user_id===user))
+   tables.network_post_likes.push({post_id:id,user_id:user});
+ }
+ for(let j=0;j<2+(i%5);j++){
+  tables.network_post_comments.push({id:'demo-community-comment-'+i+'-'+j,post_id:id,user_id:demoAuthors[(i+j+4)%demoAuthors.length],content:demoResponses[(i+j)%demoResponses.length],created_at:new Date(Date.parse(created_at)+(j+1)*240000).toISOString()});
+ }
+});
+const demoOfficeNames=[
+ ['Bloom & Co Launch','Packaging, product photography and launch planning'],
+ ['Brightline Marketing Hub','Content calendar and customer acquisition'],
+ ['Harbour Founders Collective','Networking and community events'],
+ ['Orbit Product Team','Prototype feedback and product roadmap'],
+ ['Greenbridge Sustainability','Circular product strategy and partnerships'],
+ ['Pixel Foundry Studio','Design reviews and client collaboration'],
+ ['Northstar AI Workspace','Early product research and testing'],
+ ['Sunday Studio Projects','Creative work and upcoming launches'],
+ ['Nova Commerce Operations','Storefront improvements and customer experience'],
+ ['Fieldnote Community','Founder interviews and audience research'],
+ ['Meridian Labs Team','Product experiments and growth'],
+ ['Veylo Demo Collaborators','Example business networking and team coordination']
+] as const;
+demoOfficeNames.forEach(([name,description],i)=>{
+ const id='demo-office-'+(i+3);
+ const owner=demoAuthors[i%demoAuthors.length];
+ tables.offices.push({
+  id,name,description,owner_id:owner,created_at:new Date(Date.UTC(2026,9,18-i)).toISOString(),
+  tasks:[
+   {id:id+'-task-1',title:'Review this week\'s priorities',complete:i%2===0},
+   {id:id+'-task-2',title:'Share project progress with the team',complete:false},
+   {id:id+'-task-3',title:'Prepare next collaboration meeting',complete:i%3===0},
+   {id:id+'-task-4',title:'Gather feedback and next steps',complete:false}
+  ],
+  notes:[
+   {id:id+'-note-1',content:'Weekly update: keep communication clear and share progress with the team.',createdAt:now},
+   {id:id+'-note-2',content:'Next milestone: review the current plan and confirm responsibilities.',createdAt:now}
+  ],
+  meetings:[{id:id+'-meeting-1',title:'Weekly team sync',date:'2026-10-23',time:i%2?'14:00':'10:30'}]
+ });
+ [guest,owner,demoAuthors[(i+5)%demoAuthors.length]].forEach(user_id=>tables.office_members.push({office_id:id,user_id}));
+});
+extraIds.slice(0,12).forEach((id,i)=>{
+ const chat='demo-community-chat-'+i;
+ tables.conversations.push({id:chat,name:'',type:'direct',created_at:now});
+ tables.conversation_members.push({conversation_id:chat,user_id:guest},{conversation_id:chat,user_id:id});
+ const lines=[
+  ['Hi! I noticed we are both building startups. What are you working on?','Great to connect! I am exploring new opportunities and collaborations.','Brilliant. Would love to compare ideas this week.'],
+  ['Thanks for connecting. Are you interested in a quick founder introduction?','Absolutely. What kind of business are you building?','We are working on an early-stage digital product.'],
+  ['Hey! I saw your recent post about your project.','Thanks for reaching out. How is your launch going?','Making progress every day. It would be great to collaborate.']
+ ][i%3];
+ lines.forEach((content,j)=>tables.messages.push({id:chat+'-message-'+j,conversation_id:chat,sender_id:j===1?guest:id,content,created_at:new Date(Date.UTC(2026,9,19,9+i%6,j*4)).toISOString()}));
+});
+
 const copy=(v:unknown)=>JSON.parse(JSON.stringify(v));
 function query(table:string){
  let action:'select'|'insert'|'update'|'delete'|'upsert'='select';
