@@ -5537,3 +5537,47 @@ background-repeat:no-repeat!important;
 .app .veyloCreateDisclosure > summary { display: block !important; list-style: none !important; list-style-type: none !important; }
 .app .veyloCreateDisclosure > summary::marker { content: '' !important; font-size: 0 !important; }
 .app .veyloCreateDisclosure > summary::-webkit-details-marker { display: none !important; }
+
+/* Mobile viewport alignment correction - Network and floating navigation */
+@media (max-width: 768px) {
+  html, body { width: 100%; max-width: 100%; overflow-x: clip; }
+  .app, .app .main, .app .content {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .app.veyloPage-network .content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .app.veyloPage-network .networkColumn,
+  .app.veyloPage-network .veyloDesktopNetworkGrid,
+  .app.veyloPage-network .veyloCleanFeed,
+  .app.veyloPage-network .veyloReferenceComposer,
+  .app.veyloPage-network .veyloFeedPost {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .app .mobileBottomNav {
+    box-sizing: border-box !important;
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 20px) !important;
+    max-width: 480px !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .app .mobileBottomNav .mobileBottomTab { min-width: 0 !important; }
+  .app.veyloPage-network .veyloFeedPost img,
+  .app.veyloPage-network .veyloPostMediaFrame { max-width: 100% !important; }
+}
