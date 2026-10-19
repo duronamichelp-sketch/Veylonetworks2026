@@ -193,6 +193,9 @@ export default function Home() {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const [offices, setOffices] = useState<Office[]>([]);
+  const [officeUndo, setOfficeUndo] = useState<{ officeId: string; kind: 'task' | 'note'; item: OfficeTask | OfficeNote; index: number } | null>(null);
+  const officeUndoRef = useRef<{ officeId: string; kind: 'task' | 'note'; item: OfficeTask | OfficeNote; index: number } | null>(null);
+  const officeUndoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* ACCOUNT */
 
@@ -2045,10 +2048,73 @@ export default function Home() {
     await saveOfficeTasks(selectedOffice.id, tasks);
   }
 
+  function showOfficeUndo(entry: { officeId: string; kind: 'task' | 'note'; item: OfficeTask | OfficeNote; index: number }) {
+    if (officeUndoTimer.current) clearTimeout(officeUndoTimer.current);
+    officeUndoRef.current = entry;
+    setOfficeUndo(entry);
+    officeUndoTimer.current = setTimeout(() => {
+      officeUndoRef.current = null;
+      setOfficeUndo(null);
+      officeUndoTimer.current = null;
+    }, 7000);
+  }
+
+  async function saveOfficeNotes(officeId: string, updatedNotes: OfficeNote[]) {
+    const { data, error } = await supabase.from('offices')
+      .update({ notes: updatedNotes }).eq('id', officeId).select('id');
+    if (error || !data?.length) {
+      console.error('Could not save office notes:', error);
+      alert('Office notes could not be saved. Please try again.');
+      return false;
+    }
+    setOffices(current => current.map(office =>
+      office.id === officeId ? { ...office, notes: updatedNotes } : office
+    ));
+    return true;
+  }
+
   async function deleteOfficeTask(taskId: string) {
-    if (!selectedOffice || !window.confirm('Delete this task?')) return;
-    const tasks = selectedOffice.tasks.filter(task => task.id !== taskId);
-    await saveOfficeTasks(selectedOffice.id, tasks);
+    if (!selectedOffice) return;
+    const index = selectedOffice.tasks.findIndex(task => task.id === taskId);
+    if (index < 0) return;
+    const task = selectedOffice.tasks[index];
+    if (await saveOfficeTasks(selectedOffice.id, selectedOffice.tasks.filter(item => item.id !== taskId))) {
+      showOfficeUndo({ officeId: selectedOffice.id, kind: 'task', item: task, index });
+    }
+  }
+
+  async function deleteOfficeNote(noteId: string) {
+    if (!selectedOffice) return;
+    const index = selectedOffice.notes.findIndex(note => note.id === noteId);
+    if (index < 0) return;
+    const note = selectedOffice.notes[index];
+    if (await saveOfficeNotes(selectedOffice.id, selectedOffice.notes.filter(item => item.id !== noteId))) {
+      showOfficeUndo({ officeId: selectedOffice.id, kind: 'note', item: note, index });
+    }
+  }
+
+  async function undoOfficeDelete() {
+    const entry = officeUndoRef.current;
+    if (!entry) return;
+    if (officeUndoTimer.current) clearTimeout(officeUndoTimer.current);
+    officeUndoTimer.current = null;
+    officeUndoRef.current = null;
+    setOfficeUndo(null);
+    const office = offices.find(item => item.id === entry.officeId);
+    if (!office) return;
+    if (entry.kind === 'task') {
+      const tasks = [...office.tasks];
+      if (!tasks.some(task => task.id === entry.item.id)) {
+        tasks.splice(Math.min(entry.index, tasks.length), 0, entry.item as OfficeTask);
+        await saveOfficeTasks(entry.officeId, tasks);
+      }
+    } else {
+      const notes = [...office.notes];
+      if (!notes.some(note => note.id === entry.item.id)) {
+        notes.splice(Math.min(entry.index, notes.length), 0, entry.item as OfficeNote);
+        await saveOfficeNotes(entry.officeId, notes);
+      }
+    }
   }
 
   async function addOfficeNote() {
@@ -2060,20 +2126,7 @@ export default function Home() {
       createdAt: new Date().toISOString(),
     };
     const updatedNotes = [note, ...selectedOffice.notes];
-    const { data, error } = await supabase
-      .from('offices')
-      .update({ notes: updatedNotes })
-      .eq('id', officeId)
-      .select('id');
-    if (error || !data?.length) {
-      console.error('Could not save office note:', error);
-      alert('Note could not be saved. Please try again.');
-      return;
-    }
-    setOffices(current => current.map(office =>
-      office.id === officeId ? { ...office, notes: updatedNotes } : office
-    ));
-    setNewNote('');
+    if (await saveOfficeNotes(officeId, updatedNotes)) setNewNote('');
   }
 
   function scheduleMeeting() {
@@ -3206,8 +3259,9 @@ export default function Home() {
 
                         <div className="officeItems">
                           {selectedOffice.notes.map((note) => (
-                            <article className="note" key={note.id}>
-                              {note.content}
+                            <article className="note veyloOfficeNoteRow" key={note.id}>
+                              <span>{note.content}</span>
+                              <button type="button" className="veyloOfficeTaskDelete" onClick={() => void deleteOfficeNote(note.id)} aria-label="Delete note" title="Delete note">×</button>
                             </article>
                           ))}
                         </div>
@@ -3699,6 +3753,7 @@ export default function Home() {
         </div>
       </section>
 
+      {officeUndo && <div className="veyloOfficeUndoToast" role="status"><span>{officeUndo.kind === 'task' ? 'Task' : 'Note'} deleted</span><button type="button" onClick={() => void undoOfficeDelete()}>Undo</button></div>}
       <nav className="mobileBottomNav" aria-label="Veylo mobile navigation">
         {mobileNavPosition !== 'bottom' && <button type="button"
           className="veyloNavCollapse"
