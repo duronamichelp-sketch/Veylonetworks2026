@@ -5259,3 +5259,43 @@ background-repeat:no-repeat!important;
     flex: 0 0 34px !important;
   }
 }
+
+
+/* Desktop-only: always-accessible Network attachment actions.
+   Avoid the collapsed animated toolbar intercepting file-picker clicks. */
+@media (min-width: 769px) {
+  .app.veyloPage-network .veyloReferenceComposer,
+  .app.veyloPage-network .veyloComposerFooter,
+  .app.veyloPage-network .veyloComposerToolGroup {
+    overflow: visible !important;
+  }
+  .app.veyloPage-network .veyloComposerToolGroup {
+    position: relative;
+    z-index: 5;
+    flex: 1 1 auto;
+  }
+  .app.veyloPage-network .veyloComposerToolGroup > .veyloClipToggle {
+    display: none !important;
+  }
+  .app.veyloPage-network .veyloComposerToolGroup > .veyloComposerTools,
+  .app.veyloPage-network .veyloComposerToolGroup > .veyloComposerTools:not(.isOpen) {
+    display: flex !important;
+    visibility: visible !important;
+    width: auto !important;
+    max-width: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    gap: 9px !important;
+  }
+  .app.veyloPage-network .veyloComposerToolGroup .veyloComposerTools > .veyloComposerTool {
+    position: relative;
+    z-index: 6;
+    display: grid !important;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+}
