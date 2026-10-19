@@ -5145,3 +5145,23 @@ background-repeat:no-repeat!important;
 @media(max-width: 480px) {
   .app .officeNotes .veyloNoteOptions { width: min(228px, calc(100vw - 55px)) !important; min-width: 0 !important; }
 }
+
+
+/* Keep Office note option menus fully visible above the note. */
+.app.veyloPage-offices .officeGrid,
+.app.veyloPage-offices .officeSection.officeNotes,
+.app.veyloPage-offices .officeNotes .officeItems,
+.app.veyloPage-offices .officeNotes .veyloOfficeNoteRow,
+.app.veyloPage-offices .officeNotes .veyloNoteMenuWrap {
+  overflow: visible !important;
+}
+.app.veyloPage-offices .officeSection.officeNotes { position: relative; z-index: 5; }
+.app.veyloPage-offices .officeNotes .veyloOfficeNoteRow:has(.veyloNoteMenuTrigger[aria-expanded="true"]) { position: relative; z-index: 500; }
+.app.veyloPage-offices .officeNotes .veyloNoteOptions {
+  top: auto !important;
+  bottom: calc(100% + 9px) !important;
+  right: 0 !important;
+  z-index: 10000 !important;
+  max-height: min(330px, 65vh) !important;
+  overflow-y: auto !important;
+}
