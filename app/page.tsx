@@ -2685,10 +2685,10 @@ export default function Home() {
               </div>
               <div className="glass composer veyloReferenceComposer">
                 <div className="veyloComposerEntry"><Avatar member={currentMember} /><textarea value={postText} onChange={event=>setPostText(event.target.value)} placeholder="Share an idea, update or question..." /></div>
-                <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e=>setPostFile(e.target.files?.[0]||null)} />
+                <input ref={postFileInput} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" className="veyloHiddenPostUpload" onChange={e=>{setPostFile(e.target.files?.[0]||null);setNetworkToolsOpen(false);}} />
                 {postFile && <div className="small">📎 {postFile.name} <button className="secondary" onClick={()=>{setPostFile(null);if(postFileInput.current)postFileInput.current.value='';}}>Remove</button></div>}
                 <div className="composerFooter veyloComposerFooter">
-                  <div className="veyloComposerToolGroup">
+                  <div className="veyloComposerToolGroup" ref={networkToolsRef}>
                     <button type="button" className={'veyloClipToggle'+(networkToolsOpen?' isOpen':'')} aria-label={networkToolsOpen?'Close attachment options':'Open attachment options'} aria-expanded={networkToolsOpen} onClick={()=>setNetworkToolsOpen(open=>!open)}><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m20.5 11.5-8.9 8.9a6 6 0 0 1-8.5-8.5L13.4 1.6a4 4 0 0 1 5.7 5.7L8.8 17.6a2 2 0 0 1-2.8-2.8l9-9"/></svg></button>
                     <div className={'veyloComposerTools'+(networkToolsOpen?' isOpen':'')} aria-hidden={!networkToolsOpen}>
                       <button type="button" className="veyloComposerTool" title="Add photo" aria-label="Add photo" onClick={()=>{if(postFileInput.current){postFileInput.current.accept='image/*';postFileInput.current.click();}}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22,display:'block',flexShrink:0}}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
