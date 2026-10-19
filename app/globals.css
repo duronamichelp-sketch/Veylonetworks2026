@@ -5165,3 +5165,28 @@ background-repeat:no-repeat!important;
   max-height: min(330px, 65vh) !important;
   overflow-y: auto !important;
 }
+
+
+/* Mobile pull-to-refresh gesture indicator */
+.veyloPullIndicator {
+  display: none;
+}
+@media (max-width: 768px) {
+  .veyloPullIndicator {
+    display: block;
+    position: fixed;
+    top: -3px;
+    left: 50%;
+    z-index: 2500;
+    padding: 9px 17px;
+    border: 1px solid rgba(77,191,255,.55);
+    border-radius: 999px;
+    background: rgba(6,22,43,.96);
+    color: #8edaff;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+}
