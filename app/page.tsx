@@ -5,7 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
 import ExpandableText from './components/ExpandableText';
 import AvatarCropper from './components/AvatarCropper';
-const supabase = createClient(
+import { demoSupabase } from './demoSupabase';
+const productionSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://oxjjkyfqtlzizdkylsqp.supabase.co',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
@@ -146,7 +147,8 @@ const STORAGE = {
    MAIN
 ========================================================= */
 
-export default function Home() {
+export default function Home({ guestMode = false }: { guestMode?: boolean } = {}) {
+  const supabase = guestMode ? demoSupabase : productionSupabase;
   const [ready, setReady] = useState(false);
   const [startupProgress, setStartupProgress] = useState(4);
 
@@ -572,7 +574,7 @@ export default function Home() {
 
         setStartupProgress(48);
         // Keep these local for now
-        const storedPosts = localStorage.getItem(STORAGE.posts);
+        const storedPosts = guestMode ? null : localStorage.getItem(STORAGE.posts);
 
         const localPosts: NetworkPost[] = storedPosts ? JSON.parse(storedPosts) : [];
         const { data: remotePosts } = await supabase.from('network_posts').select('*').order('created_at', { ascending: false });
@@ -660,7 +662,7 @@ export default function Home() {
       // Keep the animated welcome visible for at least seven seconds, but never
       // dismiss it before the real startup work has completed.
       setStartupProgress(96);
-      const remaining = Math.max(0, 7000 - (Date.now() - loadingStartedAt));
+      const remaining = guestMode ? 0 : Math.max(0, 7000 - (Date.now() - loadingStartedAt));
       if (remaining > 0) await new Promise<void>(resolve => window.setTimeout(resolve, remaining));
       setStartupProgress(100);
       setReady(true);
@@ -958,13 +960,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || guestMode) return;
 
     localStorage.setItem(STORAGE.currentMember, currentMemberId);
   }, [currentMemberId, ready]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || guestMode) return;
 
     localStorage.setItem(STORAGE.posts, JSON.stringify(posts));
   }, [posts, ready]);
@@ -2645,13 +2647,14 @@ export default function Home() {
             </div>
           </div>
 
-          <button className="signOutButton" onClick={signOut}>
+          <button className="signOutButton" onClick={guestMode ? () => { window.location.href = '/'; } : signOut}>
             Sign Out
           </button>
         </div>
       </aside>
 
       <section className="main">
+        {guestMode && <div style={{background:'#0c3153',borderBottom:'1px solid #1a6596',padding:'8px 18px',fontSize:12,color:'#93dcff',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}><strong>GUEST PREVIEW · All accounts, posts, messages and Offices are fictional.</strong><a href="/" style={{color:'#fff',fontWeight:700}}>Sign up for Veylo →</a></div>}
         <header className="topbar">
           <div className="desktopTopbarInfo">
             <span className="eyebrow">VEYLO NETWORKS</span>
