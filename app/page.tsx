@@ -307,6 +307,8 @@ export default function Home() {
   const [officeDescription, setOfficeDescription] = useState('');
 
   const [officeInviteCode, setOfficeInviteCode] = useState('');
+  const [officeInviteBusy, setOfficeInviteBusy] = useState(false);
+  const [officeInviteNotice, setOfficeInviteNotice] = useState('');
 
   const [newTask, setNewTask] = useState('');
 
@@ -2060,34 +2062,41 @@ export default function Home() {
     setOfficeDescription('');
   }
 
-  function inviteOfficeMember() {
-    if (!selectedOffice) return;
-
-    const person = members.find(
-      (member) => member.memberCode === officeInviteCode.trim()
+  async function inviteOfficeMember(person?: Member) {
+    if (!selectedOffice || !currentMember || officeInviteBusy) return;
+    const query = officeInviteCode.trim().toLowerCase();
+    const target = person || members.find(member =>
+      member.memberCode.toLowerCase() === query ||
+      member.fullName.toLowerCase() === query
     );
-
-    if (!person) {
-      alert('No Veylo member found with that ID.');
-
-      return;
+    if (!target) { setOfficeInviteNotice('Choose a member from the suggestions.'); return; }
+    if (selectedOffice.members.includes(target.id)) {
+      setOfficeInviteNotice('This person is already in the office.'); return;
     }
-
-    setOffices((current) =>
-      current.map((office) =>
+    if (selectedOffice.ownerId !== currentMember.id) {
+      setOfficeInviteNotice('Only the office owner can add members.'); return;
+    }
+    setOfficeInviteBusy(true);
+    setOfficeInviteNotice('');
+    try {
+      const { error } = await supabase.from('office_members').insert({
+        office_id: selectedOffice.id,
+        user_id: target.id,
+      });
+      if (error) throw error;
+      setOffices(current => current.map(office =>
         office.id === selectedOffice.id
-          ? {
-              ...office,
-
-              members: office.members.includes(person.id)
-                ? office.members
-                : [...office.members, person.id],
-            }
+          ? { ...office, members: [...new Set([...office.members, target.id])] }
           : office
-      )
-    );
-
-    setOfficeInviteCode('');
+      ));
+      setOfficeInviteCode('');
+      setOfficeInviteNotice(target.fullName + ' added and saved to this office.');
+    } catch (error) {
+      console.error('Office member save failed:', error);
+      setOfficeInviteNotice('Could not save member: ' + (error instanceof Error ? error.message : 'Try again.'));
+    } finally {
+      setOfficeInviteBusy(false);
+    }
   }
 
   async function addOfficeTask() {
@@ -3250,22 +3259,28 @@ export default function Home() {
                         <p className="muted">{selectedOffice.description}</p>
                       </div>
 
-                      <div className="inlineForm">
-                        <input
-                          className="field smallField"
-                          placeholder="Member ID"
-                          value={officeInviteCode}
-                          onChange={(event) =>
-                            setOfficeInviteCode(event.target.value)
-                          }
-                        />
-
-                        <button
-                          className="secondary"
-                          onClick={inviteOfficeMember}
-                        >
-                          Invite
-                        </button>
+                      <div style={{ width: '100%', maxWidth: 440 }}>
+                        <div className="inlineForm">
+                          <input className="field" aria-label="Search members by name or VID" placeholder="Search name or VID number" value={officeInviteCode}
+                            onChange={event => { setOfficeInviteCode(event.target.value); setOfficeInviteNotice(''); }} />
+                          <button type="button" className="secondary" disabled={officeInviteBusy || !officeInviteCode.trim()} onClick={() => void inviteOfficeMember()}>
+                            {officeInviteBusy ? 'Saving...' : 'Add'}
+                          </button>
+                        </div>
+                        {officeInviteNotice && <p className="muted small" role="status">{officeInviteNotice}</p>}
+                        <div style={{ maxHeight: 190, overflowY: 'auto', marginTop: 8, borderRadius: 12 }}>
+                          {members.filter(member => member.id !== currentMember?.id && !selectedOffice.members.includes(member.id))
+                            .filter(member => !officeInviteCode.trim() || member.fullName.toLowerCase().includes(officeInviteCode.trim().toLowerCase()) || member.memberCode.toLowerCase().includes(officeInviteCode.trim().toLowerCase()))
+                            .sort((a, b) => Number(followingMemberIds.has(b.id)) - Number(followingMemberIds.has(a.id)) || a.fullName.localeCompare(b.fullName))
+                            .slice(0, 8).map(member => (
+                              <button key={member.id} type="button" disabled={officeInviteBusy} onClick={() => void inviteOfficeMember(member)}
+                                style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10, textAlign: 'left', border: '1px solid rgba(140,170,220,.18)', borderRadius: 9, padding: '9px 12px', marginBottom: 5, background: 'rgba(90,125,200,.09)', color: 'inherit' }}>
+                                <Avatar member={member} />
+                                <span style={{ flex: 1 }}><strong>{member.fullName}</strong><br /><small>{member.memberCode}{followingMemberIds.has(member.id) ? ' · Following' : ''}</small></span>
+                                <span>+</span>
+                              </button>
+                            ))}
+                        </div>
                       </div>
                     </section>
 
