@@ -3269,7 +3269,7 @@ export default function Home() {
                         </div>
                         {officeInviteNotice && <p className="muted small" role="status">{officeInviteNotice}</p>}
                         <div style={{ maxHeight: 190, overflowY: 'auto', marginTop: 8, borderRadius: 12 }}>
-                          {members.filter(member => member.id !== currentMember?.id && !selectedOffice.members.includes(member.id))
+                          {members.filter(member => member.id !== currentMember?.id && !selectedOffice?.members.includes(member.id))
                             .filter(member => !officeInviteCode.trim() || member.fullName.toLowerCase().includes(officeInviteCode.trim().toLowerCase()) || member.memberCode.toLowerCase().includes(officeInviteCode.trim().toLowerCase()))
                             .sort((a, b) => Number(followingMemberIds.has(b.id)) - Number(followingMemberIds.has(a.id)) || a.fullName.localeCompare(b.fullName))
                             .slice(0, 8).map(member => (
