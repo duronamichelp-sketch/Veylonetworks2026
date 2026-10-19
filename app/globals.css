@@ -5622,3 +5622,31 @@ background-repeat:no-repeat!important;
     margin: 0 !important;
   }
 }
+
+/* Safari iPhone: legacy left/right toolbar padding was shifting all page content. */
+@media (max-width: 768px) and (display-mode: browser) {
+  .app.veyloNavPosition-left .content,
+  .app.veyloNavPosition-right .content,
+  .app.veyloNavCollapsed.veyloNavPosition-left .content,
+  .app.veyloNavCollapsed.veyloNavPosition-right .content,
+  .app .content {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: auto !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-bottom: calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+  .app.veyloPage-people .searchPanel,
+  .app.veyloPage-people .peopleGrid,
+  .app.veyloPage-people .peopleGrid .veyloPeopleCompactCard {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .app.veyloPage-people .searchPanel .field { box-sizing: border-box !important; width: 100% !important; min-width: 0 !important; }
+}
