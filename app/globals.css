@@ -5447,3 +5447,88 @@ background-repeat:no-repeat!important;
   .app .content .profileEditor .profileHero .veyloProfileStatsClean strong { font-size: 17px !important; }
   .app .content .profileEditor .profileHero .veyloProfileStatsClean span { font-size: 10px !important; }
 }
+
+
+/* Split-screen desktop: compact navigation and readable, non-overlapping post actions.
+   Keeps the desktop experience active without requiring a mobile-sized window. */
+@media (min-width: 769px) and (max-width: 1280px) {
+  .app { width: 100%; min-width: 0; }
+  .app .sidebar {
+    width: 94px !important;
+    flex: 0 0 94px !important;
+    min-width: 94px !important;
+    padding: 16px 9px !important;
+  }
+  .app .sidebar .logo { max-width: 72px !important; height: auto !important; }
+  .app .sidebar nav .navButton {
+    width: 100% !important;
+    padding: 9px 4px !important;
+    gap: 3px !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: auto !important;
+    min-height: 62px !important;
+  }
+  .app .sidebar nav .navButton .veyloDesktopNavLabel {
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  .app .sidebar nav .navButton .veyloDesktopNavIcon { flex: 0 0 30px !important; width: 30px !important; height: 30px !important; }
+  .app .sidebarMember, .app .sidebarBottom { min-width: 0 !important; overflow-wrap: anywhere; }
+  .app .main, .app .content, .app .networkColumn, .app .veyloDesktopNetworkGrid { min-width: 0 !important; max-width: 100% !important; }
+  .app .content { padding-left: 16px !important; padding-right: 16px !important; }
+  .app .veyloDesktopNetworkGrid { grid-template-columns: minmax(0, 1fr) !important; }
+  .app .veyloDesktopActivityRail { display: none !important; }
+  .app.veyloPage-network .veyloFeedPost { min-width: 0 !important; max-width: 100% !important; }
+  .app.veyloPage-network .veyloFeedPost img, .app.veyloPage-network .veyloPostMediaFrame {
+    max-width: 100% !important;
+  }
+  .app.veyloPage-network .veyloFeedPost .veyloEngagementActions {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 5px !important;
+    padding: 10px 0 0 !important;
+    margin: 12px 0 0 !important;
+  }
+  .app.veyloPage-network .veyloFeedPost .veyloEngagementActions > button {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 55px !important;
+    max-height: none !important;
+    gap: 3px !important;
+    padding: 6px 2px !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    border-radius: 10px !important;
+  }
+  .app.veyloPage-network .veyloFeedPost .veyloEngagementActions > button svg {
+    flex: 0 0 17px !important;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+  }
+  .app.veyloPage-network .veyloFeedPost .veyloEngagementActions > button span,
+  .app.veyloPage-network .veyloFeedPost .veyloEngagementActions > button small {
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}
