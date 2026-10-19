@@ -2020,54 +2020,59 @@ export default function Home() {
     setNewTask('');
   }
 
-  function toggleOfficeTask(taskId: string) {
-    if (!selectedOffice) return;
-
-    setOffices((current) =>
-      current.map((office) =>
-        office.id === selectedOffice.id
-          ? {
-              ...office,
-
-              tasks: office.tasks.map((task) =>
-                task.id === taskId
-                  ? {
-                      ...task,
-                      complete: !task.complete,
-                    }
-                  : task
-              ),
-            }
-          : office
-      )
-    );
+  async function saveOfficeTasks(officeId: string, updatedTasks: OfficeTask[]) {
+    const { data, error } = await supabase
+      .from('offices')
+      .update({ tasks: updatedTasks })
+      .eq('id', officeId)
+      .select('id');
+    if (error || !data?.length) {
+      console.error('Could not save office tasks:', error);
+      alert('Office tasks could not be saved. Please try again.');
+      return false;
+    }
+    setOffices(current => current.map(office =>
+      office.id === officeId ? { ...office, tasks: updatedTasks } : office
+    ));
+    return true;
   }
 
-  function addOfficeNote() {
-    if (!selectedOffice || !newNote.trim()) {
-      return;
-    }
+  async function toggleOfficeTask(taskId: string) {
+    if (!selectedOffice) return;
+    const tasks = selectedOffice.tasks.map(task =>
+      task.id === taskId ? { ...task, complete: !task.complete } : task
+    );
+    await saveOfficeTasks(selectedOffice.id, tasks);
+  }
 
+  async function deleteOfficeTask(taskId: string) {
+    if (!selectedOffice || !window.confirm('Delete this task?')) return;
+    const tasks = selectedOffice.tasks.filter(task => task.id !== taskId);
+    await saveOfficeTasks(selectedOffice.id, tasks);
+  }
+
+  async function addOfficeNote() {
+    if (!selectedOffice || !newNote.trim()) return;
+    const officeId = selectedOffice.id;
     const note: OfficeNote = {
       id: crypto.randomUUID(),
-
       content: newNote.trim(),
-
       createdAt: new Date().toISOString(),
     };
-
-    setOffices((current) =>
-      current.map((office) =>
-        office.id === selectedOffice.id
-          ? {
-              ...office,
-
-              notes: [note, ...office.notes],
-            }
-          : office
-      )
-    );
-
+    const updatedNotes = [note, ...selectedOffice.notes];
+    const { data, error } = await supabase
+      .from('offices')
+      .update({ notes: updatedNotes })
+      .eq('id', officeId)
+      .select('id');
+    if (error || !data?.length) {
+      console.error('Could not save office note:', error);
+      alert('Note could not be saved. Please try again.');
+      return;
+    }
+    setOffices(current => current.map(office =>
+      office.id === officeId ? { ...office, notes: updatedNotes } : office
+    ));
     setNewNote('');
   }
 
@@ -3108,7 +3113,7 @@ export default function Home() {
                           <button onClick={() => setOfficeMobileTab('members')}><span>♙</span><strong>{selectedOffice.members.length}</strong><small>Members</small></button>
                           <button onClick={() => setOfficeMobileTab('notes')}><span><OfficeMetricIcon name="notes" /></span><strong>{selectedOffice.notes.length}</strong><small>Notes</small></button>
                         </div>
-                        <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Tasks</h3><button onClick={() => setOfficeMobileTab('tasks')}>View all →</button></div><div className="officeItems">{selectedOffice.tasks.slice(0,3).map(task => <button key={task.id} className={task.complete ? 'task complete' : 'task'} onClick={() => toggleOfficeTask(task.id)}><span>{task.complete ? '✓' : '○'}</span>{task.title}</button>)}{selectedOffice.tasks.length === 0 && <p className="muted">No tasks yet</p>}</div></section>
+                        <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Tasks</h3><button onClick={() => setOfficeMobileTab('tasks')}>View all →</button></div><div className="officeItems">{selectedOffice.tasks.slice(0,3).map(task => <div className="veyloOfficeTaskRow" key={task.id}><button className={task.complete ? 'task complete' : 'task'} onClick={() => void toggleOfficeTask(task.id)}><span>{task.complete ? '✓' : '○'}</span>{task.title}</button><button type="button" className="veyloOfficeTaskDelete" onClick={() => void deleteOfficeTask(task.id)} aria-label={'Delete task: ' + task.title} title="Delete task">×</button></div>)}{selectedOffice.tasks.length === 0 && <p className="muted">No tasks yet</p>}</div></section>
                         <section className="glass officeSection"><div className="veyloOfficeSectionHead"><h3>Upcoming Meetings</h3><button onClick={() => setOfficeMobileTab('meetings')}>View all →</button></div><div className="officeItems">{selectedOffice.meetings.slice(0,3).map(meeting => <article className="meeting" key={meeting.id}><strong>{meeting.title}</strong><span className="muted small">{meeting.date} at {meeting.time}</span></article>)}{selectedOffice.meetings.length === 0 && <p className="muted">No meetings scheduled</p>}</div></section>
                       </div>}
                       {officeMobileTab === 'tasks' && <div className="officeGrid">                      <section className="glass officeSection">
@@ -3129,17 +3134,16 @@ export default function Home() {
 
                         <div className="officeItems">
                           {selectedOffice.tasks.map((task) => (
-                            <button
-                              key={task.id}
+                            <div className="veyloOfficeTaskRow" key={task.id}><button
                               className={
                                 task.complete ? 'task complete' : 'task'
                               }
-                              onClick={() => toggleOfficeTask(task.id)}
+                              onClick={() => void toggleOfficeTask(task.id)}
                             >
                               <span>{task.complete ? '✓' : '○'}</span>
 
                               {task.title}
-                            </button>
+                            </button><button type="button" className="veyloOfficeTaskDelete" onClick={() => void deleteOfficeTask(task.id)} aria-label={'Delete task: ' + task.title} title="Delete task">×</button></div>
                           ))}
                         </div>
                       </section>
