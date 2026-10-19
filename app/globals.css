@@ -5299,3 +5299,106 @@ background-repeat:no-repeat!important;
     cursor: pointer !important;
   }
 }
+
+
+/* Profile header refinement: align identity and statistics, no duplicate counts. */
+.app .content .profileEditor .profileHero {
+  display: grid !important;
+  grid-template-columns: 94px minmax(0, 1fr) !important;
+  align-items: center !important;
+  text-align: left !important;
+  gap: 20px !important;
+  padding: 10px 0 18px !important;
+  width: 100%;
+}
+.app .content .profileEditor .profileHero > div:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  gap: 5px;
+}
+.app .content .profileEditor .profileHero > .avatar,
+.app .content .profileEditor .profileHero > .avatarWrap,
+.app .content .profileEditor .profileHero > img {
+  width: 88px !important;
+  height: 88px !important;
+  border-radius: 23px !important;
+  object-fit: cover !important;
+  justify-self: center;
+}
+.app .content .profileEditor .profileHero .eyebrow {
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+  color: #44dbc4 !important;
+}
+.app .content .profileEditor .profileHero h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: clamp(20px, 2.7vw, 27px) !important;
+  line-height: 1.2 !important;
+  margin: 2px 0 1px !important;
+}
+.app .content .profileEditor .profileHero .veyloProfileTagline {
+  max-width: 100% !important;
+  margin: 3px 0 4px !important;
+  line-height: 1.5 !important;
+  text-align: left;
+}
+.app .content .profileEditor .profileHero .veyloProfileQuickStats {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  width: min(100%, 450px) !important;
+  margin: 10px 0 0 !important;
+  padding: 12px 0 0 !important;
+  gap: 5px !important;
+  border-top: 1px solid rgba(158, 191, 223, .17) !important;
+  border-bottom: 0 !important;
+}
+.app .content .profileEditor .profileHero .veyloProfileQuickStats > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center;
+  gap: 5px !important;
+  min-width: 0;
+}
+.app .content .profileEditor .profileHero .veyloProfileQuickStats strong {
+  display: block !important;
+  font-size: 19px !important;
+  line-height: 1.1 !important;
+  color: #f1f7ff !important;
+}
+.app .content .profileEditor .profileHero .veyloProfileQuickStats span {
+  display: block !important;
+  font-size: 11px !important;
+  color: #91a6bf !important;
+}
+.app .content .profileEditor .profileHero .memberFollowCounts { display: none !important; }
+
+@media (max-width: 520px) {
+  .app .content .profileEditor .profileHero {
+    grid-template-columns: 68px minmax(0, 1fr) !important;
+    gap: 13px !important;
+    padding: 7px 0 14px !important;
+    align-items: start !important;
+  }
+  .app .content .profileEditor .profileHero > .avatar,
+  .app .content .profileEditor .profileHero > .avatarWrap,
+  .app .content .profileEditor .profileHero > img {
+    width: 66px !important;
+    height: 66px !important;
+    border-radius: 18px !important;
+  }
+  .app .content .profileEditor .profileHero h2 {
+    font-size: clamp(18px, 4.8vw, 23px) !important;
+  }
+  .app .content .profileEditor .profileHero .veyloProfileQuickStats {
+    width: 100% !important;
+    gap: 4px !important;
+    margin-top: 9px !important;
+  }
+  .app .content .profileEditor .profileHero .veyloProfileQuickStats strong { font-size: 17px !important; }
+  .app .content .profileEditor .profileHero .veyloProfileQuickStats span { font-size: 10px !important; }
+}
