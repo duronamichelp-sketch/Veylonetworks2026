@@ -5006,3 +5006,55 @@ background-repeat:no-repeat!important;
   background: rgba(188, 37, 65, .28);
   border-color: rgba(255, 117, 129, .72);
 }
+
+
+/* Veylo Office task and note delete-with-undo controls */
+.app .veyloOfficeNoteRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.app .veyloOfficeNoteRow > span {
+  min-width: 0;
+  flex: 1;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.app .veyloOfficeNoteRow > .veyloOfficeTaskDelete {
+  flex: 0 0 38px;
+  min-height: 38px;
+}
+.veyloOfficeUndoToast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 13px 17px;
+  border: 1px solid rgba(62, 160, 244, .34);
+  border-radius: 15px;
+  background: rgba(8, 24, 44, .97);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, .45), 0 0 22px rgba(25, 150, 255, .12);
+  color: #eef6ff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.veyloOfficeUndoToast button {
+  border: 0;
+  background: transparent;
+  color: #55c9ff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 5px;
+}
+@media (max-width: 768px) {
+  .veyloOfficeUndoToast {
+    bottom: calc(95px + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100vw - 32px);
+  }
+}
