@@ -4835,3 +4835,41 @@ background-repeat:no-repeat!important;
 }
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::before,
 .veyloCinematicLoading:has(.veyloGalaxyBackdrop) .veyloGalaxyBackdrop::after{display:none!important;content:none!important}
+
+
+/* Desktop only: Veylo concept 2, three-column experience. Mobile remains unchanged. */
+@media (min-width: 1025px) {
+  .app .sidebar {width:210px;flex:0 0 210px;padding:22px 14px;background:linear-gradient(180deg,#061326,#030913)!important}
+  .app .sidebar .logo {width:174px;max-height:78px;object-fit:contain;object-position:left center}
+  .app .sidebar nav .navButton {min-height:45px;border-radius:12px}
+  .app .main {min-width:0;background:radial-gradient(ellipse at 45% -10%,rgba(19,112,207,.14),transparent 53%),#020915}
+  .app .topbar {height:73px;padding:12px 25px}
+  .app .content {width:100%;max-width:1700px;padding:24px 25px 60px}
+  .app .veyloDesktopNetworkGrid {display:grid;grid-template-columns:minmax(0,1fr) 310px;align-items:start;gap:18px}
+  .app .veyloDesktopNetworkGrid .networkColumn {width:100%;max-width:100%;min-width:0}
+  .app .veyloDesktopNetworkGrid .veyloFeedPost,.app .veyloDesktopNetworkGrid .veyloReferenceComposer {border-radius:17px}
+  .app .veyloDesktopActivityRail {display:grid;gap:14px;position:sticky;top:96px;min-width:0;max-height:calc(100vh - 112px);overflow-y:auto;scrollbar-width:thin}
+  .app .veyloDesktopRailCard {padding:17px;border:1px solid rgba(64,144,219,.28);border-radius:17px;background:linear-gradient(150deg,rgba(12,30,52,.95),rgba(4,14,29,.97));box-shadow:inset 0 1px rgba(206,235,255,.07),0 10px 25px rgba(0,0,0,.14)}
+  .app .veyloDesktopRailHeading {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+  .app .veyloDesktopRailHeading h3 {margin:0;color:#edf6ff;font-size:13px;font-weight:700}
+  .app .veyloDesktopRailHeading button {border:0;background:transparent;color:#40c3ff;font-size:11px;white-space:nowrap}
+  .app .veyloDesktopPerson {display:flex;align-items:center;gap:10px;width:100%;padding:9px 3px;border:0;border-top:1px solid rgba(123,175,220,.08);background:transparent;text-align:left;color:#e8f3ff}
+  .app .veyloDesktopPerson .avatar {width:34px;height:34px}
+  .app .veyloDesktopPerson>span:nth-child(2) {display:grid;gap:4px;min-width:0;flex:1}
+  .app .veyloDesktopPerson strong,.app .veyloDesktopPerson small {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .app .veyloDesktopPerson strong {font-size:12px}
+  .app .veyloDesktopPerson small,.app .veyloDesktopRailEmpty,.app .veyloDesktopRailLink small {font-size:11px;color:#849ab5}
+  .app .veyloDesktopPersonArrow {font-size:16px;color:#3dc6ff}
+  .app .veyloDesktopRailLink {display:flex;align-items:center;gap:10px;width:100%;margin-top:8px;padding:11px;border:1px solid rgba(90,159,222,.17);border-radius:11px;background:rgba(10,31,54,.7);color:#eaf4ff;text-align:left}
+  .app .veyloDesktopRailLink>span:nth-child(2) {display:grid;gap:4px;flex:1;min-width:0}
+  .app .veyloDesktopRailLink strong {font-size:12px}
+  .app .veyloDesktopRailLink>span:last-child {color:#47cbff}
+  .app .veyloDesktopRailIcon {display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;color:#16d7e5;background:rgba(19,213,238,.13);font-size:23px}
+  .app .veyloDesktopRailIcon.purple {color:#bd8bff;background:rgba(166,123,255,.14)}
+  .app .veyloDesktopRailEmpty {line-height:1.55;margin:8px 0 12px}
+  .app .veyloDesktopRailCta {width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(47,175,254,.32);border-radius:10px;background:rgba(18,108,195,.16);color:#5acaff;font-size:12px}
+  .app .veyloDesktopRailLink:hover,.app .veyloDesktopPerson:hover {background:rgba(40,122,204,.12)}
+}
+@media (max-width:1024px) {
+  .app .veyloDesktopActivityRail {display:none}
+}
