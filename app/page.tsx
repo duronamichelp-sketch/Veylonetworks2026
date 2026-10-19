@@ -12,6 +12,7 @@ const productionSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     'sb_publishable_QoxM-Z0gAD2w75h0G1dN_Q_7CTVdECd'
 );
+const supabase = productionSupabase; // Used by shared attachment helpers outside Home.
 /* =========================================================
    VEYLO NETWORKS 1.0
 ========================================================= */
