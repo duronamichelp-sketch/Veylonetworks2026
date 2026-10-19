@@ -2531,7 +2531,7 @@ export default function Home() {
             </button>
           </form>
 
-          <a href="/explore" style={{display:'block',textAlign:'center',padding:'13px 15px',marginTop:14,borderRadius:12,border:'1px solid rgba(55,176,255,.44)',background:'rgba(20,108,176,.15)',color:'#8fdbff',fontWeight:750,textDecoration:'none'}}>Explore Veylo — No sign up needed →</a>
+          <a href="/explore" style={{display:'block',textAlign:'center',padding:'13px 15px',marginTop:14,borderRadius:12,border:'1px solid rgba(55,176,255,.44)',background:'rgba(20,108,176,.15)',color:'#8fdbff',fontWeight:750,textDecoration:'none'}}>Guest Preview — No Sign Up Required →</a>
 
           {authMode === 'login' && (
             <button
