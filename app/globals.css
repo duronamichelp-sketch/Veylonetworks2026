@@ -5539,8 +5539,10 @@ background-repeat:no-repeat!important;
 .app .veyloCreateDisclosure > summary::-webkit-details-marker { display: none !important; }
 
 /* Mobile viewport alignment correction - Network and floating navigation */
-@media (max-width: 768px) {
+@media (max-width: 768px) and (display-mode: browser) {
   html, body { width: 100%; max-width: 100%; overflow-x: clip; }
+  .app { overflow-x: clip; }
+  .app .content { margin-inline: auto !important; }
   .app, .app .main, .app .content {
     box-sizing: border-box !important;
     width: 100% !important;
