@@ -5583,3 +5583,42 @@ background-repeat:no-repeat!important;
   .app.veyloPage-network .veyloFeedPost img,
   .app.veyloPage-network .veyloPostMediaFrame { max-width: 100% !important; }
 }
+
+/* Safari mobile: make Messages occupy the full viewport, matching installed app. */
+@media (max-width: 768px) and (display-mode: browser) {
+  .app .content .mobileConversationLayout,
+  body .mobileConversationLayout[data-mobile-view="list"],
+  body .mobileConversationLayout[data-mobile-view="list"] > .mobileConversationList,
+  body .mobileConversationLayout[data-mobile-view="list"] > .veyloChatInbox,
+  .app .content .mobileConversationList.veyloChatInbox {
+    display: block !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .app .content .mobileConversationLayout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-content: stretch !important;
+  }
+  .app .content .veyloChatInbox .veyloChatSearch,
+  .app .content .veyloChatInbox .veyloChatFilters,
+  .app .content .veyloChatInbox .veyloChatConversationList {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .app .mobileBottomNav,
+  .app.veyloNavPosition-left .mobileBottomNav,
+  .app.veyloNavPosition-right .mobileBottomNav,
+  .app.veyloNavPosition-bottom .mobileBottomNav {
+    left: 10px !important;
+    right: 10px !important;
+    width: calc(100% - 20px) !important;
+    max-width: none !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+}
