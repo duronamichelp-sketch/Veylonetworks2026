@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import VbnNewsroom, { type VbnArticle } from './components/VbnNewsroom';
 import ExpandableText from './components/ExpandableText';
+import AvatarCropper from './components/AvatarCropper';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://oxjjkyfqtlzizdkylsqp.supabase.co',
@@ -252,6 +253,7 @@ export default function Home() {
   /* PROFILE */
 
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarCropFile, setAvatarCropFile] = useState<File | null>(null);
   const [avatarSaveMessage, setAvatarSaveMessage] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaveMessage, setProfileSaveMessage] = useState('');
@@ -1391,6 +1393,7 @@ export default function Home() {
       if (uploadedPath) {
         await supabase.storage.from('veylo-avatars').remove([uploadedPath]);
       }
+      throw error;
     } finally {
       setAvatarUploading(false);
     }
@@ -3397,6 +3400,8 @@ export default function Home() {
             />
           )}
 
+          {avatarCropFile && <AvatarCropper file={avatarCropFile} onCancel={() => setAvatarCropFile(null)} onSave={async (cropped) => { await uploadProfilePicture(cropped); setAvatarCropFile(null); }} />}
+
           {/* PERSONAL PROFILE */}
 
           {page === 'profile' && (
@@ -3456,7 +3461,15 @@ export default function Home() {
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     onChange={(event) => {
-                      uploadProfilePicture(event.target.files?.[0]);
+                      const file = event.target.files?.[0];
+                      if (file) {
+                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size === 0 || file.size > 5 * 1024 * 1024) {
+                          setAvatarSaveMessage('Use a JPG, PNG or WebP photo of up to 5 MB.');
+                        } else {
+                          setAvatarSaveMessage('');
+                          setAvatarCropFile(file);
+                        }
+                      }
                       event.target.value = '';
                     }}
                   />
