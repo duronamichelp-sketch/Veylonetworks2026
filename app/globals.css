@@ -4873,3 +4873,37 @@ background-repeat:no-repeat!important;
 @media (max-width:1024px) {
   .app .veyloDesktopActivityRail {display:none}
 }
+
+
+/* Desktop refinement: clear social actions, tidy nav, and polished comments. No mobile changes. */
+@media (min-width:1025px) {
+ .app .sidebar {gap:12px}
+ .app .sidebar .pill {display:inline-flex;margin:2px 0 10px;font-size:10px}
+ .app .sidebar nav {margin-top:12px;gap:7px}
+ .app .sidebar nav .navButton {height:48px;min-height:48px!important;padding:8px 12px!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;font-size:13px!important;color:#abbcd0!important}
+ .app .sidebar nav .navButton .veyloDesktopNavIcon {width:34px;height:34px;flex:0 0 34px;border-radius:11px}
+ .app .sidebar nav .navButton .veyloDesktopNavLabel {font-size:13px;line-height:1.3;color:inherit!important}
+ .app .sidebar nav .navButton.active {color:#f0faff!important}
+ .app .sidebar nav .navButton:hover {background:rgba(41,103,160,.14)!important}
+ .app .sidebarBottom {padding-top:18px;border-top:1px solid rgba(85,155,214,.19)}
+ .app .sidebarMember {padding-top:0;border-top:0}
+ .app .sidebar .signOutButton {min-height:38px;border-radius:11px}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions {display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:stretch!important;justify-content:stretch!important;gap:8px!important;margin:16px 0 0!important;padding:12px 0 0!important;border-top:1px solid rgba(87,155,207,.23)!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions>button {box-sizing:border-box!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-width:0!important;width:100%!important;height:42px!important;min-height:42px!important;max-height:42px!important;margin:0!important;padding:8px 10px!important;border:1px solid transparent!important;border-radius:11px!important;background:rgba(24,55,85,.45)!important;color:#b8cee5!important;font-size:12px!important;font-weight:600!important;line-height:1!important;white-space:nowrap!important;overflow:hidden!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions>button:hover {background:rgba(35,115,184,.18)!important;border-color:rgba(71,170,245,.3)!important;color:#fff!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions>button.liked {color:#ff7192!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions>button svg {display:block!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;max-height:18px!important;flex:0 0 18px!important}
+ .app.veyloPage-network .veyloFeedPost .veyloEngagementActions>button span,.app.veyloPage-network .veyloFeedPost .veyloEngagementActions>button small {display:inline!important;position:static!important;float:none!important;margin:0!important;padding:0!important;width:auto!important;min-width:0!important;font-size:12px!important;font-weight:600!important;line-height:1.2!important;color:inherit!important}
+ .app .veyloCommentsBackdrop {align-items:center!important;padding:24px}
+ .app .veyloCommentsSheet {width:min(580px,100%)!important;height:min(75vh,740px)!important;margin:0!important;border:1px solid rgba(74,153,223,.4)!important;border-radius:20px!important;box-shadow:0 22px 95px #000b!important}
+ .app .veyloCommentsHandle {display:none}
+ .app .veyloCommentsHeading {padding:18px 22px;border-bottom:1px solid rgba(88,161,223,.2)}
+ .app .veyloCommentsScroll {padding:10px 24px 20px}
+ .app .veyloCommentItem {padding:13px 0;margin:0;border-bottom:1px solid rgba(89,151,214,.12)}
+ .app .veyloCommentsComposer {padding:14px 20px 18px}
+ .app .veyloCommentEmojis {justify-content:flex-start;gap:12px}
+ .app .veyloCommentEmojis button {font-size:21px!important}
+ .app .veyloCommentInputRow {gap:12px}
+ .app .veyloCommentInputRow input {height:44px}
+ .app .veyloCommentReply {cursor:pointer}
+}
