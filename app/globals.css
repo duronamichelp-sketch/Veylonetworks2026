@@ -5190,3 +5190,44 @@ background-repeat:no-repeat!important;
     white-space: nowrap;
   }
 }
+
+
+/* Network attachment controls: clickable on desktop and phones. */
+.veyloHiddenPostUpload {
+  position: fixed !important;
+  left: -9999px !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.app.veyloPage-network .veyloComposerToolGroup .veyloComposerTools {
+  visibility: hidden;
+}
+.app.veyloPage-network .veyloComposerToolGroup .veyloComposerTools.isOpen {
+  visibility: visible !important;
+  max-width: 260px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+}
+.app.veyloPage-network .veyloComposerToolGroup .veyloComposerTools.isOpen .veyloComposerTool {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+@media(max-width:768px) {
+  .veyloCleanFeed .veyloComposerToolGroup .veyloComposerTools:not(.isOpen) {
+    max-width: 0 !important;
+    width: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+  .veyloCleanFeed .veyloComposerToolGroup .veyloComposerTools.isOpen {
+    display: flex !important;
+    max-width: 195px !important;
+    width: auto !important;
+    overflow: visible !important;
+  }
+}
