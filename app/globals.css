@@ -5532,3 +5532,8 @@ background-repeat:no-repeat!important;
     overflow-wrap: anywhere !important;
   }
 }
+
+/* Offices: hide browser disclosure triangle without disabling New office. */
+.app .veyloCreateDisclosure > summary { display: block !important; list-style: none !important; list-style-type: none !important; }
+.app .veyloCreateDisclosure > summary::marker { content: '' !important; font-size: 0 !important; }
+.app .veyloCreateDisclosure > summary::-webkit-details-marker { display: none !important; }
