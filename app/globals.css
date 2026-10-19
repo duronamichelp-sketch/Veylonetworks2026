@@ -5082,3 +5082,66 @@ background-repeat:no-repeat!important;
 .app .veyloNoteHighlight-purple { border-color: rgba(167,99,255,.8)!important; background: rgba(137,65,255,.12)!important; box-shadow: inset 3px 0 #a763ff,0 0 13px rgba(167,99,255,.12); }
 .app .veyloNoteHighlight-green { border-color: rgba(0,213,158,.8)!important; background: rgba(0,198,137,.11)!important; box-shadow: inset 3px 0 #00d59e,0 0 13px rgba(0,213,158,.12); }
 .app .veyloNoteHighlight-orange { border-color: rgba(255,157,60,.8)!important; background: rgba(255,140,40,.11)!important; box-shadow: inset 3px 0 #ff9d3c,0 0 13px rgba(255,157,60,.12); }
+
+
+/* Repair note context menu: override broad Office button styles */
+.app .officeNotes,
+.app .officeNotes .officeItems,
+.app .officeNotes .veyloOfficeNoteRow { overflow: visible !important; }
+.app .officeNotes .veyloOfficeNoteRow { isolation: auto; }
+.app .officeNotes .veyloOfficeNoteRow:has(.veyloNoteMenuTrigger[aria-expanded="true"]) { z-index: 100; }
+.app .officeNotes .veyloNoteMenuWrap { position: relative !important; overflow: visible !important; }
+.app .officeNotes .veyloNoteMenuTrigger {
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  width: 40px !important; min-width: 40px !important; height: 40px !important;
+  padding: 0 !important; border-radius: 12px !important;
+  background: #102943 !important; border: 1px solid #28618c !important;
+  color: #84d9ff !important; font-size: 19px !important;
+}
+.app .officeNotes .veyloNoteOptions {
+  position: absolute !important; display: flex !important; flex-direction: column !important;
+  align-items: stretch !important; gap: 7px !important;
+  top: calc(100% + 8px) !important; right: 0 !important;
+  width: 228px !important; min-width: 228px !important;
+  padding: 12px !important; margin: 0 !important;
+  z-index: 1000 !important; overflow: visible !important;
+  background: #09192d !important; border: 1px solid #2e688f !important;
+  border-radius: 15px !important;
+  box-shadow: 0 18px 46px rgba(0,0,0,.62) !important;
+}
+.app .officeNotes .veyloNoteOptions > button {
+  display: flex !important; align-items: center !important; justify-content: flex-start !important;
+  width: 100% !important; min-height: 40px !important; height: auto !important;
+  padding: 10px 12px !important; margin: 0 !important;
+  border-radius: 9px !important; border: 1px solid transparent !important;
+  background: #132b45 !important; color: #e8f4ff !important;
+  font-size: 13px !important; line-height: 1.35 !important;
+  font-weight: 600 !important; text-align: left !important; white-space: normal !important;
+}
+.app .officeNotes .veyloNoteOptions > button:hover { background: #1b4166 !important; border-color: #2976ae !important; }
+.app .officeNotes .veyloNoteOptions > .veyloNoteDeleteOption {
+  color: #ffb0bd !important; background: rgba(143,34,55,.23) !important;
+}
+.app .officeNotes .veyloNoteColourLabel {
+  display: block !important; margin: 6px 1px 0 !important;
+  font-size: 12px !important; color: #a8bfd5 !important;
+}
+.app .officeNotes .veyloNoteColours {
+  display: flex !important; flex-direction: row !important; align-items: center !important;
+  gap: 12px !important; padding: 6px 3px 9px !important;
+}
+.app .officeNotes .veyloNoteColours > .veyloNoteColour {
+  display: grid !important; place-items: center !important;
+  width: 32px !important; min-width: 32px !important; max-width: 32px !important;
+  height: 32px !important; min-height: 32px !important;
+  padding: 0 !important; margin: 0 !important; border-radius: 50% !important;
+  border: 2px solid rgba(255,255,255,.48) !important;
+  color: white !important; font-size: 14px !important;
+}
+.app .officeNotes .veyloNoteColours > .veyloNoteColour-blue { background: #008dff !important; }
+.app .officeNotes .veyloNoteColours > .veyloNoteColour-purple { background: #9c4dff !important; }
+.app .officeNotes .veyloNoteColours > .veyloNoteColour-green { background: #00c891 !important; }
+.app .officeNotes .veyloNoteColours > .veyloNoteColour-orange { background: #ff9d3c !important; }
+@media(max-width: 480px) {
+  .app .officeNotes .veyloNoteOptions { width: min(228px, calc(100vw - 55px)) !important; min-width: 0 !important; }
+}
