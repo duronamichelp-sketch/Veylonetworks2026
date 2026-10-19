@@ -4907,3 +4907,28 @@ background-repeat:no-repeat!important;
  .app .veyloCommentInputRow input {height:44px}
  .app .veyloCommentReply {cursor:pointer}
 }
+
+
+/* Desktop: clean, unboxed network post author header. Mobile unchanged. */
+@media (min-width: 1025px) {
+  .app.veyloPage-network .veyloFeedPost .memberHeader,
+  .app.veyloPage-network .veyloFeedAuthorHeader {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 0 12px !important;
+  }
+  .app.veyloPage-network .veyloFeedAuthorHeader > div:last-child {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .app.veyloPage-network .veyloFeedAuthorHeader .memberNameButton,
+  .app.veyloPage-network .veyloFeedAuthorHeader .muted.small,
+  .app.veyloPage-network .veyloFeedAuthorHeader .memberCode {
+    margin: 0 !important;
+  }
+}
