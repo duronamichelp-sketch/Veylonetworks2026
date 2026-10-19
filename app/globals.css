@@ -4975,3 +4975,34 @@ background-repeat:no-repeat!important;
   .app .veyloProfileHeroActions { gap: 7px; }
   .app .veyloProfileHeroActions > button { padding: 9px 7px; font-size: 12px; }
 }
+
+
+/* Office task rows: independent completion and delete controls */
+.app .veyloOfficeTaskRow {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.app .veyloOfficeTaskRow > .task {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  text-align: left;
+}
+.app .veyloOfficeTaskDelete {
+  flex: 0 0 38px;
+  align-self: stretch;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 117, 129, .28);
+  background: rgba(124, 30, 48, .13);
+  color: #f7a2ab;
+  font-size: 24px;
+  line-height: 1;
+}
+.app .veyloOfficeTaskDelete:hover,
+.app .veyloOfficeTaskDelete:focus-visible {
+  background: rgba(188, 37, 65, .28);
+  border-color: rgba(255, 117, 129, .72);
+}
