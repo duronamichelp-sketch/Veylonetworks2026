@@ -5675,3 +5675,24 @@ background-repeat:no-repeat!important;
 .app.veyloPage-network .veyloPostMediaFrame:not(:has(.veyloPostMediaImage.isReady)) {
   min-height: 130px !important;
 }
+
+/* Guest preview uses the same app shell and navigation as Veylo */
+.app.veyloGuestApp{background:#030b17;color:#e8f4ff}
+.app.veyloGuestApp .sidebar{flex-shrink:0}
+.app.veyloGuestApp .sidebar nav{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.app.veyloGuestApp .sidebar .navButton{display:flex;align-items:center;gap:11px;text-align:left;width:100%;min-height:45px;padding:8px 12px;border:1px solid transparent;border-radius:11px;background:transparent;color:#abc3de;font-weight:650}
+.app.veyloGuestApp .sidebar .navButton:hover,.app.veyloGuestApp .sidebar .navButton.active{color:#edfbff;background:rgba(25,114,190,.22);border-color:rgba(74,175,250,.35)}
+.app.veyloGuestApp .veyloDesktopNavIcon{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:rgba(28,124,193,.18);color:#67cfff;font-size:21px;flex-shrink:0}
+.app.veyloGuestApp .veyloGuestAvatar{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(130deg,#0074d8,#4ecdf5);font-weight:800}
+.app.veyloGuestApp .main{min-width:0;flex:1}
+.app.veyloGuestApp .content{max-width:1400px;margin:0 auto}
+.app.veyloGuestApp .veyloGuestBanner{border:1px solid rgba(52,157,241,.25);border-radius:16px;background:linear-gradient(110deg,rgba(14,71,119,.25),rgba(5,22,43,.55));padding:14px 18px;margin-bottom:17px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.app.veyloGuestApp .veyloGuestBanner span{color:#6bd3ff;font-size:13px;font-weight:800;white-space:nowrap}
+.app.veyloGuestApp .veyloGuestBanner p{margin:0;color:#a9bfd7;font-size:12px;flex:1;min-width:170px}
+.app.veyloGuestApp .veyloGuestBanner a{color:#61cfff;font-size:12px;font-weight:750;text-decoration:none}
+.app.veyloGuestApp .veyloGuestTabs{display:none;gap:7px;overflow-x:auto;margin-bottom:16px}
+.app.veyloGuestApp .veyloGuestTabs button{border:1px solid #235073;background:#0c263e;color:#bbd0e5;padding:9px 12px;border-radius:11px;flex-shrink:0}
+.app.veyloGuestApp .veyloGuestTabs button.active{background:#125d9b;color:#fff;border-color:#38bafa}
+.app.veyloGuestApp .content>section{background:linear-gradient(145deg,#0d2139,#061629)!important;border:1px solid rgba(90,173,229,.23);border-radius:18px;padding:clamp(14px,3vw,25px)!important}
+@media(max-width:1024px){.app.veyloGuestApp .veyloGuestTabs{display:flex}.app.veyloGuestApp .content{padding:16px!important}}
+@media(max-width:768px){.app.veyloGuestApp .sidebar{display:none!important}.app.veyloGuestApp .content{padding:13px!important}.app.veyloGuestApp .topbar{padding:12px!important}.app.veyloGuestApp .veyloGuestBanner{gap:7px}.app.veyloGuestApp .veyloGuestBanner p{flex-basis:100%}}
