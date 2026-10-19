@@ -2521,6 +2521,7 @@ export default function Home() {
           {/* NETWORK */}
 
           {page === 'network' && (
+            <div className="veyloDesktopNetworkGrid">
             <section className="networkColumn veyloCleanFeed">
               <div className="veyloNetworkShortcuts">
                 <div className="veyloNetworkTitle"><span className="veyloNetworkKicker">THE BUSINESS COMMUNITY</span><strong>Network<span className="veyloBluePeriod">.</span></strong><span className="veyloNetworkTagline">Ideas. People. Opportunities.</span></div>
@@ -2601,6 +2602,30 @@ export default function Home() {
                 })
               )}
             </section>
+            <aside className="veyloDesktopActivityRail" aria-label="Network quick access">
+              <section className="veyloDesktopRailCard">
+                <div className="veyloDesktopRailHeading"><h3>People on Veylo</h3><button type="button" onClick={() => setPage('people')}>View all →</button></div>
+                {members.filter(member => member.id !== currentMember.id).slice(0,5).map(member => (
+                  <button className="veyloDesktopPerson" type="button" key={member.id} onClick={() => openMemberProfile(member)}>
+                    <Avatar member={member} />
+                    <span><strong>{member.fullName}</strong><small>{member.headline || 'Veylo member'}</small></span>
+                    <span className="veyloDesktopPersonArrow">↗</span>
+                  </button>
+                ))}
+                {members.length <= 1 && <p className="veyloDesktopRailEmpty">New connections will appear here as people join.</p>}
+              </section>
+              <section className="veyloDesktopRailCard">
+                <div className="veyloDesktopRailHeading"><h3>Your workspace</h3><button type="button" onClick={openOfficesSection}>Open →</button></div>
+                <button className="veyloDesktopRailLink" type="button" onClick={openOfficesSection}><span className="veyloDesktopRailIcon">▣</span><span><strong>Offices</strong><small>Projects and collaboration</small></span><span>↗</span></button>
+                <button className="veyloDesktopRailLink" type="button" onClick={() => setPage('messages')}><span className="veyloDesktopRailIcon purple">◈</span><span><strong>Chats</strong><small>{unreadCount ? unreadCount + ' unread messages' : 'Connect with your network'}</small></span><span>↗</span></button>
+              </section>
+              <section className="veyloDesktopRailCard">
+                <div className="veyloDesktopRailHeading"><h3>Veylo Business News</h3><button type="button" onClick={() => setPage('vbn')}>Explore →</button></div>
+                <p className="veyloDesktopRailEmpty">Business news, startup ideas and opportunities in one place.</p>
+                <button className="veyloDesktopRailCta" type="button" onClick={() => setPage('vbn')}>Explore VBN <span>↗</span></button>
+              </section>
+            </aside>
+            </div>
           )}
 
           {activeCommentsPostId && currentMember && (
