@@ -1,17 +1,33 @@
-/* Veylo Halloween 2026: decorative only, responsive and reduced-motion friendly */
-:root { --halloween-orange: #ff8b24; }
-body { background: radial-gradient(ellipse at 80% 7%, rgba(29,89,201,.22),transparent 42%), radial-gradient(ellipse at 8% 96%,rgba(122,47,159,.14),transparent 43%), #050b19; }
-body::before { content:""; pointer-events:none; position:fixed; inset:0; z-index:0; opacity:.28; background-image:radial-gradient(circle at 12% 18%,#a7cfff 1px,transparent 2px),radial-gradient(circle at 76% 9%,#a7cfff 1px,transparent 2px),radial-gradient(circle at 46% 36%,#a7cfff 1px,transparent 2px); background-size:310px 270px; }
-.authPage,.app,.loadingScreen { position:relative; isolation:isolate; }
-.authPage::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; background:radial-gradient(circle at 80% 18%,rgba(139,187,255,.42) 0 4%,rgba(52,112,216,.16) 7%,transparent 19%),linear-gradient(180deg,transparent 60%,rgba(12,35,72,.48)); }
-.authPage::after { content:"🎃"; position:fixed; left:3%; bottom:3%; font-size:clamp(55px,9vw,135px); filter:drop-shadow(0 0 23px rgba(255,112,15,.8)); pointer-events:none; animation:veyloPumpkin 4s ease-in-out infinite; }
-.authCard { background:rgba(7,16,37,.84); border:1px solid rgba(100,164,255,.35); box-shadow:0 16px 65px rgba(0,0,0,.4),0 0 35px rgba(38,108,240,.12); backdrop-filter:blur(22px); }
-.sidebar { background:linear-gradient(180deg,rgba(4,14,34,.97),rgba(8,11,27,.97)); border-right:1px solid rgba(79,140,255,.22); }
-.glass { border-color:rgba(85,146,245,.17); }
-.primary { box-shadow:0 0 20px rgba(9,123,255,.16); }
-.navButton:hover,.secondary:hover { border-color:rgba(255,139,36,.42); }
-.app::after { content:"🎃"; position:fixed; bottom:16px; left:14px; z-index:2; pointer-events:none; font-size:30px; filter:drop-shadow(0 0 10px rgba(255,118,21,.7)); }
-.authPage .authCard::before { content:"🦇  ✦  🦇"; display:block; text-align:right; letter-spacing:12px; color:#9bbfff; font-size:18px; opacity:.8; }
-@keyframes veyloPumpkin { 50% { transform:translateY(-7px); filter:drop-shadow(0 0 32px rgba(255,123,15,.95)); } }
-@media(max-width:700px) { .authPage::after { font-size:62px; left:0; bottom:0; opacity:.75; } .authCard { margin:16px; } .app::after { font-size:19px; left:auto; right:12px; bottom:75px; opacity:.65; } }
-@media(prefers-reduced-motion:reduce) { .authPage::after { animation:none; } }
+/* Veylo mobile Halloween visual system — preserves application data and behaviour. */
+@media (max-width: 768px) {
+ html,body {background:#020916!important;}
+ body::before {content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.72;background:radial-gradient(circle at 91% 12%,#c5e0ff 0 32px,#4287ed 34px,rgba(34,94,207,.24) 48px,transparent 95px),radial-gradient(ellipse at 90% 18%,rgba(17,70,160,.34),transparent 43%),radial-gradient(ellipse at 4% 94%,rgba(236,75,19,.20),transparent 24%),linear-gradient(180deg,#04112a,#030a17 55%,#020814);}
+ .app {background:transparent!important;min-width:0;overflow-x:clip;}
+ .app::after {content:none!important;}
+ .topbar {position:sticky!important;top:0;z-index:30!important;background:rgba(3,12,29,.88)!important;border-bottom:1px solid rgba(38,118,229,.26)!important;backdrop-filter:blur(20px);}
+ .mobileTopbarBrand {gap:10px!important;}
+ .mobileTopbarBrand img {max-width:120px!important;object-fit:contain;}
+ .mobileTopbarBrand>div {display:none!important;}
+ .mobileMoreButton {border:1px solid #24416d!important;border-radius:50%!important;background:#091c38!important;box-shadow:0 0 15px rgba(0,114,255,.15);}
+ .content {position:relative;z-index:1;padding-bottom:100px!important;background:transparent!important;}
+ .content::before {content:"";position:absolute;top:0;right:5px;width:100px;height:90px;pointer-events:none;opacity:.58;background:repeating-conic-gradient(from 0deg at 100% 0%,transparent 0deg 12deg,rgba(94,156,248,.45) 12deg 13deg,transparent 13deg 24deg);clip-path:polygon(0 0,100% 0,100% 100%);}
+ .veyloNetworkShortcuts {margin-top:0!important;padding:6px 0 12px!important;}
+ .veyloNetworkKicker {font-size:10px!important;letter-spacing:2px!important;}
+ .veyloNetworkTitle strong {font-size:29px!important;line-height:1.15!important;}
+ .veyloNetworkTagline {font-size:12px!important;}
+ .veyloNetworkShortcuts>button {font-size:12px!important;padding:9px 12px!important;}
+ .glass,.authCard {background:linear-gradient(145deg,rgba(7,25,54,.93),rgba(3,13,31,.95))!important;border:1px solid rgba(34,115,223,.43)!important;border-radius:15px!important;box-shadow:0 8px 28px rgba(0,0,0,.20);}
+ .mobileBottomNav {position:fixed!important;left:10px!important;right:10px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;top:auto!important;width:auto!important;height:66px!important;min-height:66px!important;transform:none!important;border-radius:18px!important;padding:5px!important;display:flex!important;align-items:center!important;background:rgba(3,12,29,.97)!important;border:1px solid #23528e!important;box-shadow:0 0 28px rgba(0,85,209,.24)!important;z-index:100!important;}
+ .mobileBottomNav .veyloNavItems {display:flex!important;align-items:center!important;justify-content:space-around!important;gap:0!important;width:100%!important;}
+ .mobileBottomTab {flex:1 1 0!important;min-width:0!important;width:auto!important;height:55px!important;max-width:none!important;border:0!important;border-radius:12px!important;background:transparent!important;box-shadow:none!important;padding:5px 2px!important;color:#8aaedb!important;}
+ .mobileBottomTab.active {background:linear-gradient(180deg,rgba(0,118,255,.25),rgba(0,70,165,.08))!important;color:#35baff!important;box-shadow:inset 0 0 0 1px rgba(22,145,255,.5),0 0 17px rgba(0,133,255,.24)!important;}
+ .mobileBottomTab.veyloTab-people.active {color:#ff9b45!important;}
+ .mobileBottomTab.veyloTab-messages.active {color:#3de3ef!important;}
+ .mobileBottomTab.veyloTab-offices.active {color:#bb8cff!important;}
+ .mobileBottomNav .veyloNavCollapse {display:none!important;}
+ .authPage {background:radial-gradient(circle at 76% 20%,#badbff 0 38px,#2e71d1 40px,transparent 110px),radial-gradient(ellipse at 60% 70%,rgba(35,71,155,.5),transparent 60%),linear-gradient(#041431,#020815)!important;padding:18px;}
+ .authPage::after {content:"";position:fixed;left:0;right:0;bottom:0;height:130px;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(255,92,13,.48),transparent 65%);}
+ .authCard {position:relative;z-index:2;backdrop-filter:blur(22px);padding:22px!important;}
+ .authCard::before {content:"✦  ✦  ✦"!important;font-size:13px!important;letter-spacing:18px!important;color:#76aaff!important;}
+}
+@media (prefers-reduced-motion:reduce){.app *{scroll-behavior:auto!important;}}
