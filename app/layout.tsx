@@ -1,5 +1,4 @@
 import "./globals.css";
-import "./halloween.css";
 import type { Metadata } from "next";
 
 const siteUrl = "https://veylonetworks2026.vercel.app";
