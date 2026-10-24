@@ -1,0 +1,17 @@
+/* Veylo Halloween 2026: decorative only, responsive and reduced-motion friendly */
+:root { --halloween-orange: #ff8b24; }
+body { background: radial-gradient(ellipse at 80% 7%, rgba(29,89,201,.22),transparent 42%), radial-gradient(ellipse at 8% 96%,rgba(122,47,159,.14),transparent 43%), #050b19; }
+body::before { content:""; pointer-events:none; position:fixed; inset:0; z-index:0; opacity:.28; background-image:radial-gradient(circle at 12% 18%,#a7cfff 1px,transparent 2px),radial-gradient(circle at 76% 9%,#a7cfff 1px,transparent 2px),radial-gradient(circle at 46% 36%,#a7cfff 1px,transparent 2px); background-size:310px 270px; }
+.authPage,.app,.loadingScreen { position:relative; isolation:isolate; }
+.authPage::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; background:radial-gradient(circle at 80% 18%,rgba(139,187,255,.42) 0 4%,rgba(52,112,216,.16) 7%,transparent 19%),linear-gradient(180deg,transparent 60%,rgba(12,35,72,.48)); }
+.authPage::after { content:"🎃"; position:fixed; left:3%; bottom:3%; font-size:clamp(55px,9vw,135px); filter:drop-shadow(0 0 23px rgba(255,112,15,.8)); pointer-events:none; animation:veyloPumpkin 4s ease-in-out infinite; }
+.authCard { background:rgba(7,16,37,.84); border:1px solid rgba(100,164,255,.35); box-shadow:0 16px 65px rgba(0,0,0,.4),0 0 35px rgba(38,108,240,.12); backdrop-filter:blur(22px); }
+.sidebar { background:linear-gradient(180deg,rgba(4,14,34,.97),rgba(8,11,27,.97)); border-right:1px solid rgba(79,140,255,.22); }
+.glass { border-color:rgba(85,146,245,.17); }
+.primary { box-shadow:0 0 20px rgba(9,123,255,.16); }
+.navButton:hover,.secondary:hover { border-color:rgba(255,139,36,.42); }
+.app::after { content:"🎃"; position:fixed; bottom:16px; left:14px; z-index:2; pointer-events:none; font-size:30px; filter:drop-shadow(0 0 10px rgba(255,118,21,.7)); }
+.authPage .authCard::before { content:"🦇  ✦  🦇"; display:block; text-align:right; letter-spacing:12px; color:#9bbfff; font-size:18px; opacity:.8; }
+@keyframes veyloPumpkin { 50% { transform:translateY(-7px); filter:drop-shadow(0 0 32px rgba(255,123,15,.95)); } }
+@media(max-width:700px) { .authPage::after { font-size:62px; left:0; bottom:0; opacity:.75; } .authCard { margin:16px; } .app::after { font-size:19px; left:auto; right:12px; bottom:75px; opacity:.65; } }
+@media(prefers-reduced-motion:reduce) { .authPage::after { animation:none; } }
