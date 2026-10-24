@@ -31,3 +31,20 @@
  .authCard::before {content:"✦  ✦  ✦"!important;font-size:13px!important;letter-spacing:18px!important;color:#76aaff!important;}
 }
 @media (prefers-reduced-motion:reduce){.app *{scroll-behavior:auto!important;}}
+
+/* Illustrated reference overlay: visible on mobile without intercepting taps */
+@media(max-width:768px){
+ body {background:#030b1e!important;}
+ body::before {content:""!important;position:fixed!important;inset:0!important;z-index:0!important;opacity:1!important;pointer-events:none!important;background:url('/veylo-halloween-mobile.svg') center center / cover no-repeat!important;}
+ .app {position:relative!important;isolation:isolate!important;background:transparent!important;}
+ .app::before {content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;pointer-events:none!important;background:url('/veylo-halloween-mobile.svg') center center / cover no-repeat!important;opacity:.9!important;}
+ .topbar {background:rgba(2,11,30,.81)!important;}
+ .content {background:transparent!important;}
+ .networkColumn,.veyloCleanFeed,.veyloDesktopNetworkGrid {background:transparent!important;}
+ .glass {background:linear-gradient(145deg,rgba(5,21,47,.90),rgba(2,12,32,.91))!important;backdrop-filter:blur(13px)!important;}
+ .mobileBottomNav {background:rgba(2,11,31,.94)!important;backdrop-filter:blur(18px)!important;}
+ .authPage {background:transparent!important;isolation:isolate!important;}
+ .authPage::before {content:""!important;position:fixed!important;inset:0!important;z-index:-2!important;background:url('/veylo-halloween-mobile.svg') center center / cover no-repeat!important;pointer-events:none!important;}
+ .authPage::after {content:none!important;}
+ .authCard {background:rgba(2,13,35,.88)!important;}
+}
